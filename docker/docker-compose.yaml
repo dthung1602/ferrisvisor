@@ -1,0 +1,67 @@
+services:
+  dev_host1:
+    build:
+      context: .
+    ports:
+      - "9001:9001"
+    volumes:
+      - type: bind
+        target: /etc/supervisor.d/host1.ini
+        source: supervisor.d/host1.ini
+    entrypoint: ["/entrypoint.sh"]
+    command: ["tail", "-f", "/dev/null"]
+  dev_host2:
+    build:
+      context: .
+    ports:
+      - "9001:9002"
+    volumes:
+      - type: bind
+        target: /etc/supervisor.d/host2.ini
+        source: supervisor.d/host2.ini
+    entrypoint: [ "/entrypoint.sh" ]
+    command: [ "tail", "-f", "/dev/null" ]
+  dev_host3:
+    build:
+      context: .
+    ports:
+      - "9001:9003"
+    volumes:
+      - type: bind
+        target: /etc/supervisor.d/host3.ini
+        source: supervisor.d/host3.ini
+    entrypoint: [ "/entrypoint.sh" ]
+    command: [ "tail", "-f", "/dev/null" ]
+  prod_host1:
+    build:
+      context: .
+    ports:
+      - "9001:7001"
+    volumes:
+      - type: bind
+        target: /etc/supervisor.d/host1.ini
+        source: supervisor.d/host1.ini
+    entrypoint: [ "/entrypoint.sh" ]
+    command: [ "tail", "-f", "/dev/null" ]
+  prod_host2:
+    build:
+      context: .
+    ports:
+      - "9001:7002"
+    volumes:
+      - type: bind
+        target: /etc/supervisor.d/host2.ini
+        source: supervisor.d/host2.ini
+    entrypoint: [ "/entrypoint.sh" ]
+    command: [ "tail", "-f", "/dev/null" ]
+  prod_host3:
+    build:
+      context: .
+    ports:
+      - "9001:7003"
+    volumes:
+      - type: bind
+        target: /etc/supervisor.d/host3.ini
+        source: supervisor.d/host3.ini
+    entrypoint: [ "/entrypoint.sh" ]
+    command: [ "tail", "-f", "/dev/null" ]
