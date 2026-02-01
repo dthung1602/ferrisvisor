@@ -6,6 +6,7 @@ COPY entrypoint.sh /entrypoint.sh
 COPY programs /app
 RUN chmod +x entrypoint.sh /app/*
 RUN mkdir /etc/supervisor.d
+ENV PYTHONUNBUFFERED=1
 
 ENTRYPOINT /entrypoint.sh
 CMD tail -f /dev/null
