@@ -1,7 +1,30 @@
+mod database;
+mod models;
+mod schema;
 mod supervisor;
+
+use diesel::QueryDsl;
+use diesel::prelude::*;
+use diesel_async::RunQueryDsl;
+
+use models::Host;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    let db = database::establish_connection().await?;
+    let mut conn = db.read_pool.get().await?;
+
+    let hosts: Vec<Host> = schema::host::table
+        .select(Host::as_select())
+        .load(&mut conn)
+        .await?;
+
+    println!("{:?}", hosts);
+
+    Ok(())
+}
+
+async fn test_rpc() -> anyhow::Result<()> {
     println!("Starting Supervisor RPC Client");
     let server = supervisor::Server::new("localhost", 9001, Some("user"), Some("123"));
     let res = server.get_api_version().await?;
