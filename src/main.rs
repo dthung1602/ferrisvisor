@@ -7,19 +7,51 @@ use diesel::QueryDsl;
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 
-use models::Host;
+use models::{Host, User};
+use crate::models::HasPassword;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let db = database::establish_connection().await?;
     let mut conn = db.read_pool.get().await?;
 
-    let hosts: Vec<Host> = schema::host::table
-        .select(Host::as_select())
-        .load(&mut conn)
-        .await?;
+    // let new_user = models::NewUser::new("admin@example.com", "123", true);
 
-    println!("{:?}", hosts);
+    // diesel::insert_into(schema::user::table)
+    //     .values(&new_user)
+    //     .execute(&mut conn)
+    //     .await?;
+
+    // let users: Vec<User> = schema::user::table
+    //     .select(User::as_select())
+    //     .load(&mut conn)
+    //     .await?;
+    //
+    // let res = users[0].verify_password("123");
+    // println!("{:?}", res);
+    // let res = users[0].verify_password("123sss");
+    // println!("{:?}", res);
+    //
+    // println!("{:?}", users);
+
+    // let host_obj = models::NewHost {
+    //     name: "dev_host1".to_string(),
+    //     port: 9001,
+    //     username: Some("user".to_string()),
+    //     password: Some("123".to_string()),
+    // };
+    //
+    // diesel::insert_into(schema::host::table)
+    //     .values(&host_obj)
+    //     .execute(&mut conn)
+    //     .await?;
+    //
+    // let hosts: Vec<Host> = schema::host::table
+    //     .select(Host::as_select())
+    //     .load(&mut conn)
+    //     .await?;
+    //
+    // println!("{:?}", hosts);
 
     Ok(())
 }

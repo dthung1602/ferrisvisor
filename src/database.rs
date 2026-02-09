@@ -1,5 +1,5 @@
 use diesel::prelude::*;
-use diesel_async::pooled_connection::deadpool::Pool;
+use diesel_async::pooled_connection::deadpool::{Object, Pool};
 use diesel_async::pooled_connection::AsyncDieselConnectionManager;
 use diesel_async::sync_connection_wrapper::SyncConnectionWrapper;
 use diesel_async::AsyncConnection;
@@ -8,7 +8,8 @@ use std::env;
 use std::sync::Arc;
 
 
-type AsyncSqliteConnection = SyncConnectionWrapper<SqliteConnection>;
+pub type AsyncSqliteConnection = SyncConnectionWrapper<SqliteConnection>;
+pub type ReadConnObj = Object<AsyncDieselConnectionManager<AsyncSqliteConnection>>;
 
 #[derive(Clone)]
 pub struct Db {
