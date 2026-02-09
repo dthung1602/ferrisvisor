@@ -28,7 +28,7 @@ diesel::table! {
         id -> Integer,
         user_id -> Integer,
         token -> Text,
-        expires_at -> Text,
+        expires_at -> TimestamptzSqlite,
     }
 }
 

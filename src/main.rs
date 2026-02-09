@@ -7,13 +7,38 @@ use diesel::QueryDsl;
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 
-use models::{Host, User};
-use crate::models::HasPassword;
+use crate::models::*;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let db = database::establish_connection().await?;
     let mut conn = db.read_pool.get().await?;
+
+    let new_permission = NewPermission::new(1, 1, "some_svc", false, true);
+
+    diesel::insert_into(schema::permission::table)
+        .values(&new_permission)
+        .execute(&mut conn)
+        .await?;
+
+    let perms: Vec<Permission> = schema::permission::table
+        .select(Permission::as_select())
+        .load(&mut conn)
+        .await?;
+    println!("{:?}", perms);
+
+    // let new_session = NewSession::new(1);
+    //
+    // diesel::insert_into(schema::session::table)
+    //     .values(&new_session)
+    //     .execute(&mut conn)
+    //     .await?;
+    //
+    // let sessions: Vec<Session> = schema::session::table
+    //     .select(Session::as_select())
+    //     .load(&mut conn)
+    //     .await?;
+    // println!("{:?}", sessions);
 
     // let new_user = models::NewUser::new("admin@example.com", "123", true);
 

@@ -21,6 +21,7 @@ pub async fn establish_connection() -> anyhow::Result<Db> {
     dotenv().ok();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
+    // todo make conn read only
     let manager = AsyncDieselConnectionManager::<AsyncSqliteConnection>::new(&database_url);
     let read_pool = Pool::builder(manager)
         .max_size(4)

@@ -1,7 +1,10 @@
+use argon2::password_hash::SaltString;
 use crate::schema;
 use argon2::PasswordVerifier;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, TimeDelta, Utc};
 use diesel::prelude::*;
+use rand_core::OsRng;
+use crate::schema::session::token;
 
 #[derive(Queryable, Selectable, Debug)]
 #[diesel(table_name = schema::host)]
@@ -109,13 +112,44 @@ impl NewUser {
     }
 }
 
+#[derive(Queryable, Selectable, Debug)]
+#[diesel(table_name = schema::session)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Session {
     pub id: i32,
     pub user_id: i32,
     pub token: String,
-    pub expires: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
 }
 
+#[derive(Insertable, Debug)]
+#[diesel(table_name = schema::session)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct NewSession {
+    pub user_id: i32,
+    pub token: String,
+    pub expires_at: DateTime<Utc>,
+}
+
+const SESSION_EXPIRE_TIMEDELTA: TimeDelta = Duration::days(7);
+
+impl NewSession {
+    pub fn new(user_id: i32) -> Self {
+        use rand_core::OsRng;
+
+        let salt: SaltString = SaltString::generate(&mut OsRng);
+        let expires_at = Utc::now() + SESSION_EXPIRE_TIMEDELTA;
+        Self {
+            user_id,
+            token: salt.to_string(),
+            expires_at,
+        }
+    }
+}
+
+#[derive(Queryable, Selectable, Debug)]
+#[diesel(table_name = schema::permission)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Permission {
     pub id: i32,
     pub user_id: i32,
@@ -123,4 +157,27 @@ pub struct Permission {
     pub service_name: String,
     pub can_view: bool,
     pub can_act: bool,
+}
+
+#[derive(Insertable, Debug)]
+#[diesel(table_name = schema::permission)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct NewPermission {
+    pub user_id: i32,
+    pub host_id: i32,
+    pub service_name: String,
+    pub can_view: bool,
+    pub can_act: bool,
+}
+
+impl NewPermission {
+    pub fn new(user_id: i32, host_id: i32, service_name: &str, can_view: bool, can_act: bool) -> Self {
+        Self {
+            user_id,
+            host_id,
+            service_name: service_name.to_string(),
+            can_view: can_view | can_act,
+            can_act,
+        }
+    }
 }
