@@ -1,137 +1,71 @@
-mod database;
+mod common;
+mod handlers;
 mod models;
 mod schema;
 mod supervisor;
 
-use diesel::QueryDsl;
-use diesel::prelude::*;
-use diesel_async::RunQueryDsl;
-
-use crate::models::*;
+use axum::Router;
+use axum::routing::post;
+use tower_http::trace::TraceLayer;
+use tracing_subscriber::EnvFilter;
+use crate::common::AppState;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let db = database::establish_connection().await?;
-    let mut conn = db.read_pool.get().await?;
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            EnvFilter::try_from_default_env()
+                .or_else(|_| EnvFilter::try_new("ferrisvisor=debug,tower_http=debug"))
+                .expect("Can't set up logging"),
+        )
+        .init();
 
-    let new_permission = NewPermission::new(1, 1, "some_svc", false, true);
+    let state = AppState::new().await?;
 
-    diesel::insert_into(schema::permission::table)
-        .values(&new_permission)
-        .execute(&mut conn)
-        .await?;
+    // TODO only dev
+    ensure_admin_user(state.clone()).await?;
 
-    let perms: Vec<Permission> = schema::permission::table
-        .select(Permission::as_select())
-        .load(&mut conn)
-        .await?;
-    println!("{:?}", perms);
+    let api_router = Router::new()
+        .route("/login", post(handlers::login))
+        .with_state(state);
 
-    // let new_session = NewSession::new(1);
-    //
-    // diesel::insert_into(schema::session::table)
-    //     .values(&new_session)
-    //     .execute(&mut conn)
-    //     .await?;
-    //
-    // let sessions: Vec<Session> = schema::session::table
-    //     .select(Session::as_select())
-    //     .load(&mut conn)
-    //     .await?;
-    // println!("{:?}", sessions);
+    let router = Router::new()
+        .nest("/api", api_router)
+        .layer(TraceLayer::new_for_http());
 
-    // let new_user = models::NewUser::new("admin@example.com", "123", true);
-
-    // diesel::insert_into(schema::user::table)
-    //     .values(&new_user)
-    //     .execute(&mut conn)
-    //     .await?;
-
-    // let users: Vec<User> = schema::user::table
-    //     .select(User::as_select())
-    //     .load(&mut conn)
-    //     .await?;
-    //
-    // let res = users[0].verify_password("123");
-    // println!("{:?}", res);
-    // let res = users[0].verify_password("123sss");
-    // println!("{:?}", res);
-    //
-    // println!("{:?}", users);
-
-    // let host_obj = models::NewHost {
-    //     name: "dev_host1".to_string(),
-    //     port: 9001,
-    //     username: Some("user".to_string()),
-    //     password: Some("123".to_string()),
-    // };
-    //
-    // diesel::insert_into(schema::host::table)
-    //     .values(&host_obj)
-    //     .execute(&mut conn)
-    //     .await?;
-    //
-    // let hosts: Vec<Host> = schema::host::table
-    //     .select(Host::as_select())
-    //     .load(&mut conn)
-    //     .await?;
-    //
-    // println!("{:?}", hosts);
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
+        .await
+        .expect("Cannot bind to port 3000");
+    axum::serve(listener, router)
+        .await
+        .expect("Cannot start server");
 
     Ok(())
 }
 
-async fn test_rpc() -> anyhow::Result<()> {
-    println!("Starting Supervisor RPC Client");
-    let server = supervisor::Server::new("localhost", 9001, Some("user"), Some("123"));
-    let res = server.get_api_version().await?;
-    println!("{:?}", res);
-    // let res = server.get_supervisor_version().await?;
-    // println!("{:?}", res);
-    // let res = server.get_state().await?;
-    // println!("{:?}", res);
-    // let res = server.get_pid().await?;
-    // println!("{:?}", res);
-    // let res = server.clear_log().await?;
-    // println!("{:?}", res);
-    // let res = server.read_log(100, 100).await?;
-    // println!("{:?}", res);
-    // let res = server.shutdown().await?;
-    // println!("{:?}", res);
-    // let res = server.restart().await?;
-    // println!("{:?}", res);
-    // let res = server.get_pid().await?;
-    // println!("{:?}", res);
-    // let res = server.get_all_process_info().await?;
-    // println!("{:?}", res);
-    // let res = server.get_process_info("group_normal:normal1").await?;
-    // println!("{:?}", res);
-    // let res = server.get_all_config_info().await?;
-    // println!("{:?}", res);
-    // let res = server.read_process_stdout_log("group_normal:normal1", 100, 100).await?;
-    // println!("{:?}", res);
-    // let res = server.tail_process_stdout_log("group_normal:normal1", 500, 100).await?;
-    // println!("{:?}", res);
-    // let res = server.start_process("group_normal:normal1", true).await?;
-    // println!("{:?}", res);
-    // let res = server.start_all_processes(true).await?;
-    // println!("{:?}", res);
-    // let res = server.stop_process("group_normal:normal1", true).await?;
-    // println!("{:?}", res);
-    // let res = server.stop_all_processes(true).await?;
-    // println!("{:?}", res);
-    // let res = server.stop_process_group("group_normal", true).await?;
-    // println!("{:?}", res);
-    // let res = server.signal_process("group_normal:normal1", "15").await?;
-    // println!("{:?}", res);
-    // let res = server.signal_process_group("group_normal", "15").await?;
-    // println!("{:?}", res);
-    // let res = server.signal_all_processes( "15").await?;
-    // println!("{:?}", res);
-    // let res = server.send_process_stdin("group_normal:normal1", "TEST TEST HELLOO").await?;
-    // println!("{:?}", res);
-    // let res = server.reload_config().await?;
-    // println!("{:?}", res);
+
+async fn ensure_admin_user(app_state: AppState) -> anyhow::Result<()> {
+    use schema::user::dsl::*;
+    use diesel::dsl::{select, exists};
+    use diesel::prelude::*;
+    use diesel::QueryDsl;
+    use crate::models::NewUser;
+
+    let mut conn = app_state.write_conn.get().await?;
+
+    let new_user = NewUser::new("admin@example.com", "test123", true);
+
+    let select_statement = select(exists(user.filter(email.eq(&new_user.email))));
+    let admin_exist: bool = diesel_async::RunQueryDsl::get_result(select_statement, &mut conn).await?;
+
+    if admin_exist {
+        println!("Admin user already exists");
+        return Ok(());
+    }
+
+    println!("Creating admin user {:?}", new_user);
+    let insert_statement = diesel::insert_into(schema::user::table).values(&new_user);
+    diesel_async::RunQueryDsl::execute(insert_statement, &mut conn).await?;
 
     Ok(())
 }

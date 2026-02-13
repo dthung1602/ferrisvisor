@@ -1,10 +1,9 @@
-use argon2::password_hash::SaltString;
 use crate::schema;
 use argon2::PasswordVerifier;
+use argon2::password_hash::SaltString;
 use chrono::{DateTime, Duration, TimeDelta, Utc};
 use diesel::prelude::*;
-use rand_core::OsRng;
-use crate::schema::session::token;
+use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Selectable, Debug)]
 #[diesel(table_name = schema::host)]
@@ -112,6 +111,21 @@ impl NewUser {
     }
 }
 
+#[derive(Debug, Deserialize)]
+pub struct LoginForm {
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct AuthenticatedUser {
+    pub email: String,
+    pub is_admin: bool,
+    pub token: String,
+    pub expires_at: DateTime<Utc>,
+}
+
+
 #[derive(Queryable, Selectable, Debug)]
 #[diesel(table_name = schema::session)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -171,7 +185,13 @@ pub struct NewPermission {
 }
 
 impl NewPermission {
-    pub fn new(user_id: i32, host_id: i32, service_name: &str, can_view: bool, can_act: bool) -> Self {
+    pub fn new(
+        user_id: i32,
+        host_id: i32,
+        service_name: &str,
+        can_view: bool,
+        can_act: bool,
+    ) -> Self {
         Self {
             user_id,
             host_id,
