@@ -5,9 +5,11 @@ use crate::schema;
 use axum::Json;
 use axum::extract::State;
 use axum::http::StatusCode;
+use axum_extra::extract::cookie::CookieJar;
 use diesel::QueryDsl;
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
+use tracing::log::__private_api::log;
 
 #[axum::debug_handler]
 pub async fn login(
@@ -52,4 +54,18 @@ pub async fn login(
     };
 
     (StatusCode::OK, Json(Some(user_obj)))
+}
+
+const LOGIN_COOKIE_NAME: &'static str = "session_token";
+
+#[axum::debug_handler]
+pub async fn logout(State(state): State<AppState>, cookie_jar: CookieJar) {
+    if let Some(login_cookie) = cookie_jar.get(LOGIN_COOKIE_NAME) {
+        let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+        let match_token = schema::session::token.eq(login_cookie.value());
+        diesel::delete(schema::session::table.filter(match_token))
+            .execute(&mut read_conn)
+            .await
+            .unwrap();
+    }
 }

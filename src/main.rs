@@ -27,6 +27,7 @@ async fn main() -> anyhow::Result<()> {
 
     let api_router = Router::new()
         .route("/login", post(handlers::login))
+        .route("/logout", post(handlers::logout))
         .with_state(state);
 
     let router = Router::new()
