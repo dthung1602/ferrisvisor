@@ -5,7 +5,7 @@ mod schema;
 mod supervisor;
 
 use axum::Router;
-use axum::routing::post;
+use axum::routing::{post, get};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::EnvFilter;
 use crate::common::AppState;
@@ -26,8 +26,9 @@ async fn main() -> anyhow::Result<()> {
     ensure_admin_user(state.clone()).await?;
 
     let api_router = Router::new()
-        .route("/login", post(handlers::login))
-        .route("/logout", post(handlers::logout))
+        .route("/login", post(handlers::auth::login))
+        .route("/logout", post(handlers::auth::logout))
+        .route("/host", get(handlers::host::list).post(handlers::host::create))
         .with_state(state);
 
     let router = Router::new()

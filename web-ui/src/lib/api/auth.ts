@@ -5,8 +5,8 @@ export type LoginResult = {
   expires_at: string;
 };
 
-export async function login(email: string, password: string): Promise<LoginResult> {
-  const resp = await fetch(`/api/login`, {
+async function login(email: string, password: string): Promise<LoginResult> {
+  const resp = await fetch("/api/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password })
@@ -21,8 +21,8 @@ export async function login(email: string, password: string): Promise<LoginResul
   return (await resp.json()) as LoginResult;
 }
 
-export async function logout() {
-  const resp = await fetch(`/api/logout`, { method: "POST" });
+async function logout() {
+  const resp = await fetch("/api/logout", { method: "POST" });
 
   if (!resp.ok) {
     const message = resp.status + " " + resp.statusText;
@@ -32,3 +32,5 @@ export async function logout() {
 
   return;
 }
+
+export default { login, logout };

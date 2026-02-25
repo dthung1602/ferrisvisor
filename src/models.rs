@@ -5,7 +5,7 @@ use chrono::{DateTime, Duration, TimeDelta, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Queryable, Selectable, Debug)]
+#[derive(Queryable, Selectable, Debug, Serialize)]
 #[diesel(table_name = schema::host)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Host {
@@ -18,7 +18,7 @@ pub struct Host {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Insertable, Debug)]
+#[derive(Insertable, Debug, Deserialize)]
 #[diesel(table_name = schema::host)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct NewHost {

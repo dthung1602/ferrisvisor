@@ -11,15 +11,43 @@
   - [x] call supervisor update
   - [x] handle multiple hosts
 
-- [ ] Database
-  - [ ] host, service?
-  - [ ] user, permission
+- [x] Database
+  - [x] host, service?
+  - [x] user, permission
+  - [ ] group/environment
 
 - [ ] API
   - [ ] authentication 
-    - [ ] login
-    - [ ] logout
+    - [x] login
+    - [x] logout
+    - [ ] get current user
     - [ ] password reset
   - [ ] supervisor: copy from above
+  - [ ] admin page
+    - [ ] host management
+    - [ ] group/env management
+    - [ ] user management
+    - [ ] permission management
 
 - [ ] WebUI
+  - [ ] navbar / menu
+  - [ ] footer
+  - [x] login
+  - [ ] reset password
+  - [ ] admin page
+    - [ ] host management
+      - [ ] list
+      - [ ] add
+      - [ ] delete
+      - [ ] edit
+    - [ ] group/env management
+      - [ ] list
+      - [ ] add
+      - [ ] delete
+    - [ ] user management
+      - [ ] list
+      - [ ] add
+      - [ ] delete
+      - [ ] edit
+      - [ ] reset?/change? password
+      - [ ] assign/remove permission
