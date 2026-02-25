@@ -4,11 +4,11 @@ mod models;
 mod schema;
 mod supervisor;
 
+use crate::common::AppState;
 use axum::Router;
-use axum::routing::{post, get};
+use axum::routing::{get, post};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::EnvFilter;
-use crate::common::AppState;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -28,7 +28,13 @@ async fn main() -> anyhow::Result<()> {
     let api_router = Router::new()
         .route("/login", post(handlers::auth::login))
         .route("/logout", post(handlers::auth::logout))
-        .route("/host", get(handlers::host::list).post(handlers::host::create))
+        .route(
+            "/host",
+            get(handlers::host::list)
+                .post(handlers::host::create)
+                .put(handlers::host::update),
+        )
+        .route("/host/{id}", get(handlers::host::get))
         .with_state(state);
 
     let router = Router::new()
@@ -45,20 +51,20 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-
 async fn ensure_admin_user(app_state: AppState) -> anyhow::Result<()> {
-    use schema::user::dsl::*;
-    use diesel::dsl::{select, exists};
-    use diesel::prelude::*;
-    use diesel::QueryDsl;
     use crate::models::NewUser;
+    use diesel::QueryDsl;
+    use diesel::dsl::{exists, select};
+    use diesel::prelude::*;
+    use schema::user::dsl::*;
 
     let mut conn = app_state.write_conn.get().await?;
 
     let new_user = NewUser::new("admin@example.com", "test123", true);
 
     let select_statement = select(exists(user.filter(email.eq(&new_user.email))));
-    let admin_exist: bool = diesel_async::RunQueryDsl::get_result(select_statement, &mut conn).await?;
+    let admin_exist: bool =
+        diesel_async::RunQueryDsl::get_result(select_statement, &mut conn).await?;
 
     if admin_exist {
         println!("Admin user already exists");

@@ -8,13 +8,19 @@
   let hosts: Host[] = $state([]);
 
   $effect(() => {
-    api.host.getHosts().then((fetchedHosts: Host[]) => {
+    api.host.list().then((fetchedHosts: Host[]) => {
       hosts = fetchedHosts;
     });
   });
 
   function goToNewHostPage() {
     goto(resolve("/admin/hosts/new"));
+  }
+
+  function goToEditHostPage(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const hostId = target.dataset.id;
+    goto(resolve(`/admin/hosts/edit/${hostId}`));
   }
 </script>
 
@@ -35,7 +41,7 @@
           <td>{host.name}</td>
           <td>{host.port}</td>
           <td class="text-right">
-            <button type="button" class="btn preset-filled-secondary-500">Edit</button>
+            <button data-id={host.id} onclick={goToEditHostPage} type="button" class="btn preset-filled-secondary-500">Edit</button>
             <button type="button" class="btn preset-filled-error-500">Delete</button>
           </td>
         </tr>
