@@ -24,8 +24,8 @@
     - [ ] password reset
   - [ ] supervisor: copy from above
   - [ ] admin page
-    - [ ] host management
-    - [ ] group/env management
+    - [x] host management
+    - [x] group management
     - [ ] user management
     - [ ] permission management
 
@@ -35,15 +35,16 @@
   - [x] login
   - [ ] reset password
   - [ ] admin page
-    - [ ] host management
+    - [x] host management
+      - [x] list
+      - [x add
+      - [x] delete
+      - [x] edit
+    - [ ] group management
       - [ ] list
       - [ ] add
       - [ ] delete
       - [ ] edit
-    - [ ] group/env management
-      - [ ] list
-      - [ ] add
-      - [ ] delete
     - [ ] user management
       - [ ] list
       - [ ] add

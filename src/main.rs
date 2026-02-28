@@ -30,11 +30,20 @@ async fn main() -> anyhow::Result<()> {
         .route("/logout", post(handlers::auth::logout))
         .route(
             "/host",
-            get(handlers::host::list)
-                .post(handlers::host::create)
-                .put(handlers::host::update),
+            get(handlers::host::list).post(handlers::host::create),
         )
-        .route("/host/{id}", get(handlers::host::get))
+        .route(
+            "/host/{id}",
+            get(handlers::host::get).put(handlers::host::update),
+        )
+        .route(
+            "/group",
+            get(handlers::group::list).post(handlers::group::create),
+        )
+        .route(
+            "/group/{id}",
+            get(handlers::group::get).put(handlers::group::update),
+        )
         .with_state(state);
 
     let router = Router::new()

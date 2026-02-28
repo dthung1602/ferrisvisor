@@ -1,15 +1,31 @@
+CREATE TABLE `group`
+(
+    id          INTEGER  NOT NULL PRIMARY KEY,
+    name        TEXT     NOT NULL,
+    description TEXT     NOT NULL,
+    created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX idx_group_name on `group` (name);
+
 CREATE TABLE host
 (
     id         INTEGER  NOT NULL PRIMARY KEY,
+    group_id   INTEGER  NOT NULL,
     name       TEXT     NOT NULL,
+    hostname   TEXT     NOT NULL,
     port       INTEGER  NOT NULL,
     username   TEXT,
     password   TEXT,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (group_id) REFERENCES `group` (id) ON DELETE CASCADE
 );
 
-CREATE UNIQUE INDEX idx_host_name_port ON host (name, port);
+CREATE UNIQUE INDEX idx_host_group_name on host (group_id, name);
+CREATE UNIQUE INDEX idx_host_host_port ON host (hostname, port);
 
 CREATE TABLE user
 (

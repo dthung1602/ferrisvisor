@@ -44,8 +44,7 @@ pub async fn establish_connection() -> anyhow::Result<Db> {
         .build()
         .expect("Failed to create pool.");
 
-    let manager =
-        AsyncDieselConnectionManager::<AsyncSqliteConnection>::new(&database_url);
+    let manager = AsyncDieselConnectionManager::<AsyncSqliteConnection>::new(&database_url);
     let write_conn = Pool::builder(manager)
         .max_size(1)
         .build()

@@ -1,5 +1,5 @@
 use crate::common::AppState;
-use crate::models::{Host, NewHost, UpdateHost};
+use crate::models::{Host, NewHost};
 use crate::schema;
 use diesel::QueryDsl;
 use diesel::prelude::*;
@@ -7,6 +7,7 @@ use diesel::prelude::*;
 use axum::Json;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
+use chrono::Utc;
 use diesel_async::RunQueryDsl;
 
 #[axum::debug_handler]
@@ -57,17 +58,21 @@ pub async fn create(
 #[axum::debug_handler]
 pub async fn update(
     State(state): State<AppState>,
-    Json(host_data): Json<UpdateHost>,
+    Path(host_id): Path<i32>,
+    Json(host_data): Json<NewHost>,
 ) -> (StatusCode, Json<Host>) {
     use crate::schema::host::dsl::*;
     let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
 
-    let updated_host: Host = diesel::update(host.filter(id.eq(host_data.id)))
+    let updated_host: Host = diesel::update(host.filter(id.eq(host_id)))
         .set((
+            group_id.eq(host_data.group_id),
             name.eq(host_data.name),
+            hostname.eq(host_data.hostname),
             port.eq(host_data.port),
             username.eq(host_data.username),
             password.eq(host_data.password),
+            updated_at.eq(Utc::now()),
         ))
         .get_result(&mut read_conn)
         .await

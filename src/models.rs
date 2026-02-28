@@ -6,11 +6,32 @@ use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Selectable, Debug, Serialize, Deserialize)]
+#[diesel(table_name = schema::group)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct Group {
+    pub id: i32,
+    pub name: String,
+    pub description: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Insertable, Debug, Deserialize)]
+#[diesel(table_name = schema::group)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct NewGroup {
+    pub name: String,
+    pub description: String,
+}
+
+#[derive(Queryable, Selectable, Debug, Serialize, Deserialize)]
 #[diesel(table_name = schema::host)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Host {
     pub id: i32,
+    pub group_id: i32,
     pub name: String,
+    pub hostname: String,
     pub port: i32,
     pub username: Option<String>,
     pub password: Option<String>,
@@ -22,16 +43,9 @@ pub struct Host {
 #[diesel(table_name = schema::host)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct NewHost {
+    pub group_id: i32,
     pub name: String,
-    pub port: i32,
-    pub username: Option<String>,
-    pub password: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct UpdateHost {
-    pub id: i32,
-    pub name: String,
+    pub hostname: String,
     pub port: i32,
     pub username: Option<String>,
     pub password: Option<String>,
@@ -133,7 +147,6 @@ pub struct AuthenticatedUser {
     pub token: String,
     pub expires_at: DateTime<Utc>,
 }
-
 
 #[derive(Queryable, Selectable, Debug)]
 #[diesel(table_name = schema::session)]
