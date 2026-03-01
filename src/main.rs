@@ -34,7 +34,9 @@ async fn main() -> anyhow::Result<()> {
         )
         .route(
             "/host/{id}",
-            get(handlers::host::get).put(handlers::host::update),
+            get(handlers::host::get)
+                .put(handlers::host::update)
+                .delete(handlers::host::delete),
         )
         .route(
             "/group",
@@ -42,7 +44,9 @@ async fn main() -> anyhow::Result<()> {
         )
         .route(
             "/group/{id}",
-            get(handlers::group::get).put(handlers::group::update),
+            get(handlers::group::get)
+                .put(handlers::group::update)
+                .delete(handlers::group::delete),
         )
         .with_state(state);
 

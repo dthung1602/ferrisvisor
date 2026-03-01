@@ -1,6 +1,8 @@
 export type Host = {
   id: number;
+  groupId: number;
   name: string;
+  hostname: string;
   port: number;
   username: string;
   password: string;
@@ -9,8 +11,6 @@ export type Host = {
 }
 
 export type NewHost = Omit<Host, "id" | "created_at" | "updated_at">;
-
-export type UpdateHost = Omit<Host, "created_at" | "updated_at">;
 
 
 async function list(): Promise<Host[]> {
@@ -25,8 +25,8 @@ async function list(): Promise<Host[]> {
   return (await resp.json()) as Host[];
 }
 
-async function get(id: number): Promise<Host> {
-  const resp = await fetch(`/api/host/${id}`);
+async function get(hostId: number): Promise<Host> {
+  const resp = await fetch(`/api/host/${hostId}`);
 
   if (!resp.ok) {
     const message = resp.status + " " + resp.statusText;
@@ -53,8 +53,8 @@ async function create(host: NewHost): Promise<Host> {
   return (await resp.json()) as Host;
 }
 
-async function update(host: UpdateHost): Promise<Host> {
-  const resp = await fetch("/api/host", {
+async function update(hostId: number, host: NewHost): Promise<Host> {
+  const resp = await fetch(`/api/host/${hostId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(host)
