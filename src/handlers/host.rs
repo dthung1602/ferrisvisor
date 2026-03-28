@@ -80,3 +80,16 @@ pub async fn update(
 
     (StatusCode::OK, Json(updated_host))
 }
+
+#[axum::debug_handler]
+pub async fn delete(State(state): State<AppState>, Path(host_id): Path<i32>) -> StatusCode {
+    use crate::schema::host::dsl::*;
+    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+
+    diesel::delete(host.filter(id.eq(host_id)))
+        .execute(&mut read_conn)
+        .await
+        .unwrap();
+
+    StatusCode::OK
+}

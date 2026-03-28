@@ -1,34 +1,42 @@
 <script lang="ts">
-  import HostForm from "../../HostForm.svelte";
-  import { page } from '$app/state';
-  import type { NewHost, UpdateHost } from "$lib/api/host";
-  import { api } from "$lib";
+  import EntityForm from "$lib/components/EntityForm.svelte";
+  import type { Host } from "$lib/api/host";
+  import { host } from "$lib/api";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
+  import { page } from "$app/state";
+  import { omit } from "lodash";
+
+  type NewHost = Omit<Host, "id" | "created_at" | "updated_at">;
 
   const hostId = parseInt(page.params.id || "0");
 
-  let defaultHostValue = $state({
+  let error = $state("");
+
+  async function onSubmit(formData: NewHost) {
+    try {
+      await host.update(hostId, formData);
+      await goto(resolve("/admin/hosts"));
+    } catch (e) {
+      console.error(e);
+      error = e + "";
+    }
+  }
+
+  let formData: NewHost = $state({
+    group_id: 0,
     name: "",
+    hostname: "",
     port: 0,
     username: "",
-    password: ""
-  })
+    password: "",
+  });
 
   $effect(() => {
-    api.host.get(hostId).then(host => {
-      console.log("Got host", host);
-      defaultHostValue = host;
+    host.get(hostId).then((hostData) => {
+      formData = omit(hostData, ["id", "created_at", "updated_at"]);
     })
   })
-
-  async function onSubmit(newHost: NewHost) {
-    const updateHost: UpdateHost = { ...newHost, id: hostId };
-    console.log("Edit host", updateHost);
-    await api.host.update(updateHost);
-    await goto(resolve("/admin/hosts"));
-  }
 </script>
 
-<h1>Edit Host</h1>
-<HostForm {onSubmit} {...defaultHostValue} />
+<EntityForm {formData} {error} {onSubmit} />

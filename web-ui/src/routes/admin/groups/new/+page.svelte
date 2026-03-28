@@ -1,18 +1,18 @@
 <script lang="ts">
   import EntityForm from "$lib/components/EntityForm.svelte";
-  import type { Host } from "$lib/api/host";
-  import { host } from "$lib/api";
+  import type { Group } from "$lib/api/group";
+  import { group } from "$lib/api";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
 
-  type NewHost = Omit<Host, "id" | "created_at" | "updated_at">;
+  type NewGroup = Omit<Group, "id" | "created_at" | "updated_at">;
 
   let error  = $state("");
 
-  async function onSubmit(formData: NewHost) {
+  async function onSubmit(formData: NewGroup) {
     try {
-      await host.create(formData);
-      await goto(resolve("/admin/hosts"));
+      await group.create(formData);
+      await goto(resolve("/admin/groups"));
     } catch (e) {
       console.error(e);
       error = e + ""
@@ -20,13 +20,9 @@
   }
 
   const formData = {
-    group_id: 0,
     name: "",
-    hostname: "",
-    port: 0,
-    username: "",
-    password: "",
-  } as NewHost;
+    description: ""
+  } as NewGroup;
 </script>
 
 <EntityForm
