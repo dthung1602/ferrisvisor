@@ -3,8 +3,8 @@ import type { Group } from "$lib/api/group";
 
 export type Entity = Host | Group;
 
-export type NewEntity = Omit<Entity, "id" | "created_at" | "updated_at">;
-
-export type AllowedFields<Obj, Type = string> = {
-  [K in keyof Obj]: Obj[K] extends Type ? K : never;
-}
+export type RelatedSelect<T> = {
+  listApi: () => Promise<T[]>;
+  idFunc: (thing: T) => number;
+  displayFunc: (thing: T) => string;
+};

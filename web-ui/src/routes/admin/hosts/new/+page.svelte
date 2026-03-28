@@ -1,5 +1,6 @@
 <script lang="ts">
   import EntityForm from "$lib/components/EntityForm.svelte";
+  import type { RelatedSelect } from "$lib/components/types";
   import type { Host } from "$lib/api/host";
   import { host } from "$lib/api";
   import { goto } from "$app/navigation";
@@ -27,10 +28,19 @@
     username: "",
     password: "",
   } as NewHost;
+
+  const relatedSelects = {
+    "group_id": {
+      listApi: host.list,
+      idFunc: (host: Host) => host.id,
+      displayFunc: (host: Host) => host.name
+    }
+  };
 </script>
 
 <EntityForm
   formData={formData}
+  relatedSelects={relatedSelects}
   error={error}
   onSubmit={onSubmit}
 />

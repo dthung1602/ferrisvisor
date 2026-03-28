@@ -1,7 +1,8 @@
 <script lang="ts">
   import EntityForm from "$lib/components/EntityForm.svelte";
   import type { Host } from "$lib/api/host";
-  import { host } from "$lib/api";
+  import type { Group } from "$lib/api/group";
+  import { host, group } from "$lib/api";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
@@ -32,6 +33,14 @@
     password: "",
   });
 
+  const relatedSelects = {
+    "group_id": {
+      listApi: group.list,
+      idFunc: (g: Group) => g.id,
+      displayFunc: (g: Group) => g.name
+    }
+  };
+
   $effect(() => {
     host.get(hostId).then((hostData) => {
       formData = omit(hostData, ["id", "created_at", "updated_at"]);
@@ -39,4 +48,4 @@
   })
 </script>
 
-<EntityForm {formData} {error} {onSubmit} />
+<EntityForm {formData} {error} {onSubmit} {relatedSelects} />
