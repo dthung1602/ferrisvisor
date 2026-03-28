@@ -1,8 +1,8 @@
 <script lang="ts">
   import EntityForm from "$lib/components/EntityForm.svelte";
-  import type { RelatedSelect } from "$lib/components/types";
   import type { Host } from "$lib/api/host";
-  import { host } from "$lib/api";
+  import type { Group } from "$lib/api/group";
+  import { group, host } from "$lib/api";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
 
@@ -31,9 +31,9 @@
 
   const relatedSelects = {
     "group_id": {
-      listApi: host.list,
-      idFunc: (host: Host) => host.id,
-      displayFunc: (host: Host) => host.name
+      listApi: group.list,
+      idFunc: (g: Group) => g.id,
+      displayFunc: (g: Group) => g.name
     }
   };
 </script>

@@ -35,4 +35,4 @@
   })
 </script>
 
-<EntityForm {formData} {error} {onSubmit} />
+<EntityForm {formData} {error} {onSubmit} relatedSelects={{}} actionBtnText="Update" />

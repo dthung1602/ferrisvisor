@@ -9,6 +9,7 @@
 
   type API = {
     list: () => Promise<T[]>;
+    remove: (id: number) => Promise<void>;
   };
 
   type Props = {
@@ -24,11 +25,13 @@
 
   let entities: T[] = $state([]);
 
-  $effect(() => {
+  function fetchEntities() {
     api.list().then((fetchedEntities: T[]) => {
       entities = fetchedEntities;
     });
-  });
+  }
+
+  $effect(fetchEntities);
 
   function goToNewPage() {
     goto(resolve(`/admin/${entityPath}/new`));
@@ -38,6 +41,14 @@
     const target = event.target as HTMLElement;
     const entityId = target.dataset.id;
     goto(resolve(`/admin/${entityPath}/edit/${entityId}`));
+  }
+
+  function removeEntity(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const entityId = parseInt(target.dataset.id as string);
+    if (confirm(`Are you sure you want to remove ${entityName} with id ${entityId} ?`)) {
+      api.remove(entityId).then(fetchEntities)
+    }
   }
 </script>
 
@@ -58,10 +69,12 @@
             <td>{entity[field]}</td>
           {/each}
           <td class="text-right">
-            <button data-id={entity.id} onclick={goToEditPage} type="button" class="btn preset-filled-secondary-500"
-              >Edit</button
-            >
-            <button type="button" class="btn preset-filled-error-500">Delete</button>
+            <button data-id={entity.id} onclick={goToEditPage} type="button" class="btn preset-filled-secondary-500">
+              Edit
+            </button>
+            <button data-id={entity.id} onclick={removeEntity} type="button" class="btn preset-filled-error-500">
+              Delete
+            </button>
           </td>
         </tr>
       {/each}

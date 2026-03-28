@@ -48,4 +48,4 @@
   })
 </script>
 
-<EntityForm {formData} {error} {onSubmit} {relatedSelects} />
+<EntityForm {formData} {error} {onSubmit} {relatedSelects} actionBtnText="Update" />

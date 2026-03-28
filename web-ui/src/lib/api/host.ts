@@ -69,4 +69,16 @@ async function update(hostId: number, host: NewHost): Promise<Host> {
   return (await resp.json()) as Host;
 }
 
-export default { list, get, create, update };
+async function remove(hostId: number): Promise<void> {
+  const resp = await fetch(`/api/host/${hostId}`, {
+    method: "DELETE",
+  });
+
+  if (!resp.ok) {
+    const message = resp.status + " " + resp.statusText;
+    console.error("Got response " + message, await resp.text());
+    throw new Error(message);
+  }
+}
+
+export default { list, get, create, update, remove };

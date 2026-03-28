@@ -7,6 +7,7 @@
   type Props = {
     formData: FormData;
     relatedSelects: Record<string, RelatedSelect<U>>;
+    actionBtnText?: string;
     error?: string;
     onSubmit: (formData: FormData) => Promise<void>;
   };
@@ -67,7 +68,9 @@
       {/if}
     </label>
   {/each}
-  <button onclick={handleSubmit} type="button" class="btn preset-filled-primary-500">Create</button>
+  <button onclick={handleSubmit} type="button" class="btn preset-filled-primary-500">
+    {prop.actionBtnText ? prop.actionBtnText : "Create"}
+  </button>
   {#if error}
     <p class="mt-1 text-sm text-error-500">{error}</p>
   {/if}
