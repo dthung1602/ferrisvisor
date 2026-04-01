@@ -6,63 +6,9 @@ mod supervisor;
 
 use crate::common::AppState;
 use axum::Router;
-use axum::routing::{get, post};
+use axum::routing::{get, post, put};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::EnvFilter;
-
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            EnvFilter::try_from_default_env()
-                .or_else(|_| EnvFilter::try_new("ferrisvisor=debug,tower_http=debug"))
-                .expect("Can't set up logging"),
-        )
-        .init();
-
-    let state = AppState::new().await?;
-
-    // TODO only dev
-    ensure_admin_user(state.clone()).await?;
-
-    let api_router = Router::new()
-        .route("/login", post(handlers::auth::login))
-        .route("/logout", post(handlers::auth::logout))
-        .route(
-            "/host",
-            get(handlers::host::list).post(handlers::host::create),
-        )
-        .route(
-            "/host/{id}",
-            get(handlers::host::get)
-                .put(handlers::host::update)
-                .delete(handlers::host::delete),
-        )
-        .route(
-            "/group",
-            get(handlers::group::list).post(handlers::group::create),
-        )
-        .route(
-            "/group/{id}",
-            get(handlers::group::get)
-                .put(handlers::group::update)
-                .delete(handlers::group::delete),
-        )
-        .with_state(state);
-
-    let router = Router::new()
-        .nest("/api", api_router)
-        .layer(TraceLayer::new_for_http());
-
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
-        .await
-        .expect("Cannot bind to port 3000");
-    axum::serve(listener, router)
-        .await
-        .expect("Cannot start server");
-
-    Ok(())
-}
 
 async fn ensure_admin_user(app_state: AppState) -> anyhow::Result<()> {
     use crate::models::NewUser;
@@ -87,6 +33,73 @@ async fn ensure_admin_user(app_state: AppState) -> anyhow::Result<()> {
     println!("Creating admin user {:?}", new_user);
     let insert_statement = diesel::insert_into(schema::user::table).values(&new_user);
     diesel_async::RunQueryDsl::execute(insert_statement, &mut conn).await?;
+
+    Ok(())
+}
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            EnvFilter::try_from_default_env()
+                .or_else(|_| EnvFilter::try_new("ferrisvisor=debug,tower_http=debug"))
+                .expect("Can't set up logging"),
+        )
+        .init();
+
+    let state = AppState::new().await?;
+
+    // TODO only dev
+    ensure_admin_user(state.clone()).await?;
+
+    let admin_middleware = axum::middleware::from_fn(handlers::auth::admin_middleware);
+
+    let api_router = Router::new()
+        .route(
+            "/host",
+            post(handlers::host::create)
+                .route_layer(admin_middleware.clone())
+                .get(handlers::host::list),
+        )
+        .route(
+            "/host/{id}",
+            put(handlers::host::update)
+                .delete(handlers::host::delete)
+                .route_layer(admin_middleware.clone())
+                .get(handlers::host::get),
+        )
+        .route(
+            "/group",
+            post(handlers::group::create)
+                .route_layer(admin_middleware.clone())
+                .get(handlers::group::list),
+        )
+        .route(
+            "/group/{id}",
+            put(handlers::group::update)
+                .delete(handlers::group::delete)
+                .route_layer(admin_middleware)
+                .get(handlers::group::get),
+        )
+        .route_layer(axum::middleware::from_fn_with_state(
+            state.clone(),
+            handlers::auth::auth_middleware,
+        ))
+        .route("/login", post(handlers::auth::login))
+        .route("/logout", post(handlers::auth::logout))
+        .route("/me", get(handlers::auth::get_current_user_with_permission))
+        .with_state(state);
+
+    let router = Router::new()
+        .nest("/api", api_router)
+        .layer(TraceLayer::new_for_http());
+
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
+        .await
+        .expect("Cannot bind to port 3000");
+    axum::serve(listener, router)
+        .await
+        .expect("Cannot start server");
 
     Ok(())
 }

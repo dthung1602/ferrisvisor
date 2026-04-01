@@ -14,7 +14,7 @@
 - [x] Database
   - [x] host, service?
   - [x] user, permission
-  - [ ] group/environment
+  - [x] group/environment
 
 - [ ] API
   - [ ] authentication 
@@ -40,11 +40,11 @@
       - [x add
       - [x] delete
       - [x] edit
-    - [ ] group management
-      - [ ] list
-      - [ ] add
-      - [ ] delete
-      - [ ] edit
+    - [x] group management
+      - [x] list
+      - [x] add
+      - [x] delete
+      - [x] edit
     - [ ] user management
       - [ ] list
       - [ ] add

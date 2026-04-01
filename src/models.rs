@@ -82,7 +82,7 @@ pub trait HasPassword {
     }
 }
 
-#[derive(Queryable, Selectable, Debug)]
+#[derive(Queryable, Selectable, Debug, Clone)]
 #[diesel(table_name = schema::user)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct User {
@@ -148,7 +148,7 @@ pub struct AuthenticatedUser {
     pub expires_at: DateTime<Utc>,
 }
 
-#[derive(Queryable, Selectable, Debug)]
+#[derive(Queryable, Selectable, Debug, Serialize, Clone)]
 #[diesel(table_name = schema::session)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Session {
@@ -183,7 +183,7 @@ impl NewSession {
     }
 }
 
-#[derive(Queryable, Selectable, Debug)]
+#[derive(Queryable, Selectable, Debug, Serialize, Clone)]
 #[diesel(table_name = schema::permission)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Permission {
@@ -222,4 +222,16 @@ impl NewPermission {
             can_act,
         }
     }
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct UserWithPermissions {
+    pub id: i32,
+    pub email: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub last_login: Option<DateTime<Utc>>,
+    pub is_admin: bool,
+    pub session: Session,
+    pub permissions: Vec<Permission>,
 }
