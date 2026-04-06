@@ -78,8 +78,21 @@ async fn main() -> anyhow::Result<()> {
             "/group/{id}",
             put(handlers::group::update)
                 .delete(handlers::group::delete)
-                .route_layer(admin_middleware)
+                .route_layer(admin_middleware.clone())
                 .get(handlers::group::get),
+        )
+        .route(
+            "/user",
+            post(handlers::user::create)
+                .get(handlers::user::list)
+                .route_layer(admin_middleware.clone()),
+        )
+        .route(
+            "/user/{id}",
+            put(handlers::user::update)
+                .delete(handlers::user::delete)
+                .get(handlers::user::get)
+                .route_layer(admin_middleware),
         )
         .route_layer(axum::middleware::from_fn_with_state(
             state.clone(),

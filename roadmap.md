@@ -20,7 +20,7 @@
   - [ ] authentication 
     - [x] login
     - [x] logout
-    - [ ] get current user
+    - [x] get current user
     - [ ] password reset
   - [ ] supervisor: copy from above
   - [ ] admin page

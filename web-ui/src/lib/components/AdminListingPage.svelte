@@ -14,8 +14,8 @@
 
   type Props = {
     title: string;
-    entityName: "host" | "group";
-    entityPath: "hosts" | "groups";
+    entityName: "host" | "group" | "user";
+    entityPath: "hosts" | "groups" | "users";
     displayFields: F[];
     icon: typeof LucideIcon;
     api: API,

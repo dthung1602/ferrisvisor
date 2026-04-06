@@ -2,7 +2,7 @@
   import type { RelatedSelect } from "$lib/components/types";
   import { normalizedFieldNameToDisplay } from "$lib/string";
 
-  type FormData = Omit<T, "id" | "created_at" | "updated_at">;
+  type FormData = Omit<T, "id" | "created_at" | "updated_at" | "last_login">;
 
   type Props = {
     formData: FormData;

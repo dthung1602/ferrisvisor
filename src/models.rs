@@ -82,7 +82,7 @@ pub trait HasPassword {
     }
 }
 
-#[derive(Queryable, Selectable, Debug, Clone)]
+#[derive(Queryable, Selectable, Debug, Clone, Serialize)]
 #[diesel(table_name = schema::user)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct User {
@@ -104,7 +104,7 @@ impl HasPassword for User {
     }
 }
 
-#[derive(Insertable, Debug)]
+#[derive(Insertable, Debug, Deserialize)]
 #[diesel(table_name = schema::user)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct NewUser {
@@ -132,6 +132,12 @@ impl NewUser {
         user.set_password(password);
         user
     }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateUser {
+    pub email: String,
+    pub is_admin: bool,
 }
 
 #[derive(Debug, Deserialize)]
