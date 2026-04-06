@@ -137,7 +137,8 @@ pub async fn auth_middleware(
     mut request: Request,
     next: Next,
 ) -> Response {
-    let (status_code, Json(user_with_perms)) = get_current_user_with_permission(state, cookie_jar).await;
+    let (status_code, Json(user_with_perms)) =
+        get_current_user_with_permission(state, cookie_jar).await;
     if status_code != StatusCode::OK {
         return (status_code, Json(user_with_perms)).into_response();
     }

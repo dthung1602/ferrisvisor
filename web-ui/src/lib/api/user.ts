@@ -1,11 +1,11 @@
 export type User = {
   id: number;
   email: string;
-  is_admin: string;
+  is_admin: boolean;
   last_login: string;
   created_at: string;
   updated_at: string;
-}
+};
 
 export type NewUser = Omit<User, "id" | "created_at" | "updated_at" | "last_login">;
 
@@ -67,7 +67,7 @@ async function update(userId: number, user: NewUser): Promise<User> {
 
 async function remove(userId: number): Promise<void> {
   const resp = await fetch(`/api/user/${userId}`, {
-    method: "DELETE",
+    method: "DELETE"
   });
 
   if (!resp.ok) {

@@ -140,6 +140,35 @@ pub struct UpdateUser {
     pub is_admin: bool,
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct ResponseUser {
+    pub id: i32,
+    pub email: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub last_login: Option<DateTime<Utc>>,
+    pub is_admin: bool,
+}
+
+impl ResponseUser {
+    pub fn from_user(user: &User) -> Self {
+        Self {
+            id: user.id,
+            email: user.email.clone(),
+            created_at: user.created_at,
+            updated_at: user.updated_at,
+            last_login: user.last_login,
+            is_admin: user.is_admin,
+        }
+    }
+}
+
+impl Into<ResponseUser> for User {
+    fn into(self) -> ResponseUser {
+        ResponseUser::from_user(&self)
+    }
+}
+
 #[derive(Debug, Deserialize)]
 pub struct LoginForm {
     pub email: String,

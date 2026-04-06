@@ -31,8 +31,8 @@
   $effect(() => {
     group.get(groupId).then((groupData) => {
       formData = omit(groupData, ["id", "created_at", "updated_at"]);
-    })
-  })
+    });
+  });
 </script>
 
 <EntityForm {formData} {error} {onSubmit} relatedSelects={{}} actionBtnText="Update" />

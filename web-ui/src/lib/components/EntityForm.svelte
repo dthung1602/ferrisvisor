@@ -1,4 +1,4 @@
-<script lang="ts" generics="T extends Record<string, number|string>, U">
+<script lang="ts" generics="T extends Record<string, number|string|boolean>, U">
   import type { RelatedSelect } from "$lib/components/types";
   import { normalizedFieldNameToDisplay } from "$lib/string";
 
@@ -22,7 +22,7 @@
   let error = $derived(prop.error);
 
   function handleSubmit() {
-    if (Object.values(formData).some((v) => !v)) {
+    if (Object.values(formData).some((v) => v === "")) {
       error = "Please fill in all fields";
       return;
     }
@@ -31,24 +31,28 @@
   }
 
   // map from field -> select options
-  let relatedSelectData: Record<string, SelectOption[]> = $state(Object.fromEntries(
-    Object.keys(prop.relatedSelects || {}).map(fieldName => [fieldName, []])
-  ));
-
+  let relatedSelectData: Record<string, SelectOption[]> = $state(
+    Object.fromEntries(Object.keys(prop.relatedSelects || {}).map((fieldName) => [fieldName, []]))
+  );
 
   $effect(() => {
     Object.entries(prop.relatedSelects).forEach(([fieldName, { listApi, displayFunc, idFunc }]) => {
       listApi().then((things) => {
-        relatedSelectData[fieldName] = things.map(
-          (thing) =>
-            ({
-              id: idFunc(thing),
-              display: displayFunc(thing)
-            })
-        );
+        relatedSelectData[fieldName] = things.map((thing) => ({
+          id: idFunc(thing),
+          display: displayFunc(thing)
+        }));
       });
     });
   });
+
+  function getInputType(obj: FormData, key: string): "text" | "password" | "number" {
+    if (key.toLowerCase().includes("password")) {
+      return "password";
+    }
+    if (typeof obj[key] === "number") return "number";
+    return "text";
+  }
 </script>
 
 <form>
@@ -58,13 +62,15 @@
       {#if Object.hasOwn(relatedSelectData, key)}
         <select class="select" bind:value={formData[key]}>
           {#each relatedSelectData[key] as opt (opt.id)}
-            <option value="{opt.id}">
+            <option value={opt.id}>
               {opt.display}
             </option>
           {/each}
         </select>
+      {:else if typeof formData[key] === "boolean"}
+        <input class="checkbox" bind:checked={formData[key]} type="checkbox" />
       {:else}
-        <input class="input" bind:value={formData[key]} type={typeof formData[key] === "number" ? "number" : "text"} />
+        <input class="input" bind:value={formData[key]} type={getInputType(formData, key)} />
       {/if}
     </label>
   {/each}

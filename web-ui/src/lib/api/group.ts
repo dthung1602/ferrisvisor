@@ -4,7 +4,7 @@ export type Group = {
   description: string;
   created_at: string;
   updated_at: string;
-}
+};
 
 export type NewGroup = Omit<Group, "id" | "created_at" | "updated_at">;
 
@@ -66,7 +66,7 @@ async function update(groupId: number, group: NewGroup): Promise<Group> {
 
 async function remove(groupId: number): Promise<void> {
   const resp = await fetch(`/api/group/${groupId}`, {
-    method: "DELETE",
+    method: "DELETE"
   });
 
   if (!resp.ok) {

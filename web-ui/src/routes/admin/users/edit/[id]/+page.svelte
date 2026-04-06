@@ -25,14 +25,14 @@
 
   let formData: NewUser = $state({
     email: "",
-    is_admin: "",
+    is_admin: false
   });
 
   $effect(() => {
     user.get(userId).then((userData) => {
-      formData = omit(userData, ["id", "created_at", "updated_at"]);
-    })
-  })
+      formData = omit(userData, ["id", "created_at", "updated_at", "last_login"]);
+    });
+  });
 </script>
 
 <EntityForm {formData} {error} {onSubmit} relatedSelects={{}} actionBtnText="Update" />

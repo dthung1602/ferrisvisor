@@ -18,7 +18,7 @@
     entityPath: "hosts" | "groups" | "users";
     displayFields: F[];
     icon: typeof LucideIcon;
-    api: API,
+    api: API;
   };
 
   const { title, entityPath, entityName, icon: EntityIcon, displayFields, api }: Props = $props();
@@ -47,7 +47,7 @@
     const target = event.target as HTMLElement;
     const entityId = parseInt(target.dataset.id as string);
     if (confirm(`Are you sure you want to remove ${entityName} with id ${entityId} ?`)) {
-      api.remove(entityId).then(fetchEntities)
+      api.remove(entityId).then(fetchEntities);
     }
   }
 </script>

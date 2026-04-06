@@ -8,7 +8,7 @@
 
   type NewHost = Omit<Host, "id" | "created_at" | "updated_at">;
 
-  let error  = $state("");
+  let error = $state("");
 
   async function onSubmit(formData: NewHost) {
     try {
@@ -16,7 +16,7 @@
       await goto(resolve("/admin/hosts"));
     } catch (e) {
       console.error(e);
-      error = e + ""
+      error = e + "";
     }
   }
 
@@ -26,11 +26,11 @@
     hostname: "",
     port: 0,
     username: "",
-    password: "",
+    password: ""
   } as NewHost;
 
   const relatedSelects = {
-    "group_id": {
+    group_id: {
       listApi: group.list,
       idFunc: (g: Group) => g.id,
       displayFunc: (g: Group) => g.name
@@ -38,9 +38,4 @@
   };
 </script>
 
-<EntityForm
-  formData={formData}
-  relatedSelects={relatedSelects}
-  error={error}
-  onSubmit={onSubmit}
-/>
+<EntityForm {formData} {relatedSelects} {error} {onSubmit} />

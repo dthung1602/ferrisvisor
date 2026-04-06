@@ -8,10 +8,9 @@ export type Host = {
   password: string;
   created_at: string;
   updated_at: string;
-}
+};
 
 export type NewHost = Omit<Host, "id" | "created_at" | "updated_at">;
-
 
 async function list(): Promise<Host[]> {
   const resp = await fetch("/api/host");
@@ -71,7 +70,7 @@ async function update(hostId: number, host: NewHost): Promise<Host> {
 
 async function remove(hostId: number): Promise<void> {
   const resp = await fetch(`/api/host/${hostId}`, {
-    method: "DELETE",
+    method: "DELETE"
   });
 
   if (!resp.ok) {

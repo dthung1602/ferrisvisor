@@ -30,11 +30,11 @@
     hostname: "",
     port: 0,
     username: "",
-    password: "",
+    password: ""
   });
 
   const relatedSelects = {
-    "group_id": {
+    group_id: {
       listApi: group.list,
       idFunc: (g: Group) => g.id,
       displayFunc: (g: Group) => g.name
@@ -44,8 +44,8 @@
   $effect(() => {
     host.get(hostId).then((hostData) => {
       formData = omit(hostData, ["id", "created_at", "updated_at"]);
-    })
-  })
+    });
+  });
 </script>
 
 <EntityForm {formData} {error} {onSubmit} {relatedSelects} actionBtnText="Update" />

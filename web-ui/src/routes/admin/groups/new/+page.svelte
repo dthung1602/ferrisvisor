@@ -7,7 +7,7 @@
 
   type NewGroup = Omit<Group, "id" | "created_at" | "updated_at">;
 
-  let error  = $state("");
+  let error = $state("");
 
   async function onSubmit(formData: NewGroup) {
     try {
@@ -15,7 +15,7 @@
       await goto(resolve("/admin/groups"));
     } catch (e) {
       console.error(e);
-      error = e + ""
+      error = e + "";
     }
   }
 
@@ -25,8 +25,4 @@
   } as NewGroup;
 </script>
 
-<EntityForm
-  formData={formData}
-  error={error}
-  onSubmit={onSubmit}
-/>
+<EntityForm {formData} {error} {onSubmit} />
