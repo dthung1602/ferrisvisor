@@ -54,6 +54,26 @@ async fn main() -> anyhow::Result<()> {
 
     let admin_middleware = axum::middleware::from_fn(handlers::auth::admin_middleware);
 
+    let user_perm_router = Router::new()
+        .route(
+            "/",
+            post(handlers::permission::create).get(handlers::permission::list),
+        )
+        .route(
+            "/{permission_id}",
+            put(handlers::permission::update).delete(handlers::permission::delete),
+        );
+
+    let single_user_router = Router::new()
+        .route(
+            "/",
+            put(handlers::user::update)
+                .delete(handlers::user::delete)
+                .get(handlers::user::get)
+                .route_layer(admin_middleware.clone()),
+        )
+        .nest("/permission", user_perm_router);
+
     let api_router = Router::new()
         .route(
             "/host",
@@ -62,7 +82,7 @@ async fn main() -> anyhow::Result<()> {
                 .get(handlers::host::list),
         )
         .route(
-            "/host/{id}",
+            "/host/{host_id}",
             put(handlers::host::update)
                 .delete(handlers::host::delete)
                 .route_layer(admin_middleware.clone())
@@ -75,7 +95,7 @@ async fn main() -> anyhow::Result<()> {
                 .get(handlers::group::list),
         )
         .route(
-            "/group/{id}",
+            "/group/{group_id}",
             put(handlers::group::update)
                 .delete(handlers::group::delete)
                 .route_layer(admin_middleware.clone())
@@ -87,13 +107,7 @@ async fn main() -> anyhow::Result<()> {
                 .get(handlers::user::list)
                 .route_layer(admin_middleware.clone()),
         )
-        .route(
-            "/user/{id}",
-            put(handlers::user::update)
-                .delete(handlers::user::delete)
-                .get(handlers::user::get)
-                .route_layer(admin_middleware),
-        )
+        .nest("/user/{user_id}", single_user_router)
         .route_layer(axum::middleware::from_fn_with_state(
             state.clone(),
             handlers::auth::auth_middleware,

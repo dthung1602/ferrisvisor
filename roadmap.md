@@ -23,11 +23,11 @@
     - [x] get current user
     - [ ] password reset
   - [ ] supervisor: copy from above
-  - [ ] admin page
+  - [x] admin page
     - [x] host management
     - [x] group management
-    - [ ] user management
-    - [ ] permission management
+    - [x] user management
+    - [x] permission management
 
 - [ ] WebUI
   - [ ] navbar / menu
@@ -46,9 +46,9 @@
       - [x] delete
       - [x] edit
     - [ ] user management
-      - [ ] list
-      - [ ] add
-      - [ ] delete
-      - [ ] edit
+      - [x] list
+      - [x] add
+      - [x] delete
+      - [x] edit
       - [ ] reset?/change? password
       - [ ] assign/remove permission

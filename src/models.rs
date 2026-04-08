@@ -218,7 +218,7 @@ impl NewSession {
     }
 }
 
-#[derive(Queryable, Selectable, Debug, Serialize, Clone)]
+#[derive(Queryable, Selectable, Debug, Clone, Serialize, Deserialize)]
 #[diesel(table_name = schema::permission)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Permission {
@@ -230,7 +230,7 @@ pub struct Permission {
     pub can_act: bool,
 }
 
-#[derive(Insertable, Debug)]
+#[derive(Insertable, Debug, Deserialize)]
 #[diesel(table_name = schema::permission)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct NewPermission {
@@ -257,6 +257,14 @@ impl NewPermission {
             can_act,
         }
     }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdatePermission {
+    pub host_id: i32,
+    pub service_name: String,
+    pub can_view: bool,
+    pub can_act: bool,
 }
 
 #[derive(Debug, Serialize, Clone)]
