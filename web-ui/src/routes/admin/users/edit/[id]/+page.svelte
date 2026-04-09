@@ -6,6 +6,7 @@
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import { omit } from "lodash";
+  import PermissionForm from "../../PermissionForm.svelte";
 
   type NewUser = Omit<User, "id" | "created_at" | "updated_at" | "last_login">;
 
@@ -35,4 +36,6 @@
   });
 </script>
 
-<EntityForm {formData} {error} {onSubmit} relatedSelects={{}} actionBtnText="Update" />
+<EntityForm {formData} {error} {onSubmit} relatedSelects={{}} actionBtnText="Update">
+  <PermissionForm />
+</EntityForm>

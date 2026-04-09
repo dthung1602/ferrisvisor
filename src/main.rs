@@ -61,7 +61,9 @@ async fn main() -> anyhow::Result<()> {
         )
         .route(
             "/{permission_id}",
-            put(handlers::permission::update).delete(handlers::permission::delete),
+            get(handlers::permission::get)
+                .put(handlers::permission::update)
+                .delete(handlers::permission::delete),
         );
 
     let single_user_router = Router::new()

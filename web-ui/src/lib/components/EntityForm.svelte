@@ -1,15 +1,17 @@
-<script lang="ts" generics="T extends Record<string, number|string|boolean>, U">
+<script lang="ts" generics="E extends Record<string, number|string|boolean>, RS, FD extends Partial<E>">
   import type { RelatedSelect } from "$lib/components/types";
   import { normalizedFieldNameToDisplay } from "$lib/string";
+  import type { Snippet } from "svelte";
 
-  type FormData = Omit<T, "id" | "created_at" | "updated_at" | "last_login">;
+  type FormData = FD;
 
   type Props = {
     formData: FormData;
-    relatedSelects: Record<string, RelatedSelect<U>>;
+    relatedSelects: Record<string, RelatedSelect<RS>>;
     actionBtnText?: string;
     error?: string;
     onSubmit: (formData: FormData) => Promise<void>;
+    children?: Snippet;
   };
 
   type SelectOption = {
@@ -20,6 +22,7 @@
   let prop: Props = $props();
   let formData = $derived(prop.formData);
   let error = $derived(prop.error);
+  let children = prop.children;
 
   function handleSubmit() {
     if (Object.values(formData).some((v) => v === "")) {
@@ -74,10 +77,13 @@
       {/if}
     </label>
   {/each}
+
   <button onclick={handleSubmit} type="button" class="btn preset-filled-primary-500">
     {prop.actionBtnText ? prop.actionBtnText : "Create"}
   </button>
   {#if error}
     <p class="mt-1 text-sm text-error-500">{error}</p>
   {/if}
+
+  {@render children?.()}
 </form>

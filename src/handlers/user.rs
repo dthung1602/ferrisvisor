@@ -1,5 +1,5 @@
 use crate::common::AppState;
-use crate::models::{HasPassword, NewUser, ResponseUser, UpdateUser, User};
+use crate::models::{DisplayUser, HasPassword, NewUser, UpdateUser, User};
 use crate::schema;
 use diesel::QueryDsl;
 use diesel::prelude::*;
@@ -11,14 +11,14 @@ use chrono::Utc;
 use diesel_async::RunQueryDsl;
 
 #[axum::debug_handler]
-pub async fn list(State(state): State<AppState>) -> (StatusCode, Json<Vec<ResponseUser>>) {
+pub async fn list(State(state): State<AppState>) -> (StatusCode, Json<Vec<DisplayUser>>) {
     let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
 
     let users: Vec<User> = schema::user::table.load(&mut read_conn).await.unwrap();
 
     println!("Users {:?}", users);
 
-    let users = users.iter().map(ResponseUser::from_user).collect();
+    let users = users.iter().map(DisplayUser::from_user).collect();
 
     (StatusCode::OK, Json(users))
 }
@@ -27,7 +27,7 @@ pub async fn list(State(state): State<AppState>) -> (StatusCode, Json<Vec<Respon
 pub async fn get(
     State(state): State<AppState>,
     Path(user_id): Path<i32>,
-) -> (StatusCode, Json<ResponseUser>) {
+) -> (StatusCode, Json<DisplayUser>) {
     let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
 
     let user: User = schema::user::table
@@ -45,7 +45,7 @@ pub async fn get(
 pub async fn create(
     State(state): State<AppState>,
     Json(mut new_user): Json<NewUser>,
-) -> (StatusCode, Json<ResponseUser>) {
+) -> (StatusCode, Json<DisplayUser>) {
     let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
 
     // hash password
@@ -65,7 +65,7 @@ pub async fn update(
     State(state): State<AppState>,
     Path(user_id): Path<i32>,
     Json(user_data): Json<UpdateUser>,
-) -> (StatusCode, Json<ResponseUser>) {
+) -> (StatusCode, Json<DisplayUser>) {
     use crate::schema::user::dsl::*;
     let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
 

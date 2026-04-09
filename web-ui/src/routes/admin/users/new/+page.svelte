@@ -4,6 +4,7 @@
   import { user } from "$lib/api";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
+  import PermissionForm from "../PermissionForm.svelte";
 
   type NewUser = Omit<User, "id" | "created_at" | "updated_at" | "last_login">;
 
@@ -26,4 +27,6 @@
   } as NewUser;
 </script>
 
-<EntityForm {formData} {error} {onSubmit} relatedSelects={{}} />
+<EntityForm {formData} {error} {onSubmit} relatedSelects={{}}>
+  <PermissionForm />
+</EntityForm>

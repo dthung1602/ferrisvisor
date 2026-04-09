@@ -3,6 +3,7 @@ use argon2::PasswordVerifier;
 use argon2::password_hash::SaltString;
 use chrono::{DateTime, Duration, TimeDelta, Utc};
 use diesel::prelude::*;
+use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Selectable, Debug, Serialize, Deserialize)]
@@ -141,7 +142,7 @@ pub struct UpdateUser {
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub struct ResponseUser {
+pub struct DisplayUser {
     pub id: i32,
     pub email: String,
     pub created_at: DateTime<Utc>,
@@ -150,7 +151,7 @@ pub struct ResponseUser {
     pub is_admin: bool,
 }
 
-impl ResponseUser {
+impl DisplayUser {
     pub fn from_user(user: &User) -> Self {
         Self {
             id: user.id,
@@ -163,9 +164,9 @@ impl ResponseUser {
     }
 }
 
-impl Into<ResponseUser> for User {
-    fn into(self) -> ResponseUser {
-        ResponseUser::from_user(&self)
+impl Into<DisplayUser> for User {
+    fn into(self) -> DisplayUser {
+        DisplayUser::from_user(&self)
     }
 }
 
@@ -265,6 +266,33 @@ pub struct UpdatePermission {
     pub service_name: String,
     pub can_view: bool,
     pub can_act: bool,
+}
+
+#[derive(Debug, Serialize)]
+pub struct DisplayPermission {
+    pub id: i32,
+    pub user_id: i32,
+    pub host_id: i32,
+    pub host_name: String,
+    pub group_name: String,
+    pub service_name: String,
+    pub can_view: bool,
+    pub can_act: bool,
+}
+
+impl DisplayPermission {
+    pub fn from_perm(perm: Permission, host_name: String, group_name: String) -> Self {
+        Self {
+            host_name,
+            group_name,
+            id: perm.id,
+            user_id: perm.user_id,
+            host_id: perm.host_id,
+            service_name: perm.service_name.clone(),
+            can_view: perm.can_view,
+            can_act: perm.can_act,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Clone)]
