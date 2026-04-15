@@ -37,10 +37,12 @@ pub async fn establish_connection() -> anyhow::Result<Db> {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let read_only_database_url = database_url.clone(); // TODO make this work properly
 
+    // TODO sqlite can only have 1 connection
+
     let manager =
         AsyncDieselConnectionManager::<AsyncSqliteConnection>::new(&read_only_database_url);
     let read_pool = Pool::builder(manager)
-        .max_size(4)
+        .max_size(1)
         .build()
         .expect("Failed to create pool.");
 
