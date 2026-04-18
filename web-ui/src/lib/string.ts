@@ -7,3 +7,8 @@ export function normalizedFieldNameToDisplay(fieldName: string): string {
   }
   return parts.join(" ");
 }
+
+export function formatDate(date: string) {
+  if (!date) return "N/A";
+  return new Date(date).toLocaleString();
+}
