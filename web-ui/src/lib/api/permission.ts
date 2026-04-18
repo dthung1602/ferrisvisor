@@ -1,8 +1,8 @@
 export type Permission = {
   id: number;
   user_id: number;
-  host_id: number;
-  host_name: string;
+  host_id: number | null;
+  host_name: string | null;
   group_id: number;
   group_name: string;
   service_name: string;

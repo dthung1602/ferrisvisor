@@ -15,15 +15,21 @@ pub async fn list(
 ) -> (StatusCode, Json<Vec<DisplayPermission>>) {
     let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
 
-    let permissions_with_extra: Vec<(Permission, String, String)> = schema::permission::table
-        .inner_join(schema::host::table.inner_join(schema::group::table))
+    let permissions_with_extra = schema::permission::table
+        .inner_join(schema::group::table)
+        .left_join(schema::host::table)
         .filter(schema::permission::user_id.eq(user_id))
         .select((
             Permission::as_select(),
-            schema::host::name,
+            schema::host::name.nullable(),
             schema::group::name,
         ))
-        .load::<(Permission, String, String)>(&mut read_conn)
+        .order_by((
+            schema::permission::group_id.asc(),
+            schema::permission::host_id.asc(),
+            schema::permission::id.asc(),
+        ))
+        .load::<(Permission, Option<String>, String)>(&mut read_conn)
         .await
         .unwrap();
 
@@ -46,22 +52,23 @@ pub async fn get(
 ) -> (StatusCode, Json<DisplayPermission>) {
     let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
 
-    let (permission, host_name, group_name): (Permission, String, String) =
-        schema::permission::table
-            .inner_join(schema::host::table.inner_join(schema::group::table))
-            .filter(
-                schema::permission::id
-                    .eq(permission_id)
-                    .and(schema::permission::user_id.eq(user_id)),
-            )
-            .select((
-                Permission::as_select(),
-                schema::host::name,
-                schema::group::name,
-            ))
-            .first(&mut read_conn)
-            .await
-            .unwrap();
+    let (permission, host_name, group_name) = schema::permission::table
+        .inner_join(schema::group::table)
+        .left_join(schema::host::table)
+        .filter(schema::permission::user_id.eq(user_id))
+        .select((
+            Permission::as_select(),
+            schema::host::name.nullable(),
+            schema::group::name,
+        ))
+        .order_by((
+            schema::group::name.asc(),
+            schema::host::name.asc(),
+            schema::permission::id.asc(),
+        ))
+        .first::<(Permission, Option<String>, String)>(&mut read_conn)
+        .await
+        .unwrap();
 
     let permission = DisplayPermission::from_perm(permission, host_name, group_name);
 
@@ -73,16 +80,32 @@ pub async fn create(
     State(state): State<AppState>,
     Path(user_id): Path<i32>,
     Json(new_permission): Json<UpdatePermission>,
-) -> (StatusCode, Json<Permission>) {
+) -> (StatusCode, Json<Option<Permission>>) {
     let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+
+    if let Some(host_id) = new_permission.host_id {
+        use schema::host::*;
+        let count: i64 = table
+            .filter(id.eq(host_id).and(group_id.eq(new_permission.group_id)))
+            .count()
+            .get_result(&mut read_conn)
+            .await
+            .unwrap();
+        if count == 0 {
+            return (StatusCode::BAD_REQUEST, Json(None));
+        }
+    }
 
     let new_permission = NewPermission::new(
         user_id,
+        new_permission.group_id,
         new_permission.host_id,
         &new_permission.service_name,
         new_permission.can_view,
         new_permission.can_act,
     );
+
+    println!("\nNew permission --> {:?}\n", new_permission);
 
     let permission: Permission = diesel::insert_into(schema::permission::table)
         .values(new_permission)
@@ -90,7 +113,7 @@ pub async fn create(
         .await
         .unwrap();
 
-    (StatusCode::OK, Json(permission))
+    (StatusCode::OK, Json(Some(permission)))
 }
 
 #[axum::debug_handler]
@@ -98,8 +121,21 @@ pub async fn update(
     State(state): State<AppState>,
     Path((user_id, permission_id)): Path<(i32, i32)>,
     Json(permission_data): Json<UpdatePermission>,
-) -> (StatusCode, Json<Permission>) {
+) -> (StatusCode, Json<Option<Permission>>) {
     let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+
+    if let Some(host_id) = permission_data.host_id {
+        use schema::host::*;
+        let count: i64 = table
+            .filter(id.eq(host_id).and(group_id.eq(permission_data.group_id)))
+            .count()
+            .get_result(&mut read_conn)
+            .await
+            .unwrap();
+        if count == 0 {
+            return (StatusCode::BAD_REQUEST, Json(None));
+        }
+    }
 
     let match_user_perm = schema::permission::id
         .eq(permission_id)
@@ -110,14 +146,15 @@ pub async fn update(
             .set((
                 schema::permission::host_id.eq(permission_data.host_id),
                 schema::permission::service_name.eq(permission_data.service_name),
-                schema::permission::can_view.eq(permission_data.can_view),
+                // can_act implies can_view
+                schema::permission::can_view.eq(permission_data.can_view | permission_data.can_act),
                 schema::permission::can_act.eq(permission_data.can_act),
             ))
             .get_result(&mut read_conn)
             .await
             .unwrap();
 
-    (StatusCode::OK, Json(updated_permission))
+    (StatusCode::OK, Json(Some(updated_permission)))
 }
 
 #[axum::debug_handler]

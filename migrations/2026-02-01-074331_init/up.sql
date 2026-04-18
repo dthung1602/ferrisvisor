@@ -57,7 +57,8 @@ CREATE TABLE permission
 (
     id           INTEGER NOT NULL PRIMARY KEY,
     user_id      INTEGER NOT NULL,
-    host_id      INTEGER NOT NULL,
+    group_id     INTEGER NOT NULL,
+    host_id      INTEGER,
     service_name TEXT    NOT NULL,
     can_view     BOOLEAN NOT NULL,
     can_act      BOOLEAN NOT NULL,

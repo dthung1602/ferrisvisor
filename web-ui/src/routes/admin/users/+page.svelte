@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { Switch } from '@skeletonlabs/skeleton-svelte';
   import { Search, ShieldUser, User, UserCheck, UserPen, UserPlus, X } from "lucide-svelte";
   import { api } from "$lib";
   import type { User as UserType } from "$lib/api/user";
   import type { Permission } from "$lib/api/permission";
   import type { Host } from "$lib/api/host";
+  import type { Group } from "$lib/api/group";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import { onMount } from "svelte";
@@ -12,7 +14,8 @@
   type PermissionFormData = {
     id: number;
     user_id: number;
-    host_id: number;
+    group_id: number;
+    host_id: number | null;
     service_name: string;
     can_view: boolean;
     can_act: boolean;
@@ -21,6 +24,7 @@
   let searchTerm = $state("");
   let users: UserType[] = $state([]);
   let hosts: Host[] = $state([]);
+  let groups: Group[] = $state([]);
   let selectedUser: UserType | null = $state(null);
   let selectedUserCopy: UserType | null = $state(null);
   let selectedUserPerms: PermissionFormData[] = $state([]);
@@ -39,7 +43,10 @@
     const hostRes = api.host.list().then(hostData => {
       hosts = hostData;
     })
-    return Promise.all([userRes, hostRes]).catch(console.error).finally(() => loading = false);
+    const groupRes = api.group.list().then(groupData => {
+      groups = groupData;
+    })
+    return Promise.all([userRes, hostRes, groupRes]).catch(console.error).finally(() => loading = false);
   }
 
   async function fetchPermission(user: UserType) {
@@ -48,6 +55,7 @@
       selectedUserPerms = rawPermData.map((perm) => ({
         id: perm.id,
         user_id: perm.user_id,
+        group_id: perm.group_id,
         host_id: perm.host_id,
         service_name: perm.service_name,
         can_view: perm.can_view,
@@ -92,7 +100,8 @@
     let newPerm: PermissionFormData = {
       id: newPermCounter--,
       user_id: selectedUser?.id as number,
-      host_id: 0,
+      group_id: groups[0]?.id || 0,
+      host_id: null,
       service_name: "",
       can_view: false,
       can_act: false
@@ -162,6 +171,10 @@
   function formatDate(date: string) {
     // TODO timezone
     return new Date(date).toLocaleString();
+  }
+
+  function filterHostOfGroup(groupId: number) {
+    return hosts.filter(host => host.group_id === groupId);
   }
 </script>
 
@@ -360,15 +373,39 @@
                     <div
                       class="space-y-3 rounded-xl border border-surface-500/5 bg-surface-500/5 p-4 transition-colors hover:bg-surface-500/10"
                     >
+                      <div class="space-y-1 text-xs font-bold text-secondary-500">
+                        <span>RULE #{perm.id}</span>
+                        <button
+                          type="button"
+                          onclick={() => handleDeletePermission(perm.id)}
+                          class="float-right ml-auto transition-all opacity-70 text-secondary-500 hover:text-error-500 hover:opacity-100"
+                        >
+                          <X class="size-4" />
+                        </button>
+                      </div>
                       <div class="space-y-1.5">
                         <label for="host" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">
-                          Service Name Pattern
+                          Group
+                        </label>
+                        <select
+                          class="select rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+                          bind:value={perm.group_id}
+                        >
+                          {#each groups as group (group.id)}
+                            <option value={group.id}>{group.name}</option>
+                          {/each}
+                        </select>
+                      </div>
+                      <div class="space-y-1.5">
+                        <label for="host" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">
+                          Host
                         </label>
                         <select
                           class="select rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
                           bind:value={perm.host_id}
                         >
-                          {#each hosts as host (host.id)}
+                          <option value={null}>-- All hosts --</option>
+                          {#each filterHostOfGroup(perm.group_id) as host (host.id)}
                             <option value={host.id}>{host.name}</option>
                           {/each}
                         </select>
@@ -384,22 +421,27 @@
                           bind:value={perm.service_name}
                         />
                       </div>
-                      <div class="flex items-center gap-6">
-                        <label class="group flex cursor-pointer items-center gap-2">
-                          <input type="checkbox" bind:checked={perm.can_view} class="checkbox" />
-                          <span class="text-xs font-medium opacity-60 group-hover:opacity-100">Can view</span>
-                        </label>
-                        <label class="group flex cursor-pointer items-center gap-2">
-                          <input type="checkbox" bind:checked={perm.can_act} class="checkbox" />
-                          <span class="text-xs font-medium opacity-60 group-hover:opacity-100">Can act</span>
-                        </label>
-                        <button
-                          type="button"
-                          onclick={() => handleDeletePermission(perm.id)}
-                          class="ml-auto opacity-70 transition-all hover:text-error-500 hover:opacity-100"
-                        >
-                          <X class="size-4" />
-                        </button>
+                      <label for="permission" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">
+                        Permission
+                      </label>
+                      <div class="flex items-center gap-6 pt-2">
+                        <Switch checked={perm.can_view} onCheckedChange={(details) => (perm.can_view = details.checked)}>
+                          <Switch.Control>
+                            <Switch.Thumb />
+                          </Switch.Control>
+                          <Switch.Label>Can view</Switch.Label>
+                          <Switch.HiddenInput />
+                        </Switch>
+                        <Switch checked={perm.can_act} onCheckedChange={(details) => {
+                          perm.can_act = details.checked;
+                          perm.can_view ||= details.checked; // can act implies can view
+                        }}>
+                          <Switch.Control>
+                            <Switch.Thumb />
+                          </Switch.Control>
+                          <Switch.Label>Can act</Switch.Label>
+                          <Switch.HiddenInput />
+                        </Switch>
                       </div>
                     </div>
                   {/each}
@@ -412,7 +454,7 @@
             {/if}
 
             <!-- Actions -->
-            <div class="flex items-center justify-between gap-8 pt-8">
+            <div class="flex items-center justify-between gap-8">
               <div>
                 <button
                   class="btn text-error-contrast-500 preset-filled-error-500 px-6 py-3 font-bold transition-all hover:preset-filled-error-500 active:scale-95"

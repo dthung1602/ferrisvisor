@@ -28,7 +28,8 @@ diesel::table! {
     permission (id) {
         id -> Integer,
         user_id -> Integer,
-        host_id -> Integer,
+        group_id -> Integer,
+        host_id -> Nullable<Integer>,
         service_name -> Text,
         can_view -> Bool,
         can_act -> Bool,
@@ -59,6 +60,7 @@ diesel::table! {
 diesel::joinable!(host -> group (group_id));
 diesel::joinable!(permission -> host (host_id));
 diesel::joinable!(permission -> user (user_id));
+diesel::joinable!(permission -> group (group_id));
 diesel::joinable!(session -> user (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(group, host, permission, session, user,);
