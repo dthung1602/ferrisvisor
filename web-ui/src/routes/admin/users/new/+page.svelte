@@ -56,7 +56,7 @@
     }
   }
 
-  function handleCancel() {
+  function handleDiscard() {
     goto(resolve("/admin/users"));
   }
 </script>
@@ -69,6 +69,6 @@
     {hosts}
     isEdit={false}
     onSave={handleSave}
-    onDiscard={handleCancel}
+    onDiscard={handleDiscard}
   />
 </div>

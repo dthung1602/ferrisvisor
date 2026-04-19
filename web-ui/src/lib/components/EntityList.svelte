@@ -29,9 +29,9 @@
   let searchTerm = $state("");
 
   let filteredEntities = $derived.by(() => {
-    let normalizedSearchTerm = searchTerm.toLowerCase().trim();
+    const normalizedSearchTerm = searchTerm.toLowerCase().trim();
     if (!normalizedSearchTerm) return entities;
-    return entities.filter((e) => entityNameFunc(e).toLowerCase().includes(normalizedSearchTerm));
+    return entities.filter((e) => entityNameFunc(e).toLowerCase().includes(normalizedSearchTerm) || e.id.toString().includes(normalizedSearchTerm));
   });
 </script>
 

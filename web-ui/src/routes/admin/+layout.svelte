@@ -3,7 +3,7 @@
   import { page } from "$app/state";
   import {
     LayoutDashboard,
-    Group,
+    Layers,
     Users,
     Server,
     Settings,
@@ -21,17 +21,10 @@
 
   const navItems = [
     { label: "Dashboard", href: resolve("/dashboard"), icon: LayoutDashboard },
-    { label: "Groups", href: resolve("/admin/groups"), icon: Group },
+    { label: "Groups", href: resolve("/admin/groups"), icon: Layers },
     { label: "Hosts", href: resolve("/admin/hosts"), icon: Server },
     { label: "Users", href: resolve("/admin/users"), icon: Users }
   ];
-
-  // const adminSubNav = [
-  //   { label: "Overview", href: "#" },
-  //   { label: "Logs", href: "#" },
-  //   { label: "Metrics", href: "#" },
-  //   { label: "Audit", href: "#" }
-  // ];
 
   let isSidebarOpen = $state(true);
 
@@ -70,7 +63,6 @@
         {@const isActive = page.url.pathname.startsWith(item.href)}
         <a
           href={item.href}
-          rel="external"
           class="flex items-center gap-3 rounded-xl px-4 py-3 transition-all active:scale-95
           {isActive
             ? 'border-r-2 border-primary-500 bg-primary-500/10 font-bold text-primary-500 shadow-sm'

@@ -8,7 +8,6 @@
   import UserForm from "./UserForm.svelte";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
-  import { onMount } from "svelte";
   import { clone, omit } from "lodash";
   import EntityList from "$lib/components/EntityList.svelte";
 
@@ -46,7 +45,7 @@
     const groupRes = api.group.list().then((groupData) => {
       groups = groupData;
     });
-    return Promise.all([userRes, hostRes, groupRes])
+    await Promise.all([userRes, hostRes, groupRes])
       .catch(console.error)
       .finally(() => (loading = false));
   }
@@ -85,9 +84,11 @@
     fetchPermission(selectedUser);
   }
 
-  onMount(fetchInitData);
+  $effect(() => {
+    fetchInitData()
+  });
 
-  function handleCreateOperator() {
+  function handleCreateUser() {
     goto(resolve("/admin/users/new"));
   }
 
@@ -107,7 +108,7 @@
   async function handleSave(e: Event) {
     e.preventDefault();
     if (!selectedUser) return;
-    const uid = selectedUser.id as number;
+    const uid = selectedUser.id;
 
     const updateUserResult = api.user.update(uid, selectedUser);
 
@@ -146,7 +147,7 @@
       <p class="mt-1 font-medium tracking-wide text-secondary-500">Identity Registry</p>
     </div>
     <button
-      onclick={handleCreateOperator}
+      onclick={handleCreateUser}
       class="text-on-primary btn flex items-center gap-2 rounded-full bg-linear-to-br from-primary-500 to-tertiary-500 px-6 py-2.5 font-bold shadow-lg shadow-primary-500/20 transition-transform hover:scale-105 active:scale-95"
     >
       <UserPlus class="size-4" />
@@ -166,7 +167,7 @@
         entities={users}
         {loading}
       >
-        {#snippet badge(user: UserType)}
+        {#snippet badge(user)}
           {#if user.is_admin}
             <span
               class="rounded bg-secondary-500/20 px-2 py-0.5 text-[9px] font-bold tracking-widest text-secondary-500 uppercase"
@@ -203,7 +204,7 @@
           class="flex h-full flex-col items-center justify-center card rounded-xl border-2 border-dashed border-surface-500/10 p-12 text-center opacity-30"
         >
           <UserCheck class="mb-4 size-16" />
-          <p class="text-sm font-bold tracking-[0.2em] uppercase">Select an operator to initialize command console</p>
+          <p class="text-sm font-bold tracking-[0.2em] uppercase">Select user to edit</p>
         </div>
       {/if}
     </div>

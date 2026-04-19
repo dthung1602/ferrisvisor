@@ -1,28 +1,34 @@
 <script lang="ts">
-  import EntityForm from "$lib/components/EntityForm.svelte";
-  import type { Group } from "$lib/api/group";
+  import type { NewGroup } from "$lib/api/group";
   import { group } from "$lib/api";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
+  import GroupForm from "../GroupForm.svelte";
 
-  type NewGroup = Omit<Group, "id" | "created_at" | "updated_at">;
+  let formData = $state({
+    name: "",
+    description: ""
+  } as NewGroup);
 
-  let error = $state("");
-
-  async function onSubmit(formData: NewGroup) {
+  async function handleSave() {
     try {
       await group.create(formData);
       await goto(resolve("/admin/groups"));
     } catch (e) {
       console.error(e);
-      error = e + "";
     }
   }
 
-  const formData = {
-    name: "",
-    description: ""
-  } as NewGroup;
+  function handleDiscard() {
+    goto(resolve("/admin/groups"));
+  }
 </script>
 
-<EntityForm {formData} {error} {onSubmit} />
+<div class="mx-auto max-w-2xl space-y-8 px-4 py-12">
+  <GroupForm
+    bind:group={formData}
+    isEdit={false}
+    onSave={handleSave}
+    onDiscard={handleDiscard}
+  />
+</div>
