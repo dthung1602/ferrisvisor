@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Switch } from '@skeletonlabs/skeleton-svelte';
-  import { UserPen, UserPlus, X } from "lucide-svelte";
+  import { Switch } from "@skeletonlabs/skeleton-svelte";
+  import { UserPen, UserPlus, X } from "@lucide/svelte";
   import type { User, NewUser } from "$lib/api/user";
   import type { Host } from "$lib/api/host";
   import type { Group } from "$lib/api/group";
@@ -44,13 +44,13 @@
   let newPermCounter = $state(-1);
 
   function filterHostOfGroup(groupId: number) {
-    return hosts.filter(host => host.group_id === groupId);
+    return hosts.filter((host) => host.group_id === groupId);
   }
 
   function handleAddPerm() {
     let newPerm: PermissionFormData = {
       id: newPermCounter--,
-      user_id: user.id || 0,
+      user_id: (user as User).id || 0,
       group_id: groups[0]?.id || 0,
       host_id: null,
       service_name: "",
@@ -62,7 +62,7 @@
 
     // Smooth scroll to top of permission list
     setTimeout(() => {
-        document.getElementById("perm-list")?.scrollTo({ top: 0, behavior: "smooth" });
+      document.getElementById("perm-list")?.scrollTo({ top: 0, behavior: "smooth" });
     }, 0);
   }
 
@@ -71,6 +71,10 @@
       toDeletePermissions.add(id);
     }
     permissions = permissions.filter((perm) => perm.id !== id);
+  }
+
+  function asUser(u: User | NewUser): User {
+    return u as User;
   }
 </script>
 
@@ -84,11 +88,11 @@
       {:else}
         <UserPlus class="size-6 text-primary-500" />
       {/if}
-      <h3 class="text-lg font-bold uppercase">{isEdit ? 'Edit User' : 'Create User'}</h3>
+      <h3 class="text-lg font-bold uppercase">{isEdit ? "Edit User" : "Create User"}</h3>
     </div>
     {#if isEdit}
       <p class="opacity-50c font-mono text-[10px] font-bold tracking-widest text-primary-500 uppercase">
-        Target: user #{user.id}
+        Target: user #{asUser(user).id}
       </p>
     {/if}
   </div>
@@ -107,10 +111,12 @@
             bind:value={user.email}
           />
         </div>
-        
+
         {#if !isEdit}
           <div class="col-span-2 space-y-1.5">
-            <label for="password" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Password</label>
+            <label for="password" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50"
+              >Password</label
+            >
             <input
               class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
               type="password"
@@ -122,7 +128,9 @@
         {/if}
 
         <div class="space-y-1.5 {isEdit ? '' : 'col-span-2'}">
-          <label for="is_admin" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Access Level</label>
+          <label for="is_admin" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50"
+            >Access Level</label
+          >
           <select
             class="select rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
             name="is_admin"
@@ -135,33 +143,39 @@
 
         {#if isEdit}
           <div class="space-y-1.5">
-            <label for="created_at" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Created at</label>
+            <label for="created_at" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50"
+              >Created at</label
+            >
             <input
               class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
               type="text"
               name="created_at"
               disabled
-              value={formatDate(user.created_at)}
+              value={formatDate(asUser(user).created_at)}
             />
           </div>
           <div class="space-y-1.5">
-            <label for="updated_at" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Updated at</label>
+            <label for="updated_at" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50"
+              >Updated at</label
+            >
             <input
               class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
               type="text"
               name="updated_at"
               disabled
-              value={formatDate(user.updated_at)}
+              value={formatDate(asUser(user).updated_at)}
             />
           </div>
           <div class="space-y-1.5">
-            <label for="last_login" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Last login</label>
+            <label for="last_login" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50"
+              >Last login</label
+            >
             <input
               class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
               type="text"
               name="last_login"
               disabled
-              value={formatDate(user.last_login)}
+              value={formatDate(asUser(user).last_login)}
             />
           </div>
         {/if}
@@ -192,7 +206,7 @@
                 <button
                   type="button"
                   onclick={() => handleDeletePermission(perm.id)}
-                  class="float-right ml-auto transition-all opacity-70 text-secondary-500 hover:text-error-500 hover:opacity-100"
+                  class="float-right ml-auto text-secondary-500 opacity-70 transition-all hover:text-error-500 hover:opacity-100"
                 >
                   <X class="size-4" />
                 </button>
@@ -221,7 +235,9 @@
                 </select>
               </div>
               <div class="space-y-1.5">
-                <label for="service_name" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Service Name Pattern</label>
+                <label for="service_name" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50"
+                  >Service Name Pattern</label
+                >
                 <input
                   class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
                   type="text"
@@ -229,7 +245,9 @@
                   bind:value={perm.service_name}
                 />
               </div>
-              <label for="permission" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Permission</label>
+              <label for="permission" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50"
+                >Permission</label
+              >
               <div class="flex items-center gap-6 pt-2">
                 <Switch checked={perm.can_view} onCheckedChange={(details) => (perm.can_view = details.checked)}>
                   <Switch.Control>
@@ -238,10 +256,13 @@
                   <Switch.Label>Can view</Switch.Label>
                   <Switch.HiddenInput />
                 </Switch>
-                <Switch checked={perm.can_act} onCheckedChange={(details) => {
-                  perm.can_act = details.checked;
-                  perm.can_view ||= details.checked; // can act implies can view
-                }}>
+                <Switch
+                  checked={perm.can_act}
+                  onCheckedChange={(details) => {
+                    perm.can_act = details.checked;
+                    perm.can_view ||= details.checked; // can act implies can view
+                  }}
+                >
                   <Switch.Control>
                     <Switch.Thumb />
                   </Switch.Control>
@@ -264,7 +285,7 @@
       <div>
         {#if isEdit && onDelete}
           <button
-            class="btn text-error-contrast-500 preset-filled-error-500 px-6 py-3 font-bold transition-all hover:preset-filled-error-500 active:scale-95"
+            class="btn preset-filled-error-500 px-6 py-3 font-bold text-error-contrast-500 transition-all hover:preset-filled-error-500 active:scale-95"
             type="button"
             onclick={onDelete}
           >
@@ -278,13 +299,13 @@
           type="button"
           onclick={onDiscard}
         >
-          {isEdit ? 'Discard' : 'Cancel'}
+          {isEdit ? "Discard" : "Cancel"}
         </button>
         <button
-          class="btn text-on-primary preset-filled-primary-500 min-w-32 py-3 font-bold transition-all hover:shadow-lg hover:shadow-primary-500/20 active:scale-95"
+          class="text-on-primary btn min-w-32 preset-filled-primary-500 py-3 font-bold transition-all hover:shadow-lg hover:shadow-primary-500/20 active:scale-95"
           type="submit"
         >
-          {isEdit ? 'Save' : 'Create'}
+          {isEdit ? "Save" : "Create"}
         </button>
       </div>
     </div>

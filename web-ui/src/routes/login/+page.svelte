@@ -3,7 +3,7 @@
   import { resolve } from "$app/paths";
   import { api, cookies } from "$lib";
   import logo from "$lib/assets/Original_Ferris.svg";
-  import { Mail, LockKeyhole, ShieldCheck, CircleArrowRight } from "lucide-svelte";
+  import { Mail, LockKeyhole, CircleArrowRight } from "@lucide/svelte";
   import GoogleIcon from "$lib/assets/icons/google.svg";
   import GithubIcon from "$lib/assets/icons/github.svg";
   import KeyCloak from "$lib/assets/icons/keycloak.svg";

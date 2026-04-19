@@ -29,12 +29,12 @@
   let groups: Group[] = $state([]);
 
   async function fetchInitData() {
-    const hostRes = api.host.list().then(hostData => {
+    const hostRes = api.host.list().then((hostData) => {
       hosts = hostData;
-    })
-    const groupRes = api.group.list().then(groupData => {
+    });
+    const groupRes = api.group.list().then((groupData) => {
       groups = groupData;
-    })
+    });
     return Promise.all([hostRes, groupRes]).catch(console.error);
   }
 
@@ -46,9 +46,7 @@
       const newUser = await api.user.create(formData);
       const uid = newUser.id;
 
-      const newPermissionResults = permissions.map(perm => 
-        api.permission.create(uid, omit(perm, "id"))
-      );
+      const newPermissionResults = permissions.map((perm) => api.permission.create(uid, omit(perm, "id")));
 
       await Promise.all(newPermissionResults);
       await goto(resolve("/admin/users"));
@@ -63,12 +61,12 @@
   }
 </script>
 
-<div class="mx-auto max-w-2xl space-y-8 py-12 px-4">
+<div class="mx-auto max-w-2xl space-y-8 px-4 py-12">
   <UserForm
     bind:user={formData}
-    bind:permissions={permissions}
-    groups={groups}
-    hosts={hosts}
+    bind:permissions
+    {groups}
+    {hosts}
     isEdit={false}
     onSave={handleSave}
     onDiscard={handleCancel}

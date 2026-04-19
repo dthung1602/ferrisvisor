@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Search, ShieldUser, User, UserCheck, UserPlus } from "lucide-svelte";
+  import { ShieldUser, User, UserCheck, UserPlus } from "@lucide/svelte";
   import { api } from "$lib";
   import type { User as UserType } from "$lib/api/user";
   import type { Permission } from "$lib/api/permission";
@@ -10,6 +10,7 @@
   import { resolve } from "$app/paths";
   import { onMount } from "svelte";
   import { clone, omit } from "lodash";
+  import EntityList from "$lib/components/EntityList.svelte";
 
   type PermissionFormData = {
     id: number;
@@ -21,7 +22,6 @@
     can_act: boolean;
   };
 
-  let searchTerm = $state("");
   let users: UserType[] = $state([]);
   let hosts: Host[] = $state([]);
   let groups: Group[] = $state([]);
@@ -32,21 +32,23 @@
   let loading = $state(true);
 
   async function fetchInitData() {
-    const userRes = api.user.list().then(userData => {
+    const userRes = api.user.list().then((userData) => {
       users = userData;
       if (users.length > 0 && !selectedUser) {
         selectUser(users[0]);
       } else {
-        selectUser(selectedUser ? (users.find(u => u.id === selectedUser?.id) ?? null) : null)
+        selectUser(selectedUser ? (users.find((u) => u.id === selectedUser?.id) ?? null) : null);
       }
-    })
-    const hostRes = api.host.list().then(hostData => {
+    });
+    const hostRes = api.host.list().then((hostData) => {
       hosts = hostData;
-    })
-    const groupRes = api.group.list().then(groupData => {
+    });
+    const groupRes = api.group.list().then((groupData) => {
       groups = groupData;
-    })
-    return Promise.all([userRes, hostRes, groupRes]).catch(console.error).finally(() => loading = false);
+    });
+    return Promise.all([userRes, hostRes, groupRes])
+      .catch(console.error)
+      .finally(() => (loading = false));
   }
 
   async function fetchPermission(user: UserType) {
@@ -85,12 +87,6 @@
 
   onMount(fetchInitData);
 
-  let filteredUsers = $derived.by(() => {
-    let normalizedSearchTerm = searchTerm.toLowerCase().trim();
-    if (!normalizedSearchTerm) return users;
-    return users.filter((user) => user.email.toLowerCase().includes(normalizedSearchTerm));
-  });
-
   function handleCreateOperator() {
     goto(resolve("/admin/users/new"));
   }
@@ -119,13 +115,9 @@
     const newPermissionResults = [];
     for (let perm of selectedUserPerms) {
       if (perm.id > 0) {
-        updatePermissionResults.push(
-          api.permission.update(uid, perm.id as number, omit(perm, "id"))
-        )
+        updatePermissionResults.push(api.permission.update(uid, perm.id as number, omit(perm, "id")));
       } else {
-        newPermissionResults.push(
-          api.permission.create(uid, omit(perm, "id"))
-        )
+        newPermissionResults.push(api.permission.create(uid, omit(perm, "id")));
       }
     }
 
@@ -151,7 +143,7 @@
   <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
     <div>
       <h2 class="text-4xl font-black tracking-tighter uppercase">User Management</h2>
-      <p class="mt-1 font-medium tracking-wide text-secondary-500">Command & Control / Identity Registry</p>
+      <p class="mt-1 font-medium tracking-wide text-secondary-500">Identity Registry</p>
     </div>
     <button
       onclick={handleCreateOperator}
@@ -165,78 +157,31 @@
   <div class="grid grid-cols-12 gap-8">
     <!-- Users Registry (Bento-style list) -->
     <div class="col-span-12 space-y-4 lg:col-span-7">
-      <div
-        class="relative overflow-hidden card rounded-xl border border-surface-500/10 bg-surface-50-950/40 p-6 backdrop-blur-xl"
+      <EntityList
+        bind:selectedEntity={selectedUser}
+        entityName="user"
+        avatarFunc={(u) => (u.is_admin ? ShieldUser : User)}
+        entityNameFunc={(u) => u.email}
+        selectEntity={selectUser}
+        entities={users}
+        {loading}
       >
-        <div class="mb-6 flex items-center justify-between">
-          <h3 class="flex flex-1 items-center gap-2 text-lg font-bold">
-            <span class="size-2 animate-pulse rounded-full bg-secondary-500"></span>
-            ACTIVE USER
-          </h3>
-          <input
-            class="input max-w-sm flex-1 rounded-xl border-none bg-surface-500/10 px-4 py-2 text-sm focus:ring-2 focus:ring-primary-500/20"
-            placeholder="Search..."
-            bind:value={searchTerm}
-          />
-        </div>
-
-        {#if loading}
-          <div class="flex h-64 items-center justify-center">
-            <div class="size-12 animate-spin rounded-full border-4 border-surface-500/10 border-t-primary-500"></div>
-          </div>
-        {:else}
-          <div class="space-y-3">
-            {#each filteredUsers as user (user.id)}
-              <div
-                class="group flex cursor-pointer items-center justify-between card border-l-4 p-4 transition-all
-                {selectedUser?.id === user.id
-                  ? 'border-primary-500 bg-primary-500/10 hover:bg-primary-500/15'
-                  : 'border-surface-500/20 bg-surface-500/5 hover:bg-surface-500/10'}"
-                onclick={() => selectUser(user)}
-                onkeydown={(e) => e.key === "Enter" && selectUser(user)}
-                role="button"
-                tabindex="0"
-              >
-                <div class="flex items-center gap-4">
-                  <div class="flex size-12 items-center justify-center rounded-lg bg-surface-500/10">
-                    {#if user.is_admin}
-                      <ShieldUser class="size-6 text-secondary-500" />
-                    {:else}
-                      <User class="size-6 opacity-40" />
-                    {/if}
-                  </div>
-                  <div class="overflow-hidden">
-                    <div class="flex items-center gap-2">
-                      <span class="truncate font-bold tracking-tight">{user.email}</span>
-                      {#if user.is_admin}
-                        <span
-                          class="rounded bg-secondary-500/20 px-2 py-0.5 text-[9px] font-bold tracking-widest text-secondary-500 uppercase"
-                          >Admin</span
-                        >
-                      {:else}
-                        <span
-                          class="rounded bg-surface-500/20 px-2 py-0.5 text-[9px] font-bold tracking-widest text-surface-500 uppercase"
-                          >Operator</span
-                        >
-                      {/if}
-                    </div>
-                    <div class="truncate font-mono text-xs opacity-50">
-                      ID: {user.id}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            {/each}
-
-            {#if users.length === 0}
-              <div class="flex flex-col items-center justify-center py-12 text-center opacity-30">
-                <Search class="mb-4 size-12" />
-                <p class="font-bold tracking-widest uppercase">No operators found in registry</p>
-              </div>
-            {/if}
-          </div>
-        {/if}
-      </div>
+        {#snippet badge(user: UserType)}
+          {#if user.is_admin}
+            <span
+              class="rounded bg-secondary-500/20 px-2 py-0.5 text-[9px] font-bold tracking-widest text-secondary-500 uppercase"
+            >
+              Admin
+            </span>
+          {:else}
+            <span
+              class="rounded bg-surface-500/20 px-2 py-0.5 text-[9px] font-bold tracking-widest text-surface-500 uppercase"
+            >
+              Operator
+            </span>
+          {/if}
+        {/snippet}
+      </EntityList>
     </div>
 
     <!-- Edit View Panel -->
@@ -245,9 +190,9 @@
         <UserForm
           bind:user={selectedUser}
           bind:permissions={selectedUserPerms}
-          bind:toDeletePermissions={toDeletePermissions}
-          groups={groups}
-          hosts={hosts}
+          bind:toDeletePermissions
+          {groups}
+          {hosts}
           isEdit={true}
           onSave={handleSave}
           onDiscard={resetSelectedUser}

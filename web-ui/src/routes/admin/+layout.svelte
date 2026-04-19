@@ -12,7 +12,7 @@
     Moon,
     Rocket,
     ChevronRight
-  } from "lucide-svelte";
+  } from "@lucide/svelte";
   import { Avatar } from "@skeletonlabs/skeleton-svelte";
   import logo from "$lib/assets/Original_Ferris.svg";
   import { GITHUB_REPO_URL, VERSION } from "$lib/constants";
@@ -70,6 +70,7 @@
         {@const isActive = page.url.pathname.startsWith(item.href)}
         <a
           href={item.href}
+          rel="external"
           class="flex items-center gap-3 rounded-xl px-4 py-3 transition-all active:scale-95
           {isActive
             ? 'border-r-2 border-primary-500 bg-primary-500/10 font-bold text-primary-500 shadow-sm'
@@ -182,7 +183,7 @@
       </div>
       <div class="flex items-center gap-6">
         <a href={resolve("/about")}>About</a>
-        <a href={GITHUB_REPO_URL} target="_blank" >Github</a>
+        <a href={GITHUB_REPO_URL} rel="external" target="_blank">Github</a>
       </div>
     </footer>
   </div>

@@ -1,6 +1,5 @@
 <script lang="ts" generics="T extends Entity">
-  import type { Entity } from "./types.ts";
-  import type { Icon as LucideIcon } from "lucide-svelte";
+  import type { Icon as LucideIcon } from "@lucide/svelte";
 
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";

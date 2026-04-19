@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Server } from "lucide-svelte";
+  import { Server } from "@lucide/svelte";
   import { api } from "$lib";
   import AdminListingPage from "$lib/components/AdminListingPage.svelte";
 </script>
