@@ -12,9 +12,9 @@ use diesel_async::RunQueryDsl;
 
 #[axum::debug_handler]
 pub async fn list(State(state): State<AppState>) -> (StatusCode, Json<Vec<DisplayUser>>) {
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
-    let users: Vec<User> = schema::user::table.load(&mut read_conn).await.unwrap();
+    let users: Vec<User> = schema::user::table.load(&mut db_conn).await.unwrap();
 
     println!("Users {:?}", users);
 
@@ -28,11 +28,11 @@ pub async fn get(
     State(state): State<AppState>,
     Path(user_id): Path<i32>,
 ) -> (StatusCode, Json<DisplayUser>) {
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
     let user: User = schema::user::table
         .filter(schema::user::id.eq(user_id))
-        .first(&mut read_conn)
+        .first(&mut db_conn)
         .await
         .unwrap();
 
@@ -46,14 +46,14 @@ pub async fn create(
     State(state): State<AppState>,
     Json(mut new_user): Json<NewUser>,
 ) -> (StatusCode, Json<DisplayUser>) {
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
     // hash password
     new_user.set_password(&new_user.password.clone());
 
     let user: User = diesel::insert_into(schema::user::table)
         .values(new_user)
-        .get_result::<User>(&mut read_conn)
+        .get_result::<User>(&mut db_conn)
         .await
         .unwrap();
 
@@ -67,7 +67,7 @@ pub async fn update(
     Json(user_data): Json<UpdateUser>,
 ) -> (StatusCode, Json<DisplayUser>) {
     use crate::schema::user::dsl::*;
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
     let updated_user: User = diesel::update(user.filter(id.eq(user_id)))
         .set((
@@ -75,7 +75,7 @@ pub async fn update(
             is_admin.eq(user_data.is_admin),
             updated_at.eq(Utc::now()),
         ))
-        .get_result(&mut read_conn)
+        .get_result(&mut db_conn)
         .await
         .unwrap();
 
@@ -85,10 +85,10 @@ pub async fn update(
 #[axum::debug_handler]
 pub async fn delete(State(state): State<AppState>, Path(user_id): Path<i32>) -> StatusCode {
     use crate::schema::user::dsl::*;
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
     diesel::delete(user.filter(id.eq(user_id)))
-        .execute(&mut read_conn)
+        .execute(&mut db_conn)
         .await
         .unwrap();
 

@@ -12,9 +12,9 @@ use diesel_async::RunQueryDsl;
 
 #[axum::debug_handler]
 pub async fn list(State(state): State<AppState>) -> (StatusCode, Json<Vec<Host>>) {
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
-    let hosts: Vec<Host> = schema::host::table.load(&mut read_conn).await.unwrap();
+    let hosts: Vec<Host> = schema::host::table.load(&mut db_conn).await.unwrap();
 
     println!("Hosts {:?}", hosts);
 
@@ -26,11 +26,11 @@ pub async fn get(
     State(state): State<AppState>,
     Path(host_id): Path<i32>,
 ) -> (StatusCode, Json<Host>) {
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
     let host: Host = schema::host::table
         .filter(schema::host::id.eq(host_id))
-        .first(&mut read_conn)
+        .first(&mut db_conn)
         .await
         .unwrap();
 
@@ -44,11 +44,11 @@ pub async fn create(
     State(state): State<AppState>,
     Json(new_host): Json<NewHost>,
 ) -> (StatusCode, Json<Host>) {
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
     let host: Host = diesel::insert_into(schema::host::table)
         .values(&new_host)
-        .get_result::<Host>(&mut read_conn)
+        .get_result::<Host>(&mut db_conn)
         .await
         .unwrap();
 
@@ -62,7 +62,7 @@ pub async fn update(
     Json(host_data): Json<NewHost>,
 ) -> (StatusCode, Json<Host>) {
     use crate::schema::host::dsl::*;
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
     let updated_host: Host = diesel::update(host.filter(id.eq(host_id)))
         .set((
@@ -74,7 +74,7 @@ pub async fn update(
             password.eq(host_data.password),
             updated_at.eq(Utc::now()),
         ))
-        .get_result(&mut read_conn)
+        .get_result(&mut db_conn)
         .await
         .unwrap();
 
@@ -84,10 +84,10 @@ pub async fn update(
 #[axum::debug_handler]
 pub async fn delete(State(state): State<AppState>, Path(host_id): Path<i32>) -> StatusCode {
     use crate::schema::host::dsl::*;
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
     diesel::delete(host.filter(id.eq(host_id)))
-        .execute(&mut read_conn)
+        .execute(&mut db_conn)
         .await
         .unwrap();
 

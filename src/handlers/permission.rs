@@ -13,7 +13,7 @@ pub async fn list(
     State(state): State<AppState>,
     Path(user_id): Path<i32>,
 ) -> (StatusCode, Json<Vec<DisplayPermission>>) {
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
     let permissions_with_extra = schema::permission::table
         .inner_join(schema::group::table)
@@ -29,7 +29,7 @@ pub async fn list(
             schema::permission::host_id.asc(),
             schema::permission::id.asc(),
         ))
-        .load::<(Permission, Option<String>, String)>(&mut read_conn)
+        .load::<(Permission, Option<String>, String)>(&mut db_conn)
         .await
         .unwrap();
 
@@ -50,7 +50,7 @@ pub async fn get(
     State(state): State<AppState>,
     Path((user_id, permission_id)): Path<(i32, i32)>,
 ) -> (StatusCode, Json<DisplayPermission>) {
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
     let (permission, host_name, group_name) = schema::permission::table
         .inner_join(schema::group::table)
@@ -66,7 +66,7 @@ pub async fn get(
             schema::host::name.asc(),
             schema::permission::id.asc(),
         ))
-        .first::<(Permission, Option<String>, String)>(&mut read_conn)
+        .first::<(Permission, Option<String>, String)>(&mut db_conn)
         .await
         .unwrap();
 
@@ -81,14 +81,14 @@ pub async fn create(
     Path(user_id): Path<i32>,
     Json(new_permission): Json<UpdatePermission>,
 ) -> (StatusCode, Json<Option<Permission>>) {
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
     if let Some(host_id) = new_permission.host_id {
         use schema::host::*;
         let count: i64 = table
             .filter(id.eq(host_id).and(group_id.eq(new_permission.group_id)))
             .count()
-            .get_result(&mut read_conn)
+            .get_result(&mut db_conn)
             .await
             .unwrap();
         if count == 0 {
@@ -109,7 +109,7 @@ pub async fn create(
 
     let permission: Permission = diesel::insert_into(schema::permission::table)
         .values(new_permission)
-        .get_result::<Permission>(&mut read_conn)
+        .get_result::<Permission>(&mut db_conn)
         .await
         .unwrap();
 
@@ -122,14 +122,14 @@ pub async fn update(
     Path((user_id, permission_id)): Path<(i32, i32)>,
     Json(permission_data): Json<UpdatePermission>,
 ) -> (StatusCode, Json<Option<Permission>>) {
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
     if let Some(host_id) = permission_data.host_id {
         use schema::host::*;
         let count: i64 = table
             .filter(id.eq(host_id).and(group_id.eq(permission_data.group_id)))
             .count()
-            .get_result(&mut read_conn)
+            .get_result(&mut db_conn)
             .await
             .unwrap();
         if count == 0 {
@@ -150,7 +150,7 @@ pub async fn update(
                 schema::permission::can_view.eq(permission_data.can_view | permission_data.can_act),
                 schema::permission::can_act.eq(permission_data.can_act),
             ))
-            .get_result(&mut read_conn)
+            .get_result(&mut db_conn)
             .await
             .unwrap();
 
@@ -162,14 +162,14 @@ pub async fn delete(
     State(state): State<AppState>,
     Path((user_id, permission_id)): Path<(i32, i32)>,
 ) -> StatusCode {
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
     let match_user_perm = schema::permission::id
         .eq(permission_id)
         .and(schema::permission::user_id.eq(user_id));
 
     diesel::delete(schema::permission::table.filter(match_user_perm))
-        .execute(&mut read_conn)
+        .execute(&mut db_conn)
         .await
         .unwrap();
 

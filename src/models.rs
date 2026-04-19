@@ -274,7 +274,7 @@ pub struct UpdatePermission {
     pub can_act: bool,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct DisplayPermission {
     pub id: i32,
     pub user_id: i32,

@@ -21,15 +21,14 @@ pub async fn login(
     State(state): State<AppState>,
     Json(login_form): Json<LoginForm>,
 ) -> (StatusCode, Json<Option<AuthenticatedUser>>) {
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
 
     let user_obj: Option<User> = schema::user::table
         .filter(schema::user::email.eq(&login_form.email))
-        .first(&mut read_conn)
+        .first(&mut db_conn)
         .await
         .optional()
         .unwrap();
-    drop(read_conn);
 
     let Some(user_obj) = user_obj else {
         return (StatusCode::UNAUTHORIZED, Json(None));
@@ -39,23 +38,19 @@ pub async fn login(
         return (StatusCode::UNAUTHORIZED, Json(None));
     }
 
-    let mut write_conn = state.write_conn.get().await.expect("Cannot get db conn");
-
     let session_obj = NewSession::new(user_obj.id);
     diesel::insert_into(schema::session::table)
         .values(&session_obj)
-        .execute(&mut write_conn)
+        .execute(&mut db_conn)
         .await
         .unwrap();
 
     let match_user = schema::user::id.eq(user_obj.id);
     diesel::update(schema::user::table.filter(match_user))
         .set(schema::user::last_login.eq(Utc::now()))
-        .execute(&mut write_conn)
+        .execute(&mut db_conn)
         .await
         .unwrap();
-
-    drop(write_conn);
 
     let user_obj = AuthenticatedUser {
         email: user_obj.email,
@@ -72,10 +67,10 @@ const LOGIN_COOKIE_NAME: &'static str = "session_token";
 #[axum::debug_handler]
 pub async fn logout(State(state): State<AppState>, cookie_jar: CookieJar) {
     if let Some(login_cookie) = cookie_jar.get(LOGIN_COOKIE_NAME) {
-        let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+        let mut db_conn = state.db_conn.lock().await;
         let match_token = schema::session::token.eq(login_cookie.value());
         diesel::delete(schema::session::table.filter(match_token))
-            .execute(&mut read_conn)
+            .execute(&mut db_conn)
             .await
             .unwrap();
     }
@@ -90,13 +85,13 @@ pub async fn get_current_user_with_permission(
         return (StatusCode::UNAUTHORIZED, Json(None));
     };
 
-    let mut read_conn = state.read_pool.get().await.expect("Cannot get db conn");
+    let mut db_conn = state.db_conn.lock().await;
     let match_token = schema::session::token.eq(login_cookie.value());
     let res = schema::session::table
         .filter(match_token)
         .left_join(schema::user::table)
         .select((Session::as_select(), Option::<User>::as_select()))
-        .load::<(Session, Option<User>)>(&mut read_conn)
+        .load::<(Session, Option<User>)>(&mut db_conn)
         .await
         .unwrap();
 
@@ -113,7 +108,7 @@ pub async fn get_current_user_with_permission(
     let match_perm = schema::permission::user_id.eq(user.id);
     let permissions: Vec<Permission> = schema::permission::table
         .filter(match_perm)
-        .load(&mut read_conn)
+        .load(&mut db_conn)
         .await
         .unwrap();
 
