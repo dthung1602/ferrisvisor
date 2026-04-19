@@ -5,6 +5,7 @@ import type { CurrentUser } from "$lib/api/auth";
 export interface GlobalState {
   currentUser: CurrentUser | null;
   isLoadingCurrentUser: boolean;
+  isDarkMode: boolean;
 }
 
 // createContext returns a [get, set] pair

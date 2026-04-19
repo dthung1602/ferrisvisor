@@ -1,12 +1,15 @@
 <script lang="ts">
-  import { Bell, Moon } from "@lucide/svelte";
+  import { Bell, Moon, Sun } from "@lucide/svelte";
   import { Avatar } from "@skeletonlabs/skeleton-svelte";
 
   import { getGlobalContext } from "$lib/global-state";
 
   let globalContext = getGlobalContext();
   let isLoggedIn = $derived(!globalContext.isLoadingCurrentUser && globalContext.currentUser);
-  console.log("isLoggedIn", isLoggedIn, "globalContext", globalContext);
+
+  function toggleDarkMode() {
+    globalContext.isDarkMode = !globalContext.isDarkMode;
+  }
 </script>
 
 <header
@@ -16,8 +19,15 @@
     <button class="btn-icon btn-icon-lg transition-colors hover:text-primary-500">
       <Bell class="size-6" />
     </button>
-    <button class="btn-icon btn-icon-lg transition-colors hover:text-primary-500">
-      <Moon class="size-6" />
+    <button
+      class="btn-icon btn-icon-lg transition-colors hover:text-primary-500"
+      onclick={toggleDarkMode}
+    >
+      {#if globalContext.isDarkMode}
+        <Sun class="size-6" />
+      {:else}
+        <Moon class="size-6" />
+      {/if}
     </button>
     <div class="mx-2 h-4 border-l border-surface-500/20"></div>
     <div class="flex items-center gap-2">

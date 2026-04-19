@@ -7,7 +7,7 @@
   import Footer from "$lib/components/Footer.svelte";
   import SideBar from "$lib/components/SideBar.svelte";
   import TopNavigation from "$lib/components/TopNavigation.svelte";
-  import { setGlobalContext, type GlobalState } from "$lib/global-state";
+  import { type GlobalState, setGlobalContext } from "$lib/global-state";
 
   let { children } = $props();
 
@@ -25,9 +25,25 @@
 
   const globalContext = $state({
     currentUser: null,
-    isLoadingCurrentUser: true
+    isLoadingCurrentUser: true,
+    isDarkMode: false
   } as GlobalState);
   setGlobalContext(globalContext);
+
+  $effect(() => {
+    globalContext.isDarkMode = localStorage.getItem("theme") === "dark" ||
+      (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  });
+
+  $effect(() => {
+    if (globalContext.isDarkMode) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  });
 </script>
 
 <svelte:head>
