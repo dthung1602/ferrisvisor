@@ -312,5 +312,5 @@ pub struct UserWithPermissions {
     pub last_login: Option<DateTime<Utc>>,
     pub is_admin: bool,
     pub session: Session,
-    pub permissions: Vec<Permission>,
+    pub permissions: Vec<DisplayPermission>,
 }

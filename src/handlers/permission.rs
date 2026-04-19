@@ -1,4 +1,4 @@
-use crate::common::AppState;
+use crate::common::{AppState, AsyncSqliteConnection};
 use crate::models::{DisplayPermission, NewPermission, Permission, UpdatePermission};
 use crate::schema;
 use diesel::prelude::*;
@@ -7,6 +7,7 @@ use axum::Json;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use diesel_async::RunQueryDsl;
+use tokio::sync::MutexGuard;
 
 #[axum::debug_handler]
 pub async fn list(
@@ -14,65 +15,23 @@ pub async fn list(
     Path(user_id): Path<i32>,
 ) -> (StatusCode, Json<Vec<DisplayPermission>>) {
     let mut db_conn = state.db_conn.lock().await;
-
-    let permissions_with_extra = schema::permission::table
-        .inner_join(schema::group::table)
-        .left_join(schema::host::table)
-        .filter(schema::permission::user_id.eq(user_id))
-        .select((
-            Permission::as_select(),
-            schema::host::name.nullable(),
-            schema::group::name,
-        ))
-        .order_by((
-            schema::permission::group_id.asc(),
-            schema::permission::host_id.asc(),
-            schema::permission::id.asc(),
-        ))
-        .load::<(Permission, Option<String>, String)>(&mut db_conn)
-        .await
-        .unwrap();
-
-    println!("Permissions {:?}", permissions_with_extra);
-
-    let permissions_with_extra: Vec<DisplayPermission> = permissions_with_extra
-        .into_iter()
-        .map(|(perm, host_name, group_name)| {
-            DisplayPermission::from_perm(perm, host_name, group_name)
-        })
-        .collect();
-
-    (StatusCode::OK, Json(permissions_with_extra))
+    let display_permissions = get_display_permissions(user_id, None, &mut db_conn).await;
+    (StatusCode::OK, Json(display_permissions))
 }
 
 #[axum::debug_handler]
 pub async fn get(
     State(state): State<AppState>,
     Path((user_id, permission_id)): Path<(i32, i32)>,
-) -> (StatusCode, Json<DisplayPermission>) {
+) -> (StatusCode, Json<Option<DisplayPermission>>) {
     let mut db_conn = state.db_conn.lock().await;
 
-    let (permission, host_name, group_name) = schema::permission::table
-        .inner_join(schema::group::table)
-        .left_join(schema::host::table)
-        .filter(schema::permission::user_id.eq(user_id))
-        .select((
-            Permission::as_select(),
-            schema::host::name.nullable(),
-            schema::group::name,
-        ))
-        .order_by((
-            schema::group::name.asc(),
-            schema::host::name.asc(),
-            schema::permission::id.asc(),
-        ))
-        .first::<(Permission, Option<String>, String)>(&mut db_conn)
-        .await
-        .unwrap();
-
-    let permission = DisplayPermission::from_perm(permission, host_name, group_name);
-
-    (StatusCode::OK, Json(permission))
+    let display_permissions = get_display_permissions(user_id, Some(permission_id), &mut db_conn).await;
+    if display_permissions.is_empty() {
+        (StatusCode::NOT_FOUND, Json(None))
+    } else {
+        (StatusCode::OK, Json(Some(display_permissions[0].clone())))
+    }
 }
 
 #[axum::debug_handler]
@@ -104,8 +63,6 @@ pub async fn create(
         new_permission.can_view,
         new_permission.can_act,
     );
-
-    println!("\nNew permission --> {:?}\n", new_permission);
 
     let permission: Permission = diesel::insert_into(schema::permission::table)
         .values(new_permission)
@@ -174,4 +131,36 @@ pub async fn delete(
         .unwrap();
 
     StatusCode::OK
+}
+
+pub async fn get_display_permissions<'a>(user_id: i32, perm_id: Option<i32>, mut db_conn: &mut MutexGuard<'a, AsyncSqliteConnection>) -> Vec<DisplayPermission> {
+    let mut query = schema::permission::table
+        .inner_join(schema::group::table)
+        .left_join(schema::host::table)
+        .filter(schema::permission::user_id.eq(user_id))
+        .select((
+            Permission::as_select(),
+            schema::host::name.nullable(),
+            schema::group::name,
+        ))
+        .order_by((
+            schema::permission::group_id.asc(),
+            schema::permission::host_id.asc(),
+            schema::permission::id.asc(),
+        ))
+        .into_boxed();
+
+    if let Some(perm_id) = perm_id {
+        query = query.filter(schema::permission::id.eq(perm_id));
+    }
+
+    query
+        .load::<(Permission, Option<String>, String)>(&mut db_conn)
+        .await
+        .unwrap()
+        .into_iter()
+        .map(|(perm, host_name, group_name)| {
+            DisplayPermission::from_perm(perm, host_name, group_name)
+        })
+        .collect::<Vec<DisplayPermission>>()
 }

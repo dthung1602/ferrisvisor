@@ -1,6 +1,6 @@
 use crate::common::AppState;
 use crate::models::{
-    AuthenticatedUser, HasPassword, LoginForm, NewSession, Permission, Session, User,
+    HasPassword, LoginForm, NewSession, Permission, Session, User,
     UserWithPermissions,
 };
 use crate::schema;
@@ -15,51 +15,58 @@ use chrono::Utc;
 use diesel::QueryDsl;
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
+use crate::handlers::permission::get_display_permissions;
 
 #[axum::debug_handler]
 pub async fn login(
     State(state): State<AppState>,
     Json(login_form): Json<LoginForm>,
-) -> (StatusCode, Json<Option<AuthenticatedUser>>) {
+) -> (StatusCode, Json<Option<UserWithPermissions>>) {
     let mut db_conn = state.db_conn.lock().await;
+    let now = Utc::now();
 
-    let user_obj: Option<User> = schema::user::table
+    let user: Option<User> = schema::user::table
         .filter(schema::user::email.eq(&login_form.email))
         .first(&mut db_conn)
         .await
         .optional()
         .unwrap();
 
-    let Some(user_obj) = user_obj else {
+    let Some(user) = user else {
         return (StatusCode::UNAUTHORIZED, Json(None));
     };
 
-    if !user_obj.verify_password(login_form.password.as_str()) {
+    if !user.verify_password(login_form.password.as_str()) {
         return (StatusCode::UNAUTHORIZED, Json(None));
     }
 
-    let session_obj = NewSession::new(user_obj.id);
-    diesel::insert_into(schema::session::table)
-        .values(&session_obj)
+    let session = NewSession::new(user.id);
+    let session = diesel::insert_into(schema::session::table)
+        .values(&session)
+        .get_result::<Session>(&mut db_conn)
+        .await
+        .unwrap();
+
+    diesel::update(schema::user::table.filter(schema::user::id.eq(user.id)))
+        .set(schema::user::last_login.eq(now))
         .execute(&mut db_conn)
         .await
         .unwrap();
 
-    let match_user = schema::user::id.eq(user_obj.id);
-    diesel::update(schema::user::table.filter(match_user))
-        .set(schema::user::last_login.eq(Utc::now()))
-        .execute(&mut db_conn)
-        .await
-        .unwrap();
+    let permissions = get_display_permissions(user.id, None, &mut db_conn).await;
 
-    let user_obj = AuthenticatedUser {
-        email: user_obj.email,
-        is_admin: user_obj.is_admin,
-        token: session_obj.token,
-        expires_at: session_obj.expires_at,
+    let user_with_perms = UserWithPermissions {
+        id: user.id,
+        email: user.email,
+        created_at: user.created_at,
+        updated_at: user.updated_at,
+        last_login: Some(now),
+        is_admin: user.is_admin,
+        session: session.clone(),
+        permissions,
     };
 
-    (StatusCode::OK, Json(Some(user_obj)))
+    (StatusCode::OK, Json(Some(user_with_perms)))
 }
 
 const LOGIN_COOKIE_NAME: &'static str = "session_token";
@@ -105,12 +112,7 @@ pub async fn get_current_user_with_permission(
         return (StatusCode::UNAUTHORIZED, Json(None));
     };
 
-    let match_perm = schema::permission::user_id.eq(user.id);
-    let permissions: Vec<Permission> = schema::permission::table
-        .filter(match_perm)
-        .load(&mut db_conn)
-        .await
-        .unwrap();
+    let permissions = get_display_permissions(user.id, None, &mut db_conn).await;
 
     let user_with_perms = UserWithPermissions {
         id: user.id,
