@@ -68,6 +68,7 @@ pub async fn update(
         .set((
             name.eq(group_data.name),
             description.eq(group_data.description),
+            color.eq(group_data.color),
             updated_at.eq(Utc::now()),
         ))
         .get_result(&mut read_conn)

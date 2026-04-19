@@ -94,7 +94,7 @@
       <EntityList
         bind:selectedEntity={selectedHost}
         entityName="host"
-        avatarFunc={() => Server}
+        avatarIconFunc={() => Server}
         entityNameFunc={(h) => h.name}
         searchFields={(h) => [h.name, h.hostname, h.username, h.id]}
         selectEntity={selectHost}
@@ -102,10 +102,13 @@
         {loading}
       >
         {#snippet badge(host)}
+          {@const group = groups.find((g) => g.id === host.group_id)}
           <span
-            class="rounded bg-secondary-500/20 px-2 py-0.5 text-[9px] font-bold tracking-widest text-secondary-500 uppercase"
+            class="rounded px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase
+            {group?.color ? '' : 'bg-secondary-500/20 text-secondary-500'}"
+            style={group?.color ? `background-color: ${group.color}33; color: ${group.color}` : ""}
           >
-            {groups.find((g) => g.id === host.group_id)?.name ?? "Unknown"}
+            {group?.name ?? "Unknown"}
           </span>
         {/snippet}
       </EntityList>

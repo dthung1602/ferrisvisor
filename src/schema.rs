@@ -7,6 +7,7 @@ diesel::table! {
         description -> Text,
         created_at -> TimestamptzSqlite,
         updated_at -> TimestamptzSqlite,
+        color -> Text,
     }
 }
 

@@ -6,7 +6,8 @@
   type Prop = {
     selectedEntity: E | null;
     entityName: string;
-    avatarFunc: (e: E) => LucideIcon;
+    avatarIconFunc: (e: E) => LucideIcon;
+    avatarColorFunc?: (e: E) => string;
     entityNameFunc: (e: E) => string;
     searchFields?: (e: E) => (string | number | undefined | null)[];
     badge?: Snippet<[E]>;
@@ -18,7 +19,8 @@
   let {
     selectedEntity = $bindable(null),
     entityName,
-    avatarFunc,
+    avatarIconFunc,
+    avatarColorFunc,
     entityNameFunc,
     searchFields,
     badge,
@@ -35,10 +37,11 @@
 
     return entities.filter((e) => {
       const fields = searchFields ? searchFields(e) : [entityNameFunc(e), e.id];
+
       return fields.some((f) => f?.toString().toLowerCase().includes(term));
     });
   });
-  </script>
+</script>
 
 <div
   class="relative overflow-hidden card rounded-xl border border-surface-500/10 bg-surface-50-950/40 p-6 backdrop-blur-xl"
@@ -62,7 +65,8 @@
   {:else}
     <div class="space-y-3">
       {#each filteredEntities as entity (entity.id)}
-        {@const AvatarIcon = avatarFunc(entity)}
+        {@const AvatarIcon = avatarIconFunc(entity)}
+        {@const avatarColor = avatarColorFunc?.(entity)}
 
         <div
           class="group flex cursor-pointer items-center justify-between card border-l-4 p-4 transition-all
@@ -76,7 +80,7 @@
         >
           <div class="flex items-center gap-4">
             <div class="flex size-12 items-center justify-center rounded-lg bg-surface-500/10">
-              <AvatarIcon class="size-6 text-secondary-500" />
+              <AvatarIcon class="size-6 {avatarColor ? '' : 'text-secondary-500'}" color={avatarColor ?? undefined} />
             </div>
             <div class="overflow-hidden">
               <div class="flex items-center gap-2">

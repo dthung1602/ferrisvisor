@@ -71,7 +71,9 @@
         </div>
 
         <div class="col-span-3 space-y-1.5">
-          <label for="hostname" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Hostname / IP</label>
+          <label for="hostname" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50"
+            >Hostname / IP</label
+          >
           <input
             class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
             type="text"
@@ -115,7 +117,7 @@
             />
             <button
               type="button"
-              class="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 hover:text-primary-500"
+              class="absolute top-1/2 right-4 -translate-y-1/2 text-surface-400 hover:text-primary-500"
               onclick={() => (showPassword = !showPassword)}
             >
               {#if showPassword}

@@ -14,6 +14,7 @@ pub struct Group {
     pub description: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub color: String,
 }
 
 #[derive(Insertable, Debug, Deserialize)]
@@ -22,6 +23,7 @@ pub struct Group {
 pub struct NewGroup {
     pub name: String,
     pub description: String,
+    pub color: String,
 }
 
 #[derive(Queryable, Selectable, Debug, Serialize, Deserialize)]
@@ -257,7 +259,7 @@ impl NewPermission {
             group_id,
             host_id,
             service_name: service_name.to_string(),
-            can_view: can_view | can_act,  // Can act implies can view
+            can_view: can_view | can_act, // Can act implies can view
             can_act,
         }
     }

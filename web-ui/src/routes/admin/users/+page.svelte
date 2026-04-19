@@ -161,7 +161,7 @@
       <EntityList
         bind:selectedEntity={selectedUser}
         entityName="user"
-        avatarFunc={(u) => (u.is_admin ? ShieldUser : User)}
+        avatarIconFunc={(u) => (u.is_admin ? ShieldUser : User)}
         entityNameFunc={(u) => u.email}
         searchFields={(u) => [u.email, u.id]}
         selectEntity={selectUser}

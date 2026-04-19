@@ -90,7 +90,8 @@
       <EntityList
         bind:selectedEntity={selectedGroup}
         entityName="group"
-        avatarFunc={() => Layers}
+        avatarIconFunc={() => Layers}
+        avatarColorFunc={(g) => g.color}
         entityNameFunc={(g) => g.name}
         searchFields={(g) => [g.name, g.id]}
         selectEntity={selectGroup}

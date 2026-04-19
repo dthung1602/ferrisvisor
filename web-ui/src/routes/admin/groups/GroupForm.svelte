@@ -65,6 +65,24 @@
           />
         </div>
 
+        <div class="col-span-2 space-y-1.5">
+          <label for="color" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Color</label>
+          <div class="flex gap-4">
+            <input
+              class="input flex-1 rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+              type="text"
+              name="color"
+              placeholder="Any valid CSS color"
+              required
+              bind:value={group.color}
+            />
+            <div
+              class="size-11 shrink-0 rounded-xl border border-surface-500/20"
+              style="background-color: {group.color || '#000000'}"
+            ></div>
+          </div>
+        </div>
+
         {#if isEdit}
           <div class="space-y-1.5">
             <label for="created_at" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50"
