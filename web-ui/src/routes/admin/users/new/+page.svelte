@@ -1,12 +1,15 @@
 <script lang="ts">
-  import { api } from "$lib";
-  import type { Host } from "$lib/api/host";
-  import type { Group } from "$lib/api/group";
-  import UserForm from "../UserForm.svelte";
+  import { onMount } from "svelte";
+
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
-  import { onMount } from "svelte";
+  import { api } from "$lib";
   import { omit } from "lodash";
+
+  import type { Group } from "$lib/api/group";
+  import type { Host } from "$lib/api/host";
+
+  import UserForm from "../UserForm.svelte";
 
   type PermissionFormData = {
     id: number;

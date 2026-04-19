@@ -1,15 +1,17 @@
 <script lang="ts">
   import { ShieldUser, User, UserCheck, UserPlus } from "@lucide/svelte";
-  import { api } from "$lib";
-  import type { User as UserType } from "$lib/api/user";
-  import type { Permission } from "$lib/api/permission";
-  import type { Host } from "$lib/api/host";
-  import type { Group } from "$lib/api/group";
-  import UserForm from "./UserForm.svelte";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
+  import { api } from "$lib";
   import { clone, omit } from "lodash";
+
+  import type { Group } from "$lib/api/group";
+  import type { Host } from "$lib/api/host";
+  import type { Permission } from "$lib/api/permission";
+  import type { User as UserType } from "$lib/api/user";
   import EntityList from "$lib/components/EntityList.svelte";
+
+  import UserForm from "./UserForm.svelte";
 
   type PermissionFormData = {
     id: number;

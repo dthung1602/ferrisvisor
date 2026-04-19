@@ -1,12 +1,14 @@
 <script lang="ts">
   import { Server, ServerCog } from "@lucide/svelte";
-  import { api } from "$lib";
-  import type { Host } from "$lib/api/host";
-  import type { Group } from "$lib/api/group";
-  import EntityList from "$lib/components/EntityList.svelte";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
+  import { api } from "$lib";
   import { clone } from "lodash";
+
+  import type { Group } from "$lib/api/group";
+  import type { Host } from "$lib/api/host";
+  import EntityList from "$lib/components/EntityList.svelte";
+
   import HostForm from "./HostForm.svelte";
 
   let hosts: Host[] = $state([]);

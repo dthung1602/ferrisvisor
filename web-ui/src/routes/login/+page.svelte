@@ -1,24 +1,29 @@
 <script lang="ts">
+  import { CircleArrowRight, LockKeyhole, Mail } from "@lucide/svelte";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import { api, cookies } from "$lib";
-  import logo from "$lib/assets/Original_Ferris.svg";
-  import { Mail, LockKeyhole, CircleArrowRight } from "@lucide/svelte";
-  import GoogleIcon from "$lib/assets/icons/google.svg";
+
   import GithubIcon from "$lib/assets/icons/github.svg";
+  import GoogleIcon from "$lib/assets/icons/google.svg";
   import KeyCloak from "$lib/assets/icons/keycloak.svg";
-  import { VERSION } from "$lib/constants";
+  import logo from "$lib/assets/Original_Ferris.svg";
   import CustomIcon from "$lib/components/CustomIcon.svelte";
+  import { VERSION } from "$lib/constants";
+  import { getGlobalContext } from "$lib/global-state";
 
   let email: string = $state("");
   let password: string = $state("");
   let error: string = $state("");
 
+  let globalContext = getGlobalContext();
+
   async function login(e: Event) {
     e.preventDefault();
     try {
-      const loginResult = await api.auth.login(email, password);
-      cookies.setSessionToken(loginResult.token, loginResult.expires_at);
+      const loginUser = await api.auth.login(email, password);
+      cookies.setSessionToken(loginUser.session.token, loginUser.session.expires_at);
+      globalContext.currentUser = loginUser;
       await goto(resolve("/"));
     } catch (e: unknown) {
       error = e instanceof Error ? (e.message ?? "Unknown error") : (e ?? "Unknown error").toString();

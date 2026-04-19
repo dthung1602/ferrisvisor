@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { page } from "$app/state";
-  import { api } from "$lib";
-  import type { Permission } from "$lib/api/permission";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
+  import { page } from "$app/state";
+  import { api } from "$lib";
+
+  import type { Permission } from "$lib/api/permission";
 
   const userId = parseInt(page.params.id || "0");
   let permissions: Permission[] = $state([]);

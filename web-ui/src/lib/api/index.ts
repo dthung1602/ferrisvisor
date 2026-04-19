@@ -1,7 +1,7 @@
 import auth from "./auth";
-import host from "./host";
 import group from "./group";
-import user from "./user";
+import host from "./host";
 import permission from "./permission";
+import user from "./user";
 
 export { auth, host, group, user, permission };

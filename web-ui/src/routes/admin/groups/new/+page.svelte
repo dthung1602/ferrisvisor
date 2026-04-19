@@ -1,8 +1,10 @@
 <script lang="ts">
-  import type { NewGroup } from "$lib/api/group";
-  import { group } from "$lib/api";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
+
+  import { group } from "$lib/api";
+  import type { NewGroup } from "$lib/api/group";
+
   import GroupForm from "../GroupForm.svelte";
 
   let formData = $state({

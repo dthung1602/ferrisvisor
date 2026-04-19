@@ -1,7 +1,8 @@
 <script lang="ts" generics="E extends Record<string, number|string|boolean>, RS, FD extends Partial<E>">
+  import type { Snippet } from "svelte";
+
   import type { RelatedSelect } from "$lib/components/types";
   import { normalizedFieldNameToDisplay } from "$lib/string";
-  import type { Snippet } from "svelte";
 
   type FormData = FD;
 

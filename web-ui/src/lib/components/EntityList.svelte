@@ -1,5 +1,6 @@
 <script lang="ts" generics="E extends { id: number }">
   import type { Snippet } from "svelte";
+
   import { Search } from "@lucide/svelte";
   import type { LucideIcon } from "@lucide/svelte";
 

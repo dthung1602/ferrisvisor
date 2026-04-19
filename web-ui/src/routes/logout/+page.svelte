@@ -1,12 +1,16 @@
 <script lang="ts">
-  import { api, cookies } from "$lib";
+  import { Progress } from "@skeletonlabs/skeleton-svelte";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
-  import { Progress } from "@skeletonlabs/skeleton-svelte";
+  import { api, cookies } from "$lib";
+  import { getGlobalContext } from "$lib/global-state";
+
+  const globalContext = getGlobalContext();
 
   api.auth.logout().then(() => {
     cookies.unsetSessionToken();
-    goto(resolve("/"));
+    globalContext.currentUser = null;
+    goto(resolve("/login"));
   });
 </script>
 

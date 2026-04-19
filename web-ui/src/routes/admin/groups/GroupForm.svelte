@@ -1,6 +1,7 @@
 <script lang="ts">
+  import { LayersPlus, Pencil } from "@lucide/svelte";
+
   import type { Group, NewGroup } from "$lib/api/group";
-  import { Pencil, LayersPlus } from "@lucide/svelte";
   import { formatDate } from "$lib/string";
 
   interface Props {

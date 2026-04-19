@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { Switch } from "@skeletonlabs/skeleton-svelte";
   import { UserPen, UserPlus, X } from "@lucide/svelte";
-  import type { User, NewUser } from "$lib/api/user";
-  import type { Host } from "$lib/api/host";
+  import { Switch } from "@skeletonlabs/skeleton-svelte";
+
   import type { Group } from "$lib/api/group";
+  import type { Host } from "$lib/api/host";
+  import type { NewUser, User } from "$lib/api/user";
   import { formatDate } from "$lib/string";
 
   type PermissionFormData = {

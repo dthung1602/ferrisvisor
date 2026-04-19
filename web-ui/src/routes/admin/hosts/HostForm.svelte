@@ -1,7 +1,8 @@
 <script lang="ts">
-  import type { Host, NewHost } from "$lib/api/host";
+  import { Eye, EyeOff, Pencil, Server } from "@lucide/svelte";
+
   import type { Group } from "$lib/api/group";
-  import { Pencil, Server, Eye, EyeOff } from "@lucide/svelte";
+  import type { Host, NewHost } from "$lib/api/host";
   import { formatDate } from "$lib/string";
 
   interface Props {

@@ -1,9 +1,11 @@
 <script lang="ts">
-  import type { NewHost } from "$lib/api/host";
-  import type { Group } from "$lib/api/group";
-  import { host, group } from "$lib/api";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
+
+  import { group, host } from "$lib/api";
+  import type { Group } from "$lib/api/group";
+  import type { NewHost } from "$lib/api/host";
+
   import HostForm from "../HostForm.svelte";
 
   let groups: Group[] = $state([]);

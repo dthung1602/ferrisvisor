@@ -1,11 +1,13 @@
 <script lang="ts">
   import { Layers, LayersPlus } from "@lucide/svelte";
-  import { api } from "$lib";
-  import type { Group } from "$lib/api/group";
-  import EntityList from "$lib/components/EntityList.svelte";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
+  import { api } from "$lib";
   import { clone } from "lodash";
+
+  import type { Group } from "$lib/api/group";
+  import EntityList from "$lib/components/EntityList.svelte";
+
   import GroupForm from "./GroupForm.svelte";
 
   let groups: Group[] = $state([]);
