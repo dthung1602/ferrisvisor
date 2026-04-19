@@ -49,8 +49,8 @@ async function logout() {
 async function me(): Promise<CurrentUser | null> {
   const resp = await fetch("/api/me");
 
-  if (resp.status === 401 || resp.status === 403  ) {
-    return null
+  if (resp.status === 401 || resp.status === 403) {
+    return null;
   }
 
   if (!resp.ok) {

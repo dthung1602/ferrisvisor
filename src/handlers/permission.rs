@@ -26,7 +26,8 @@ pub async fn get(
 ) -> (StatusCode, Json<Option<DisplayPermission>>) {
     let mut db_conn = state.db_conn.lock().await;
 
-    let display_permissions = get_display_permissions(user_id, Some(permission_id), &mut db_conn).await;
+    let display_permissions =
+        get_display_permissions(user_id, Some(permission_id), &mut db_conn).await;
     if display_permissions.is_empty() {
         (StatusCode::NOT_FOUND, Json(None))
     } else {
@@ -133,7 +134,11 @@ pub async fn delete(
     StatusCode::OK
 }
 
-pub async fn get_display_permissions<'a>(user_id: i32, perm_id: Option<i32>, mut db_conn: &mut MutexGuard<'a, AsyncSqliteConnection>) -> Vec<DisplayPermission> {
+pub async fn get_display_permissions<'a>(
+    user_id: i32,
+    perm_id: Option<i32>,
+    mut db_conn: &mut MutexGuard<'a, AsyncSqliteConnection>,
+) -> Vec<DisplayPermission> {
     let mut query = schema::permission::table
         .inner_join(schema::group::table)
         .left_join(schema::host::table)

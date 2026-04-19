@@ -19,7 +19,7 @@
         globalContext.currentUser = currentUser;
       })
       .finally(() => {
-        globalContext.isLoadingCurrentUser = false
+        globalContext.isLoadingCurrentUser = false;
       });
   });
 

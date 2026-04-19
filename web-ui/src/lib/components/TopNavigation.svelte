@@ -4,9 +4,9 @@
 
   import { getGlobalContext } from "$lib/global-state";
 
-  let globalContext = getGlobalContext()
+  let globalContext = getGlobalContext();
   let isLoggedIn = $derived(!globalContext.isLoadingCurrentUser && globalContext.currentUser);
-  console.log("isLoggedIn", isLoggedIn, "globalContext", globalContext)
+  console.log("isLoggedIn", isLoggedIn, "globalContext", globalContext);
 </script>
 
 <header
@@ -23,7 +23,7 @@
     <div class="flex items-center gap-2">
       <span class="hidden text-right text-[10px] font-bold tracking-widest uppercase sm:block">
         <span class="block">
-          {#if isLoggedIn }
+          {#if isLoggedIn}
             {globalContext.currentUser?.email}
           {:else}
             Anonymous
@@ -32,7 +32,7 @@
       </span>
       <Avatar class="size-10 rounded-full border border-primary-500/30">
         <Avatar.Fallback>
-          {#if isLoggedIn }
+          {#if isLoggedIn}
             {globalContext.currentUser?.email.slice(0, 2).toUpperCase()}
           {:else}
             ?

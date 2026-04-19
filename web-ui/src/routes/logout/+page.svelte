@@ -3,6 +3,7 @@
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import { api, cookies } from "$lib";
+
   import { getGlobalContext } from "$lib/global-state";
 
   const globalContext = getGlobalContext();

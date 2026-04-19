@@ -1,10 +1,10 @@
 use crate::common::AppState;
 use crate::models::{
-    HasPassword, LoginForm, NewSession, Permission, Session, User,
-    UserWithPermissions,
+    HasPassword, LoginForm, NewSession, Permission, Session, User, UserWithPermissions,
 };
 use crate::schema;
 
+use crate::handlers::permission::get_display_permissions;
 use axum::Json;
 use axum::extract::{Request, State};
 use axum::http::StatusCode;
@@ -15,7 +15,6 @@ use chrono::Utc;
 use diesel::QueryDsl;
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
-use crate::handlers::permission::get_display_permissions;
 
 #[axum::debug_handler]
 pub async fn login(
