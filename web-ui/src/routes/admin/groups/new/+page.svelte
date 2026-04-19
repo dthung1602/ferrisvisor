@@ -25,10 +25,5 @@
 </script>
 
 <div class="mx-auto max-w-2xl space-y-8 px-4 py-12">
-  <GroupForm
-    bind:group={formData}
-    isEdit={false}
-    onSave={handleSave}
-    onDiscard={handleDiscard}
-  />
+  <GroupForm bind:group={formData} isEdit={false} onSave={handleSave} onDiscard={handleDiscard} />
 </div>

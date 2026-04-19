@@ -85,7 +85,7 @@
   }
 
   $effect(() => {
-    fetchInitData()
+    fetchInitData();
   });
 
   function handleCreateUser() {

@@ -41,7 +41,7 @@
     <!-- Basic Config -->
     <div class="space-y-4">
       <div class="grid grid-cols-2 gap-4">
-        <div class="space-y-1.5 col-span-2">
+        <div class="col-span-2 space-y-1.5">
           <label for="name" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Name</label>
           <input
             class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"

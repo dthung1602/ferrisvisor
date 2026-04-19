@@ -31,7 +31,10 @@
   let filteredEntities = $derived.by(() => {
     const normalizedSearchTerm = searchTerm.toLowerCase().trim();
     if (!normalizedSearchTerm) return entities;
-    return entities.filter((e) => entityNameFunc(e).toLowerCase().includes(normalizedSearchTerm) || e.id.toString().includes(normalizedSearchTerm));
+    return entities.filter(
+      (e) =>
+        entityNameFunc(e).toLowerCase().includes(normalizedSearchTerm) || e.id.toString().includes(normalizedSearchTerm)
+    );
   });
 </script>
 
