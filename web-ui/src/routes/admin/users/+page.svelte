@@ -163,6 +163,7 @@
         entityName="user"
         avatarFunc={(u) => (u.is_admin ? ShieldUser : User)}
         entityNameFunc={(u) => u.email}
+        searchFields={(u) => [u.email, u.id]}
         selectEntity={selectUser}
         entities={users}
         {loading}

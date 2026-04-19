@@ -92,6 +92,7 @@
         entityName="group"
         avatarFunc={() => Layers}
         entityNameFunc={(g) => g.name}
+        searchFields={(g) => [g.name, g.id]}
         selectEntity={selectGroup}
         entities={groups}
         {loading}

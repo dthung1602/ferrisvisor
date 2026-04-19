@@ -2,13 +2,13 @@
   import type { Snippet } from "svelte";
   import { Search } from "@lucide/svelte";
   import type { LucideIcon } from "@lucide/svelte";
-  import type { User } from "$lib/api/user";
 
   type Prop = {
     selectedEntity: E | null;
     entityName: string;
     avatarFunc: (e: E) => LucideIcon;
     entityNameFunc: (e: E) => string;
+    searchFields?: (e: E) => (string | number | undefined | null)[];
     badge?: Snippet<[E]>;
     selectEntity: (e: E | null) => Promise<void>;
     entities: E[];
@@ -20,6 +20,7 @@
     entityName,
     avatarFunc,
     entityNameFunc,
+    searchFields,
     badge,
     selectEntity,
     entities,
@@ -29,14 +30,15 @@
   let searchTerm = $state("");
 
   let filteredEntities = $derived.by(() => {
-    const normalizedSearchTerm = searchTerm.toLowerCase().trim();
-    if (!normalizedSearchTerm) return entities;
-    return entities.filter(
-      (e) =>
-        entityNameFunc(e).toLowerCase().includes(normalizedSearchTerm) || e.id.toString().includes(normalizedSearchTerm)
-    );
+    const term = searchTerm.toLowerCase().trim();
+    if (!term) return entities;
+
+    return entities.filter((e) => {
+      const fields = searchFields ? searchFields(e) : [entityNameFunc(e), e.id];
+      return fields.some((f) => f?.toString().toLowerCase().includes(term));
+    });
   });
-</script>
+  </script>
 
 <div
   class="relative overflow-hidden card rounded-xl border border-surface-500/10 bg-surface-50-950/40 p-6 backdrop-blur-xl"

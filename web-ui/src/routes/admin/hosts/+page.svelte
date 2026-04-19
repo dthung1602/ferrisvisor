@@ -96,6 +96,7 @@
         entityName="host"
         avatarFunc={() => Server}
         entityNameFunc={(h) => h.name}
+        searchFields={(h) => [h.name, h.hostname, h.username, h.id]}
         selectEntity={selectHost}
         entities={hosts}
         {loading}
