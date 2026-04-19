@@ -1,41 +1,51 @@
 <script lang="ts">
-  import EntityForm from "$lib/components/EntityForm.svelte";
-  import type { Host } from "$lib/api/host";
+  import type { NewHost } from "$lib/api/host";
   import type { Group } from "$lib/api/group";
-  import { group, host } from "$lib/api";
+  import { host, group } from "$lib/api";
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
+  import HostForm from "../HostForm.svelte";
 
-  type NewHost = Omit<Host, "id" | "created_at" | "updated_at">;
+  let groups: Group[] = $state([]);
+  let formData = $state({
+    group_id: 0,
+    name: "",
+    hostname: "",
+    port: 22,
+    username: "",
+    password: ""
+  } as NewHost);
 
-  let error = $state("");
+  async function fetchInitData() {
+    try {
+      groups = await group.list();
+      if (groups.length > 0) {
+        formData.group_id = groups[0].id;
+      }
+    } catch (e) {
+      console.error("Failed to fetch groups", e);
+    }
+  }
 
-  async function onSubmit(formData: NewHost) {
+  $effect(() => {
+    fetchInitData();
+  });
+
+  async function handleSave() {
     try {
       await host.create(formData);
       await goto(resolve("/admin/hosts"));
     } catch (e) {
       console.error(e);
-      error = e + "";
+      alert("Failed to create host");
     }
   }
 
-  const formData = {
-    group_id: 0,
-    name: "",
-    hostname: "",
-    port: 0,
-    username: "",
-    password: ""
-  } as NewHost;
-
-  const relatedSelects = {
-    group_id: {
-      listApi: group.list,
-      idFunc: (g: Group) => g.id,
-      displayFunc: (g: Group) => g.name
-    }
-  };
+  function handleDiscard() {
+    goto(resolve("/admin/hosts"));
+  }
 </script>
 
-<EntityForm {formData} {relatedSelects} {error} {onSubmit} />
+<div class="mx-auto max-w-2xl space-y-8 px-4 py-12">
+  <HostForm bind:host={formData} {groups} isEdit={false} onSave={handleSave} onDiscard={handleDiscard} />
+</div>

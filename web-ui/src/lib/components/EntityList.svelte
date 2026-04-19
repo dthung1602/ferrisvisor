@@ -9,7 +9,7 @@
     entityName: string;
     avatarFunc: (e: E) => LucideIcon;
     entityNameFunc: (e: E) => string;
-    badge?: Snippet<[User]>;
+    badge?: Snippet<[E]>;
     selectEntity: (e: E | null) => Promise<void>;
     entities: E[];
     loading: boolean;
