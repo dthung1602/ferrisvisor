@@ -30,11 +30,17 @@
     - [x] permission management
 
 - [ ] WebUI
-  - [ ] navbar / menu
-  - [ ] footer
+  - [x] navbar / menu
+  - [x] footer
   - [x] login
   - [ ] reset password
-  - [ ] admin page
+  - [ ] supervisor page
+    - [ ] host/svc list
+    - [ ] service list
+    - [ ] start/stop/restart
+    - [ ] view/stream log
+    - [ ] view config
+  - [x] admin page
     - [x] host management
       - [x] list
       - [x add
@@ -45,13 +51,12 @@
       - [x] add
       - [x] delete
       - [x] edit
-    - [ ] user management
+    - [x] user management
       - [x] list
       - [x] add
       - [x] delete
       - [x] edit
-      - [ ] reset?/change? password
-      - [ ] assign/remove permission
+      - [x] assign/remove permission
 
 
 ## Ref:

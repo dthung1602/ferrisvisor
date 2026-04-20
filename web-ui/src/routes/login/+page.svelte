@@ -3,7 +3,6 @@
   import { goto } from "$app/navigation";
   import { api, cookies } from "$lib";
 
-  import { page} from "$app/state";
   import GithubIcon from "$lib/assets/icons/github.svg";
   import GoogleIcon from "$lib/assets/icons/google.svg";
   import KeyCloak from "$lib/assets/icons/keycloak.svg";
