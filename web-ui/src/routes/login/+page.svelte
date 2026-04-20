@@ -1,9 +1,9 @@
 <script lang="ts">
   import { CircleArrowRight, LockKeyhole, Mail } from "@lucide/svelte";
   import { goto } from "$app/navigation";
-  import { resolve } from "$app/paths";
   import { api, cookies } from "$lib";
 
+  import { page} from "$app/state";
   import GithubIcon from "$lib/assets/icons/github.svg";
   import GoogleIcon from "$lib/assets/icons/google.svg";
   import KeyCloak from "$lib/assets/icons/keycloak.svg";
@@ -24,7 +24,11 @@
       const loginUser = await api.auth.login(email, password);
       cookies.setSessionToken(loginUser.session.token, loginUser.session.expires_at);
       globalContext.currentUser = loginUser;
-      await goto(resolve("/"));
+
+      const params = new URLSearchParams(window.location.search);
+      let redirect = params.get("redirect") ?? "/";
+      // eslint-disable-next-line svelte/no-navigation-without-resolve
+      await goto(redirect);
     } catch (e: unknown) {
       error = e instanceof Error ? (e.message ?? "Unknown error") : (e ?? "Unknown error").toString();
     }

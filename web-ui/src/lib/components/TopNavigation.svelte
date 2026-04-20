@@ -5,7 +5,6 @@
   import { getGlobalContext } from "$lib/global-state";
 
   let globalContext = getGlobalContext();
-  let isLoggedIn = $derived(!globalContext.isLoadingCurrentUser && globalContext.currentUser);
 
   function toggleDarkMode() {
     globalContext.isDarkMode = !globalContext.isDarkMode;
@@ -19,10 +18,7 @@
     <button class="btn-icon btn-icon-lg transition-colors hover:text-primary-500">
       <Bell class="size-6" />
     </button>
-    <button
-      class="btn-icon btn-icon-lg transition-colors hover:text-primary-500"
-      onclick={toggleDarkMode}
-    >
+    <button class="btn-icon btn-icon-lg transition-colors hover:text-primary-500" onclick={toggleDarkMode}>
       {#if globalContext.isDarkMode}
         <Sun class="size-6" />
       {:else}
@@ -33,20 +29,12 @@
     <div class="flex items-center gap-2">
       <span class="hidden text-right text-[10px] font-bold tracking-widest uppercase sm:block">
         <span class="block">
-          {#if isLoggedIn}
-            {globalContext.currentUser?.email}
-          {:else}
-            Anonymous
-          {/if}
+          {globalContext.currentUser?.email ?? "Anonymous"}
         </span>
       </span>
       <Avatar class="size-10 rounded-full border border-primary-500/30">
         <Avatar.Fallback>
-          {#if isLoggedIn}
-            {globalContext.currentUser?.email.slice(0, 2).toUpperCase()}
-          {:else}
-            ?
-          {/if}
+          {globalContext.currentUser?.email.slice(0, 2).toUpperCase() ?? "?"}
         </Avatar.Fallback>
       </Avatar>
     </div>

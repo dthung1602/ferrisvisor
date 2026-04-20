@@ -1,37 +1,30 @@
 <script lang="ts">
   import "./layout.css";
 
-  import { api } from "$lib";
+  import type { Snippet } from "svelte";
 
+  import type { CurrentUser } from "$lib/api/auth";
   import favicon from "$lib/assets/favicon.svg";
   import Footer from "$lib/components/Footer.svelte";
   import SideBar from "$lib/components/SideBar.svelte";
   import TopNavigation from "$lib/components/TopNavigation.svelte";
-  import { type GlobalState, setGlobalContext } from "$lib/global-state";
+  import { setGlobalContext, type GlobalState } from "$lib/global-state";
 
-  let { children } = $props();
-
-  $effect(() => {
-    api.auth
-      .me()
-      .then((currentUser) => {
-        console.log("Current user:", currentUser);
-        globalContext.currentUser = currentUser;
-      })
-      .finally(() => {
-        globalContext.isLoadingCurrentUser = false;
-      });
-  });
+  type Props = {
+    children: Snippet<[]>;
+    data: { currentUser: CurrentUser | null };
+  };
+  let { children, data }: Props = $props();
 
   const globalContext = $state({
-    currentUser: null,
-    isLoadingCurrentUser: true,
+    currentUser: data.currentUser,
     isDarkMode: false
   } as GlobalState);
   setGlobalContext(globalContext);
 
   $effect(() => {
-    globalContext.isDarkMode = localStorage.getItem("theme") === "dark" ||
+    globalContext.isDarkMode =
+      localStorage.getItem("theme") === "dark" ||
       (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches);
   });
 
