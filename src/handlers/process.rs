@@ -8,8 +8,8 @@ use crate::supervisor::{ProcessInfo, Server};
 use axum::extract::{Query, State};
 use axum::http::StatusCode;
 use axum::{Extension, Json};
-use diesel::prelude::*;
 use diesel::QueryDsl;
+use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use regex::Regex;
 use std::collections::HashMap;
@@ -151,13 +151,18 @@ pub async fn get_config(
         .unwrap()
         .into_iter()
         .filter_map(|config| {
-            if let Some(process_name) = &query.process_name && config.name != *process_name {
-                return None
+            if let Some(process_name) = &query.process_name
+                && config.name != *process_name
+            {
+                return None;
             }
             if !user_can_do(&user, Action::View, host.group_id, host.id, &config.name) {
-                return None
+                return None;
             }
-            Some(DisplayProcessConfig { host_id: host.id, config })
+            Some(DisplayProcessConfig {
+                host_id: host.id,
+                config,
+            })
         })
         .collect();
 
