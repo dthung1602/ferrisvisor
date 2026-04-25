@@ -2,27 +2,27 @@ use crate::supervisor::{ProcessConfig, ProcessInfo};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct ProcessQuery {
+pub struct ProcessRequest {
     pub group_id: Option<i32>,
     pub host_id: Option<i32>,
     pub process_name: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
-pub struct DisplayProcess {
+pub struct ProcessResponse {
     pub group_id: i32,
     pub host_id: i32,
     pub process: ProcessInfo,
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct ProcessConfigQuery {
+pub struct ProcessConfigRequest {
     pub host_id: i32,
     pub process_name: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
-pub struct DisplayProcessConfig {
+pub struct ProcessConfigResponse {
     pub host_id: i32,
     pub config: ProcessConfig,
 }
@@ -34,7 +34,7 @@ pub struct ProcessActionRequest {
 }
 
 #[derive(Debug, Serialize)]
-pub struct ProcessActionResult {
+pub struct ProcessActionResponse {
     pub host_id: i32,
     pub process_name: String,
     pub success: bool,

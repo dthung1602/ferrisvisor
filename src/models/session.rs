@@ -6,7 +6,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 #[derive(Debug, Deserialize)]
-pub struct LoginForm {
+pub struct LoginRequest {
     pub email: String,
     pub password: String,
 }

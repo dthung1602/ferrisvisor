@@ -1,8 +1,8 @@
 use crate::common::AppState;
-use crate::models::{HasPassword, LoginForm, NewSession, Session, User, UserWithPermissions};
+use crate::models::{HasPassword, LoginRequest, NewSession, Session, User, UserWithPermissions};
 use crate::schema;
 
-use crate::handlers::permission::get_display_permissions;
+use crate::handlers::permission::get_permission_responses;
 use axum::Json;
 use axum::extract::{Request, State};
 use axum::http::StatusCode;
@@ -17,13 +17,13 @@ use diesel_async::RunQueryDsl;
 #[axum::debug_handler]
 pub async fn login(
     State(state): State<AppState>,
-    Json(login_form): Json<LoginForm>,
+    Json(req): Json<LoginRequest>,
 ) -> (StatusCode, Json<Option<UserWithPermissions>>) {
     let mut db_conn = state.db_pool.get().await.unwrap();
     let now = Utc::now();
 
     let user: Option<User> = schema::user::table
-        .filter(schema::user::email.eq(&login_form.email))
+        .filter(schema::user::email.eq(&req.email))
         .first(&mut db_conn)
         .await
         .optional()
@@ -33,7 +33,7 @@ pub async fn login(
         return (StatusCode::UNAUTHORIZED, Json(None));
     };
 
-    if !user.verify_password(login_form.password.as_str()) {
+    if !user.verify_password(req.password.as_str()) {
         return (StatusCode::UNAUTHORIZED, Json(None));
     }
 
@@ -50,7 +50,7 @@ pub async fn login(
         .await
         .unwrap();
 
-    let permissions = get_display_permissions(user.id, None, &mut db_conn).await;
+    let permissions = get_permission_responses(user.id, None, &mut db_conn).await;
 
     let user_with_perms = UserWithPermissions {
         id: user.id,
@@ -109,7 +109,7 @@ pub async fn get_current_user_with_permission(
         return (StatusCode::UNAUTHORIZED, Json(None));
     };
 
-    let permissions = get_display_permissions(user.id, None, &mut db_conn).await;
+    let permissions = get_permission_responses(user.id, None, &mut db_conn).await;
 
     let user_with_perms = UserWithPermissions {
         id: user.id,

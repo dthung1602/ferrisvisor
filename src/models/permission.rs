@@ -59,7 +59,7 @@ pub struct UpdatePermission {
 }
 
 #[derive(Debug, Serialize, Clone)]
-pub struct DisplayPermission {
+pub struct PermissionResponse {
     pub id: i32,
     pub user_id: i32,
     pub host_id: Option<i32>,
@@ -71,7 +71,7 @@ pub struct DisplayPermission {
     pub can_act: bool,
 }
 
-impl DisplayPermission {
+impl PermissionResponse {
     pub fn from_perm(perm: Permission, host_name: Option<String>, group_name: String) -> Self {
         Self {
             host_name,
@@ -96,5 +96,5 @@ pub struct UserWithPermissions {
     pub last_login: Option<DateTime<Utc>>,
     pub is_admin: bool,
     pub session: Session,
-    pub permissions: Vec<DisplayPermission>,
+    pub permissions: Vec<PermissionResponse>,
 }

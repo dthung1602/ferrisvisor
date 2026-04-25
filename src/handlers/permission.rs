@@ -1,5 +1,5 @@
 use crate::common::{AppState, AsyncSqliteConnection};
-use crate::models::{DisplayPermission, NewPermission, Permission, UpdatePermission};
+use crate::models::{NewPermission, Permission, PermissionResponse, UpdatePermission};
 use crate::schema;
 use diesel::prelude::*;
 
@@ -12,9 +12,9 @@ use diesel_async::RunQueryDsl;
 pub async fn list(
     State(state): State<AppState>,
     Path(user_id): Path<i32>,
-) -> (StatusCode, Json<Vec<DisplayPermission>>) {
+) -> (StatusCode, Json<Vec<PermissionResponse>>) {
     let mut db_conn = state.db_pool.get().await.unwrap();
-    let display_permissions = get_display_permissions(user_id, None, &mut db_conn).await;
+    let display_permissions = get_permission_responses(user_id, None, &mut db_conn).await;
     (StatusCode::OK, Json(display_permissions))
 }
 
@@ -22,15 +22,14 @@ pub async fn list(
 pub async fn get(
     State(state): State<AppState>,
     Path((user_id, permission_id)): Path<(i32, i32)>,
-) -> (StatusCode, Json<Option<DisplayPermission>>) {
+) -> (StatusCode, Json<Option<PermissionResponse>>) {
     let mut db_conn = state.db_pool.get().await.unwrap();
 
-    let display_permissions =
-        get_display_permissions(user_id, Some(permission_id), &mut db_conn).await;
-    if display_permissions.is_empty() {
+    let perm_resp = get_permission_responses(user_id, Some(permission_id), &mut db_conn).await;
+    if perm_resp.is_empty() {
         (StatusCode::NOT_FOUND, Json(None))
     } else {
-        (StatusCode::OK, Json(Some(display_permissions[0].clone())))
+        (StatusCode::OK, Json(Some(perm_resp[0].clone())))
     }
 }
 
@@ -133,11 +132,11 @@ pub async fn delete(
     StatusCode::OK
 }
 
-pub async fn get_display_permissions<'a>(
+pub async fn get_permission_responses<'a>(
     user_id: i32,
     perm_id: Option<i32>,
     db_conn: &mut AsyncSqliteConnection,
-) -> Vec<DisplayPermission> {
+) -> Vec<PermissionResponse> {
     let mut query = schema::permission::table
         .inner_join(schema::group::table)
         .left_join(schema::host::table)
@@ -164,7 +163,7 @@ pub async fn get_display_permissions<'a>(
         .unwrap()
         .into_iter()
         .map(|(perm, host_name, group_name)| {
-            DisplayPermission::from_perm(perm, host_name, group_name)
+            PermissionResponse::from_perm(perm, host_name, group_name)
         })
-        .collect::<Vec<DisplayPermission>>()
+        .collect::<Vec<PermissionResponse>>()
 }

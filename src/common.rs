@@ -1,9 +1,9 @@
 use deadpool_diesel::Runtime;
 use diesel::sqlite::SqliteConnection;
-use diesel_async::{AsyncConnection, SimpleAsyncConnection};
-use diesel_async::pooled_connection::{AsyncDieselConnectionManager, ManagerConfig};
 use diesel_async::pooled_connection::deadpool::Pool;
+use diesel_async::pooled_connection::{AsyncDieselConnectionManager, ManagerConfig};
 use diesel_async::sync_connection_wrapper::SyncConnectionWrapper;
+use diesel_async::{AsyncConnection, SimpleAsyncConnection};
 use dotenvy::dotenv;
 use std::env;
 

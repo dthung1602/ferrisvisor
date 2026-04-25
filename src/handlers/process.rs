@@ -1,7 +1,7 @@
 use crate::common::AppState;
 use crate::models::{
-    DisplayProcess, DisplayProcessConfig, Host, ProcessActionRequest, ProcessActionResult,
-    ProcessConfigQuery, ProcessQuery, UserWithPermissions,
+    Host, ProcessActionRequest, ProcessActionResponse, ProcessConfigRequest, ProcessConfigResponse,
+    ProcessRequest, ProcessResponse, UserWithPermissions,
 };
 use crate::schema;
 use crate::supervisor::{ProcessInfo, Server};
@@ -80,16 +80,16 @@ impl Server {
 #[axum::debug_handler]
 pub async fn list(
     State(state): State<AppState>,
-    Query(query): Query<ProcessQuery>,
+    Query(req): Query<ProcessRequest>,
     Extension(user): Extension<UserWithPermissions>,
-) -> (StatusCode, Json<Vec<DisplayProcess>>) {
+) -> (StatusCode, Json<Vec<ProcessResponse>>) {
     let mut db_conn = state.db_pool.get().await.unwrap();
 
     let mut db_query = schema::host::table.into_boxed();
-    if let Some(host_id) = query.host_id {
+    if let Some(host_id) = req.host_id {
         db_query = db_query.filter(schema::host::id.eq(host_id));
     }
-    if let Some(group_id) = query.group_id {
+    if let Some(group_id) = req.group_id {
         db_query = db_query.filter(schema::host::group_id.eq(group_id));
     }
     let hosts: Vec<Host> = db_query.load(&mut *db_conn).await.unwrap();
@@ -111,13 +111,13 @@ pub async fn list(
     let mut result = Vec::with_capacity(host_with_processes.len());
     for (host, processes) in host_with_processes {
         for process in processes {
-            if let Some(process_name) = &query.process_name {
+            if let Some(process_name) = &req.process_name {
                 if process.name != *process_name {
                     continue;
                 }
             }
             if user_can_do(&user, Action::View, host.group_id, host.id, &process.name) {
-                result.push(DisplayProcess {
+                result.push(ProcessResponse {
                     group_id: host.group_id,
                     host_id: host.id,
                     process,
@@ -132,9 +132,9 @@ pub async fn list(
 #[axum::debug_handler]
 pub async fn get_config(
     State(state): State<AppState>,
-    Query(query): Query<ProcessConfigQuery>,
+    Query(query): Query<ProcessConfigRequest>,
     Extension(user): Extension<UserWithPermissions>,
-) -> (StatusCode, Json<Vec<DisplayProcessConfig>>) {
+) -> (StatusCode, Json<Vec<ProcessConfigResponse>>) {
     let mut db_conn = state.db_pool.get().await.unwrap();
 
     let host: Host = schema::host::table
@@ -145,7 +145,7 @@ pub async fn get_config(
 
     let server = Server::from_host(&host);
 
-    let configs: Vec<DisplayProcessConfig> = server
+    let configs: Vec<ProcessConfigResponse> = server
         .get_all_config_info()
         .await
         .unwrap()
@@ -159,7 +159,7 @@ pub async fn get_config(
             if !user_can_do(&user, Action::View, host.group_id, host.id, &config.name) {
                 return None;
             }
-            Some(DisplayProcessConfig {
+            Some(ProcessConfigResponse {
                 host_id: host.id,
                 config,
             })
@@ -174,7 +174,7 @@ async fn perform_action<F, Fut>(
     user: &UserWithPermissions,
     requests: Vec<ProcessActionRequest>,
     action: F,
-) -> Vec<ProcessActionResult>
+) -> Vec<ProcessActionResponse>
 where
     F: Fn(Server, String) -> Fut,
     Fut: Future<Output = crate::supervisor::Result<bool>>,
@@ -195,7 +195,7 @@ where
             let error = Some(format!("Failed to load hosts: {}", e));
             return requests
                 .into_iter()
-                .map(|req| ProcessActionResult {
+                .map(|req| ProcessActionResponse {
                     host_id: req.host_id,
                     process_name: req.process_name,
                     success: false,
@@ -209,7 +209,7 @@ where
         let host = match host_map.get(&req.host_id) {
             Some(h) => h,
             None => {
-                results.push(ProcessActionResult {
+                results.push(ProcessActionResponse {
                     host_id: req.host_id,
                     process_name: req.process_name,
                     success: false,
@@ -220,7 +220,7 @@ where
         };
 
         if !user_can_do(user, Action::Act, host.group_id, host.id, &req.process_name) {
-            results.push(ProcessActionResult {
+            results.push(ProcessActionResponse {
                 host_id: req.host_id,
                 process_name: req.process_name,
                 success: false,
@@ -232,7 +232,7 @@ where
         let server = Server::from_host(host);
         match action(server, req.process_name.clone()).await {
             Ok(success) => {
-                results.push(ProcessActionResult {
+                results.push(ProcessActionResponse {
                     host_id: req.host_id,
                     process_name: req.process_name,
                     success,
@@ -240,7 +240,7 @@ where
                 });
             }
             Err(e) => {
-                results.push(ProcessActionResult {
+                results.push(ProcessActionResponse {
                     host_id: req.host_id,
                     process_name: req.process_name,
                     success: false,
@@ -258,7 +258,7 @@ pub async fn start(
     State(state): State<AppState>,
     Extension(user): Extension<UserWithPermissions>,
     Json(requests): Json<Vec<ProcessActionRequest>>,
-) -> (StatusCode, Json<Vec<ProcessActionResult>>) {
+) -> (StatusCode, Json<Vec<ProcessActionResponse>>) {
     let results = perform_action(&state, &user, requests, |server, name| async move {
         server.start_process(&name, false).await
     })
@@ -272,7 +272,7 @@ pub async fn stop(
     State(state): State<AppState>,
     Extension(user): Extension<UserWithPermissions>,
     Json(requests): Json<Vec<ProcessActionRequest>>,
-) -> (StatusCode, Json<Vec<ProcessActionResult>>) {
+) -> (StatusCode, Json<Vec<ProcessActionResponse>>) {
     let results = perform_action(&state, &user, requests, |server, name| async move {
         server.stop_process(&name, false).await
     })
