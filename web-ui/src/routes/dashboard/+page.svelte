@@ -1,19 +1,18 @@
 <script lang="ts">
   import {
-    AlertCircle,
+    CircleAlert,
     ChevronDown,
     CirclePlay,
     Columns2,
     Globe,
     ListFilter,
     Play,
-    PlusCircle,
     RotateCcw,
     Search,
     Server,
     Settings,
     Square,
-    StopCircle,
+    CircleStop,
     Terminal,
     X
   } from "@lucide/svelte";
@@ -160,7 +159,7 @@
       <div class="absolute inset-0 bg-linear-to-br from-error-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
       <div class="mb-2 flex justify-between items-start">
         <span class="text-xs font-bold tracking-widest text-surface-500 uppercase">Fatal</span>
-        <AlertCircle class="text-error-500 size-6" />
+        <CircleAlert class="text-error-500 size-6" />
       </div>
       <div class="flex items-baseline gap-2">
         <span class="text-4xl font-bold text-error-500">{globalStats.fatal}</span>
@@ -174,7 +173,7 @@
     <div class="group relative overflow-hidden rounded-xl bg-surface-50-950/40 p-5 backdrop-blur-sm border border-surface-500/10 transition-all hover:bg-surface-500/10 flex flex-col justify-between min-h-[140px]">
       <div class="mb-2 flex justify-between items-start">
         <span class="text-xs font-bold tracking-widest text-surface-500 uppercase">Stopped</span>
-        <StopCircle class="text-surface-500 size-6" />
+        <CircleStop class="text-surface-500 size-6" />
       </div>
       <div class="flex items-baseline gap-2">
         <span class="text-4xl font-bold text-surface-900-100">{globalStats.stopped}</span>
@@ -378,6 +377,8 @@
 {/if}
 
 <style>
+  @reference '../layout.css';
+
   /* Local overrides for Skeleton/Tailwind 4 if needed */
   .select, .input {
     @apply rounded-lg py-2 px-3 focus:ring-2 focus:ring-primary-500/50 focus:outline-hidden transition-all;
