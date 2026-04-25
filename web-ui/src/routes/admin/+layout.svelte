@@ -4,6 +4,6 @@
   const { children } = $props();
 </script>
 
-<ProtectedRoute>
+<ProtectedRoute requiredAdmin={true}>
   {@render children()}
 </ProtectedRoute>
