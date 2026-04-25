@@ -1,14 +1,18 @@
 use crate::common::AppState;
-use crate::models::{DisplayProcess, DisplayProcessConfig, Host, ProcessConfigQuery, ProcessQuery, UserWithPermissions};
+use crate::models::{
+    DisplayProcess, DisplayProcessConfig, Host, ProcessActionRequest, ProcessActionResult,
+    ProcessConfigQuery, ProcessQuery, UserWithPermissions,
+};
 use crate::schema;
 use crate::supervisor::{ProcessInfo, Server};
 use axum::extract::{Query, State};
 use axum::http::StatusCode;
 use axum::{Extension, Json};
-use diesel::QueryDsl;
 use diesel::prelude::*;
+use diesel::QueryDsl;
 use diesel_async::RunQueryDsl;
 use regex::Regex;
+use std::collections::HashMap;
 use tokio::task::JoinSet;
 
 /**
@@ -17,8 +21,8 @@ use tokio::task::JoinSet;
 /process/config -> GET ? host_id=1 & process_name=foo
 /process/stdout -> GET ? host_id=1 & process_name=foo offset=1 length=213
 /process/stderr -> GET ? host_id=1 & process_name=foo offset=1 length=213
-/process/start  -> POST  [ {host_id=1 name=foo } ]
-/process/stop   -> POST  [ {host_id=1 name=foo } ]
+/process/start  -> POST  [ {host_id=1 process_name=foo } ]
+/process/stop   -> POST  [ {host_id=1 process_name=foo } ]
 
 */
 
@@ -158,4 +162,116 @@ pub async fn get_config(
         .collect();
 
     (StatusCode::OK, Json(configs))
+}
+
+async fn perform_action<F, Fut>(
+    state: &AppState,
+    user: &UserWithPermissions,
+    requests: Vec<ProcessActionRequest>,
+    action: F,
+) -> Vec<ProcessActionResult>
+where
+    F: Fn(Server, String) -> Fut,
+    Fut: Future<Output = crate::supervisor::Result<bool>>,
+{
+    let mut results = Vec::with_capacity(requests.len());
+
+    let host_ids: Vec<i32> = requests.iter().map(|r| r.host_id).collect();
+    let mut db_conn = state.db_conn.lock().await;
+    let hosts_res: Result<Vec<Host>, _> = schema::host::table
+        .filter(schema::host::id.eq_any(host_ids))
+        .load(&mut *db_conn)
+        .await;
+    drop(db_conn);
+
+    let host_map: HashMap<i32, Host> = match hosts_res {
+        Ok(hosts) => hosts.into_iter().map(|h| (h.id, h)).collect(),
+        Err(e) => {
+            let error = Some(format!("Failed to load hosts: {}", e));
+            return requests
+                .into_iter()
+                .map(|req| ProcessActionResult {
+                    host_id: req.host_id,
+                    process_name: req.process_name,
+                    success: false,
+                    error: error.clone(),
+                })
+                .collect();
+        }
+    };
+
+    for req in requests {
+        let host = match host_map.get(&req.host_id) {
+            Some(h) => h,
+            None => {
+                results.push(ProcessActionResult {
+                    host_id: req.host_id,
+                    process_name: req.process_name,
+                    success: false,
+                    error: Some("Host not found".to_string()),
+                });
+                continue;
+            }
+        };
+
+        if !user_can_do(user, Action::Act, host.group_id, host.id, &req.process_name) {
+            results.push(ProcessActionResult {
+                host_id: req.host_id,
+                process_name: req.process_name,
+                success: false,
+                error: Some("Permission denied".to_string()),
+            });
+            continue;
+        }
+
+        let server = Server::from_host(host);
+        match action(server, req.process_name.clone()).await {
+            Ok(success) => {
+                results.push(ProcessActionResult {
+                    host_id: req.host_id,
+                    process_name: req.process_name,
+                    success,
+                    error: None,
+                });
+            }
+            Err(e) => {
+                results.push(ProcessActionResult {
+                    host_id: req.host_id,
+                    process_name: req.process_name,
+                    success: false,
+                    error: Some(e.to_string()),
+                });
+            }
+        }
+    }
+
+    results
+}
+
+#[axum::debug_handler]
+pub async fn start(
+    State(state): State<AppState>,
+    Extension(user): Extension<UserWithPermissions>,
+    Json(requests): Json<Vec<ProcessActionRequest>>,
+) -> (StatusCode, Json<Vec<ProcessActionResult>>) {
+    let results = perform_action(&state, &user, requests, |server, name| async move {
+        server.start_process(&name, false).await
+    })
+    .await;
+
+    (StatusCode::OK, Json(results))
+}
+
+#[axum::debug_handler]
+pub async fn stop(
+    State(state): State<AppState>,
+    Extension(user): Extension<UserWithPermissions>,
+    Json(requests): Json<Vec<ProcessActionRequest>>,
+) -> (StatusCode, Json<Vec<ProcessActionResult>>) {
+    let results = perform_action(&state, &user, requests, |server, name| async move {
+        server.stop_process(&name, false).await
+    })
+    .await;
+
+    (StatusCode::OK, Json(results))
 }

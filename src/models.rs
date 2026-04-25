@@ -363,9 +363,23 @@ pub struct ProcessConfigQuery {
 }
 
 #[derive(Debug, Serialize)]
-    pub struct DisplayProcessConfig {
+pub struct DisplayProcessConfig {
     pub host_id: i32,
-    pub config: ProcessConfig
+    pub config: ProcessConfig,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ProcessActionRequest {
+    pub host_id: i32,
+    pub process_name: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct ProcessActionResult {
+    pub host_id: i32,
+    pub process_name: String,
+    pub success: bool,
+    pub error: Option<String>,
 }
 
 // endregion
