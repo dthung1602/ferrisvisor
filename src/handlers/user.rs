@@ -12,7 +12,7 @@ use diesel_async::RunQueryDsl;
 
 #[axum::debug_handler]
 pub async fn list(State(state): State<AppState>) -> (StatusCode, Json<Vec<DisplayUser>>) {
-    let mut db_conn = state.db_conn.lock().await;
+    let mut db_conn = state.db_pool.get().await.unwrap();
 
     let users: Vec<User> = schema::user::table.load(&mut db_conn).await.unwrap();
 
@@ -28,7 +28,7 @@ pub async fn get(
     State(state): State<AppState>,
     Path(user_id): Path<i32>,
 ) -> (StatusCode, Json<DisplayUser>) {
-    let mut db_conn = state.db_conn.lock().await;
+    let mut db_conn = state.db_pool.get().await.unwrap();
 
     let user: User = schema::user::table
         .filter(schema::user::id.eq(user_id))
@@ -46,7 +46,7 @@ pub async fn create(
     State(state): State<AppState>,
     Json(mut new_user): Json<NewUser>,
 ) -> (StatusCode, Json<DisplayUser>) {
-    let mut db_conn = state.db_conn.lock().await;
+    let mut db_conn = state.db_pool.get().await.unwrap();
 
     // hash password
     new_user.set_password(&new_user.password.clone());
@@ -67,7 +67,7 @@ pub async fn update(
     Json(user_data): Json<UpdateUser>,
 ) -> (StatusCode, Json<DisplayUser>) {
     use crate::schema::user::dsl::*;
-    let mut db_conn = state.db_conn.lock().await;
+    let mut db_conn = state.db_pool.get().await.unwrap();
 
     let updated_user: User = diesel::update(user.filter(id.eq(user_id)))
         .set((
@@ -85,7 +85,7 @@ pub async fn update(
 #[axum::debug_handler]
 pub async fn delete(State(state): State<AppState>, Path(user_id): Path<i32>) -> StatusCode {
     use crate::schema::user::dsl::*;
-    let mut db_conn = state.db_conn.lock().await;
+    let mut db_conn = state.db_pool.get().await.unwrap();
 
     diesel::delete(user.filter(id.eq(user_id)))
         .execute(&mut db_conn)

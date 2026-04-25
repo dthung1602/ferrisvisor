@@ -17,7 +17,7 @@ async fn ensure_admin_user(app_state: AppState) -> anyhow::Result<()> {
     use diesel::prelude::*;
     use schema::user::dsl::*;
 
-    let mut conn = app_state.db_conn.lock().await;
+    let mut conn = app_state.db_pool.get().await?;
 
     let new_user = NewUser::new("admin@example.com", "test123", true);
 

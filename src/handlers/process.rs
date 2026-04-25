@@ -83,7 +83,7 @@ pub async fn list(
     Query(query): Query<ProcessQuery>,
     Extension(user): Extension<UserWithPermissions>,
 ) -> (StatusCode, Json<Vec<DisplayProcess>>) {
-    let mut db_conn = state.db_conn.lock().await;
+    let mut db_conn = state.db_pool.get().await.unwrap();
 
     let mut db_query = schema::host::table.into_boxed();
     if let Some(host_id) = query.host_id {
@@ -135,7 +135,7 @@ pub async fn get_config(
     Query(query): Query<ProcessConfigQuery>,
     Extension(user): Extension<UserWithPermissions>,
 ) -> (StatusCode, Json<Vec<DisplayProcessConfig>>) {
-    let mut db_conn = state.db_conn.lock().await;
+    let mut db_conn = state.db_pool.get().await.unwrap();
 
     let host: Host = schema::host::table
         .filter(schema::host::id.eq(query.host_id))
@@ -182,7 +182,7 @@ where
     let mut results = Vec::with_capacity(requests.len());
 
     let host_ids: Vec<i32> = requests.iter().map(|r| r.host_id).collect();
-    let mut db_conn = state.db_conn.lock().await;
+    let mut db_conn = state.db_pool.get().await.unwrap();
     let hosts_res: Result<Vec<Host>, _> = schema::host::table
         .filter(schema::host::id.eq_any(host_ids))
         .load(&mut *db_conn)

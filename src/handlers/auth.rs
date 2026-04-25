@@ -19,7 +19,7 @@ pub async fn login(
     State(state): State<AppState>,
     Json(login_form): Json<LoginForm>,
 ) -> (StatusCode, Json<Option<UserWithPermissions>>) {
-    let mut db_conn = state.db_conn.lock().await;
+    let mut db_conn = state.db_pool.get().await.unwrap();
     let now = Utc::now();
 
     let user: Option<User> = schema::user::table
@@ -71,7 +71,7 @@ const LOGIN_COOKIE_NAME: &'static str = "session_token";
 #[axum::debug_handler]
 pub async fn logout(State(state): State<AppState>, cookie_jar: CookieJar) {
     if let Some(login_cookie) = cookie_jar.get(LOGIN_COOKIE_NAME) {
-        let mut db_conn = state.db_conn.lock().await;
+        let mut db_conn = state.db_pool.get().await.unwrap();
         let match_token = schema::session::token.eq(login_cookie.value());
         diesel::delete(schema::session::table.filter(match_token))
             .execute(&mut db_conn)
@@ -89,7 +89,7 @@ pub async fn get_current_user_with_permission(
         return (StatusCode::UNAUTHORIZED, Json(None));
     };
 
-    let mut db_conn = state.db_conn.lock().await;
+    let mut db_conn = state.db_pool.get().await.unwrap();
     let match_token = schema::session::token.eq(login_cookie.value());
     let res = schema::session::table
         .filter(match_token)

@@ -7,14 +7,13 @@ use axum::Json;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use diesel_async::RunQueryDsl;
-use tokio::sync::MutexGuard;
 
 #[axum::debug_handler]
 pub async fn list(
     State(state): State<AppState>,
     Path(user_id): Path<i32>,
 ) -> (StatusCode, Json<Vec<DisplayPermission>>) {
-    let mut db_conn = state.db_conn.lock().await;
+    let mut db_conn = state.db_pool.get().await.unwrap();
     let display_permissions = get_display_permissions(user_id, None, &mut db_conn).await;
     (StatusCode::OK, Json(display_permissions))
 }
@@ -24,7 +23,7 @@ pub async fn get(
     State(state): State<AppState>,
     Path((user_id, permission_id)): Path<(i32, i32)>,
 ) -> (StatusCode, Json<Option<DisplayPermission>>) {
-    let mut db_conn = state.db_conn.lock().await;
+    let mut db_conn = state.db_pool.get().await.unwrap();
 
     let display_permissions =
         get_display_permissions(user_id, Some(permission_id), &mut db_conn).await;
@@ -41,7 +40,7 @@ pub async fn create(
     Path(user_id): Path<i32>,
     Json(new_permission): Json<UpdatePermission>,
 ) -> (StatusCode, Json<Option<Permission>>) {
-    let mut db_conn = state.db_conn.lock().await;
+    let mut db_conn = state.db_pool.get().await.unwrap();
 
     if let Some(host_id) = new_permission.host_id {
         use schema::host::*;
@@ -80,7 +79,7 @@ pub async fn update(
     Path((user_id, permission_id)): Path<(i32, i32)>,
     Json(permission_data): Json<UpdatePermission>,
 ) -> (StatusCode, Json<Option<Permission>>) {
-    let mut db_conn = state.db_conn.lock().await;
+    let mut db_conn = state.db_pool.get().await.unwrap();
 
     if let Some(host_id) = permission_data.host_id {
         use schema::host::*;
@@ -120,7 +119,7 @@ pub async fn delete(
     State(state): State<AppState>,
     Path((user_id, permission_id)): Path<(i32, i32)>,
 ) -> StatusCode {
-    let mut db_conn = state.db_conn.lock().await;
+    let mut db_conn = state.db_pool.get().await.unwrap();
 
     let match_user_perm = schema::permission::id
         .eq(permission_id)
@@ -137,7 +136,7 @@ pub async fn delete(
 pub async fn get_display_permissions<'a>(
     user_id: i32,
     perm_id: Option<i32>,
-    mut db_conn: &mut MutexGuard<'a, AsyncSqliteConnection>,
+    db_conn: &mut AsyncSqliteConnection,
 ) -> Vec<DisplayPermission> {
     let mut query = schema::permission::table
         .inner_join(schema::group::table)
@@ -160,7 +159,7 @@ pub async fn get_display_permissions<'a>(
     }
 
     query
-        .load::<(Permission, Option<String>, String)>(&mut db_conn)
+        .load::<(Permission, Option<String>, String)>(db_conn)
         .await
         .unwrap()
         .into_iter()
