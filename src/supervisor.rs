@@ -31,7 +31,7 @@ pub struct ProcessInfo {
     pub pid: i32,
 }
 
-#[derive(Debug, TryFromValue)]
+#[derive(Debug, TryFromValue, Serialize)]
 pub struct ProcessConfig {
     pub name: String,
     pub group: String,

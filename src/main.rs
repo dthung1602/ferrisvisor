@@ -111,6 +111,7 @@ async fn main() -> anyhow::Result<()> {
         )
         .nest("/user/{user_id}", single_user_router)
         .route("/process", get(handlers::process::list))
+        .route("/process/config", get(handlers::process::get_config))
         .route_layer(axum::middleware::from_fn_with_state(
             state.clone(),
             handlers::auth::auth_middleware,

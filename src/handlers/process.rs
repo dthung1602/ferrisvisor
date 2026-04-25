@@ -1,5 +1,5 @@
 use crate::common::AppState;
-use crate::models::{DisplayProcess, Host, ProcessQuery, UserWithPermissions};
+use crate::models::{DisplayProcess, DisplayProcessConfig, Host, ProcessConfigQuery, ProcessQuery, UserWithPermissions};
 use crate::schema;
 use crate::supervisor::{ProcessInfo, Server};
 use axum::extract::{Query, State};
@@ -62,6 +62,17 @@ fn user_can_do(
     allow
 }
 
+impl Server {
+    fn from_host(host: &Host) -> Self {
+        Self::new(
+            &host.hostname,
+            host.port as u16,
+            host.username.as_deref(),
+            host.password.as_deref(),
+        )
+    }
+}
+
 #[axum::debug_handler]
 pub async fn list(
     State(state): State<AppState>,
@@ -82,12 +93,7 @@ pub async fn list(
     let mut host_with_processes: Vec<(Host, Vec<ProcessInfo>)> = Vec::with_capacity(hosts.len());
     let mut join_set = JoinSet::new();
     for host in hosts {
-        let server = Server::new(
-            &host.hostname,
-            host.port as u16,
-            host.username.as_deref(),
-            host.password.as_deref(),
-        );
+        let server = Server::from_host(&host);
         join_set.spawn(async move {
             println!("Getting process for {}:{}", host.hostname, host.port);
             (host, server.get_all_process_info().await.unwrap())
@@ -117,4 +123,39 @@ pub async fn list(
     }
 
     (StatusCode::OK, Json(result))
+}
+
+#[axum::debug_handler]
+pub async fn get_config(
+    State(state): State<AppState>,
+    Query(query): Query<ProcessConfigQuery>,
+    Extension(user): Extension<UserWithPermissions>,
+) -> (StatusCode, Json<Vec<DisplayProcessConfig>>) {
+    let mut db_conn = state.db_conn.lock().await;
+
+    let host: Host = schema::host::table
+        .filter(schema::host::id.eq(query.host_id))
+        .first(&mut db_conn)
+        .await
+        .unwrap();
+
+    let server = Server::from_host(&host);
+
+    let configs: Vec<DisplayProcessConfig> = server
+        .get_all_config_info()
+        .await
+        .unwrap()
+        .into_iter()
+        .filter_map(|config| {
+            if let Some(process_name) = &query.process_name && config.name != *process_name {
+                return None
+            }
+            if !user_can_do(&user, Action::View, host.group_id, host.id, &config.name) {
+                return None
+            }
+            Some(DisplayProcessConfig { host_id: host.id, config })
+        })
+        .collect();
+
+    (StatusCode::OK, Json(configs))
 }

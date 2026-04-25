@@ -1,5 +1,5 @@
 use crate::schema;
-use crate::supervisor::ProcessInfo;
+use crate::supervisor::{ProcessConfig, ProcessInfo};
 use argon2::PasswordVerifier;
 use argon2::password_hash::SaltString;
 use chrono::{DateTime, Duration, TimeDelta, Utc};
@@ -354,6 +354,18 @@ pub struct DisplayProcess {
     pub group_id: i32,
     pub host_id: i32,
     pub process: ProcessInfo,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ProcessConfigQuery {
+    pub host_id: i32,
+    pub process_name: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+    pub struct DisplayProcessConfig {
+    pub host_id: i32,
+    pub config: ProcessConfig
 }
 
 // endregion
