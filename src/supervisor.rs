@@ -3,6 +3,7 @@ use dxr::TryFromValue;
 use dxr_client::Error;
 use dxr_client::Url;
 use dxr_client::{Client as DxrClient, ClientBuilder as DxrClientBuilder};
+use serde::Serialize;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -12,7 +13,7 @@ pub struct SupervisorState {
     pub statename: String,
 }
 
-#[derive(TryFromValue, Debug)]
+#[derive(TryFromValue, Debug, Serialize)]
 pub struct ProcessInfo {
     pub name: String,
     pub group: String,

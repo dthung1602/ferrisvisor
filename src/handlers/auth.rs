@@ -1,7 +1,5 @@
 use crate::common::AppState;
-use crate::models::{
-    HasPassword, LoginForm, NewSession, Permission, Session, User, UserWithPermissions,
-};
+use crate::models::{HasPassword, LoginForm, NewSession, Session, User, UserWithPermissions};
 use crate::schema;
 
 use crate::handlers::permission::get_display_permissions;

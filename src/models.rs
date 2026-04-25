@@ -1,9 +1,14 @@
 use crate::schema;
+use crate::supervisor::ProcessInfo;
 use argon2::PasswordVerifier;
 use argon2::password_hash::SaltString;
 use chrono::{DateTime, Duration, TimeDelta, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+
+// ------------------------------------------
+// region group
+// ------------------------------------------
 
 #[derive(Queryable, Selectable, Debug, Serialize, Deserialize)]
 #[diesel(table_name = schema::group)]
@@ -25,6 +30,12 @@ pub struct NewGroup {
     pub description: String,
     pub color: String,
 }
+
+// endregion
+
+// ------------------------------------------
+// region host
+// ------------------------------------------
 
 #[derive(Queryable, Selectable, Debug, Serialize, Deserialize)]
 #[diesel(table_name = schema::host)]
@@ -52,6 +63,12 @@ pub struct NewHost {
     pub username: Option<String>,
     pub password: Option<String>,
 }
+
+// endregion
+
+// ------------------------------------------
+// region user
+// ------------------------------------------
 
 pub trait HasPassword {
     fn get_password(&self) -> &str;
@@ -171,18 +188,16 @@ impl Into<DisplayUser> for User {
     }
 }
 
+// endregion
+
+// ------------------------------------------
+// region login
+// ------------------------------------------
+
 #[derive(Debug, Deserialize)]
 pub struct LoginForm {
     pub email: String,
     pub password: String,
-}
-
-#[derive(Debug, Serialize)]
-pub struct AuthenticatedUser {
-    pub email: String,
-    pub is_admin: bool,
-    pub token: String,
-    pub expires_at: DateTime<Utc>,
 }
 
 #[derive(Queryable, Selectable, Debug, Serialize, Clone)]
@@ -219,6 +234,12 @@ impl NewSession {
         }
     }
 }
+
+// endregion
+
+// ------------------------------------------
+// region permission
+// ------------------------------------------
 
 #[derive(Queryable, Selectable, Debug, Clone, Serialize, Deserialize)]
 #[diesel(table_name = schema::permission)]
@@ -314,3 +335,25 @@ pub struct UserWithPermissions {
     pub session: Session,
     pub permissions: Vec<DisplayPermission>,
 }
+
+// endregion
+
+// ------------------------------------------
+// region process
+// ------------------------------------------
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ProcessQuery {
+    pub group_id: Option<i32>,
+    pub host_id: Option<i32>,
+    pub process_name: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct DisplayProcess {
+    pub group_id: i32,
+    pub host_id: i32,
+    pub process: ProcessInfo,
+}
+
+// endregion

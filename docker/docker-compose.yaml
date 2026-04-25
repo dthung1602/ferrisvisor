@@ -14,7 +14,7 @@ services:
     build:
       context: .
     ports:
-      - "9001:9002"
+      - "9002:9001"
     volumes:
       - type: bind
         target: /etc/supervisor.d/host2.ini
@@ -25,7 +25,7 @@ services:
     build:
       context: .
     ports:
-      - "9001:9003"
+      - "9003:9001"
     volumes:
       - type: bind
         target: /etc/supervisor.d/host3.ini
@@ -36,7 +36,7 @@ services:
     build:
       context: .
     ports:
-      - "9001:7001"
+      - "7001:9001"
     volumes:
       - type: bind
         target: /etc/supervisor.d/host1.ini
@@ -47,7 +47,7 @@ services:
     build:
       context: .
     ports:
-      - "9001:7002"
+      - "7002:9001"
     volumes:
       - type: bind
         target: /etc/supervisor.d/host2.ini
@@ -58,7 +58,7 @@ services:
     build:
       context: .
     ports:
-      - "9001:7003"
+      - "7003:9001"
     volumes:
       - type: bind
         target: /etc/supervisor.d/host3.ini
