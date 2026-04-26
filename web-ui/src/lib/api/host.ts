@@ -12,8 +12,13 @@ export type Host = {
 
 export type NewHost = Omit<Host, "id" | "created_at" | "updated_at">;
 
-async function list(): Promise<Host[]> {
-  const resp = await fetch("/api/host");
+async function list(group_id: number | null): Promise<Host[]> {
+  const search = new URLSearchParams();
+  if (group_id !== null) {
+    search.append("group_id", group_id.toString());
+  }
+
+  const resp = await fetch("/api/host?" + search.toString());
 
   if (!resp.ok) {
     const message = resp.status + " " + resp.statusText;

@@ -3,5 +3,6 @@ import group from "./group";
 import host from "./host";
 import permission from "./permission";
 import user from "./user";
+import process from "./process"
 
-export { auth, host, group, user, permission };
+export { auth, host, group, user, permission, process };

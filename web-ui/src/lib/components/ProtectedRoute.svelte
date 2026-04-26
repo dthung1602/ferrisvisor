@@ -5,7 +5,6 @@
   import { page } from "$app/state";
 
   import { getGlobalContext } from "$lib/global-state";
-  import { resolve } from "$app/paths";
 
   type Prop = {
     children: Snippet<[]>;
