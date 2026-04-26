@@ -1,30 +1,29 @@
 <script lang="ts">
+  import { ListFilter, Search } from "@lucide/svelte";
 
-import { ListFilter, Search } from "@lucide/svelte";
-import type { Host } from "$lib/api/host";
-import  { PROCESS_STATES, type ProcessState } from "$lib/common";
+  import type { Host } from "$lib/api/host";
+  import { PROCESS_STATES, type ProcessState } from "$lib/common";
 
-type Prop = {
-  selectedHostId: number | null;
-  selectedProcessState: ProcessState | null;
-  serviceRegex: string;
-  hosts: Host[];
-};
+  type Prop = {
+    selectedHostId: number | null;
+    selectedProcessState: ProcessState | null;
+    serviceRegex: string;
+    hosts: Host[];
+  };
 
-let {
-  selectedHostId = $bindable(null),
-  selectedProcessState = $bindable(null),
-  serviceRegex = $bindable(""),
-  hosts,
-}: Prop = $props();
-
+  let {
+    selectedHostId = $bindable(null),
+    selectedProcessState = $bindable(null),
+    serviceRegex = $bindable(""),
+    hosts
+  }: Prop = $props();
 </script>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-row lg:flex-wrap gap-4 w-full">
+<div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:flex lg:flex-row lg:flex-wrap">
   <!-- Host Selector -->
   <select
     bind:value={selectedHostId}
-    class="select flex-1 lg:flex-none lg:w-48 lg:shrink-0 bg-surface-50-950/40 border-surface-500/30 backdrop-blur-sm"
+    class="select flex-1 border-surface-500/30 bg-surface-50-950/40 backdrop-blur-sm lg:w-48 lg:flex-none lg:shrink-0"
   >
     <option value={null} class="text-surface-500/50">All Hosts</option>
     {#each hosts as host (host.id)}
@@ -35,7 +34,7 @@ let {
   <!-- State Selector -->
   <select
     bind:value={selectedProcessState}
-    class="select flex-1 lg:flex-none lg:w-48 lg:shrink-0 bg-surface-50-950/40 border-surface-500/30 backdrop-blur-sm"
+    class="select flex-1 border-surface-500/30 bg-surface-50-950/40 backdrop-blur-sm lg:w-48 lg:flex-none lg:shrink-0"
   >
     <option value={null} class="text-surface-500/50">All States</option>
     {#each PROCESS_STATES as state (state)}
@@ -44,19 +43,21 @@ let {
   </select>
 
   <!-- Search Input -->
-  <div class="relative flex-1 md:col-span-2 lg:flex-1 lg:min-w-64">
-    <Search class="absolute left-3 top-1/2 -translate-y-1/2 text-surface-500 size-4" />
+  <div class="relative flex-1 md:col-span-2 lg:min-w-64 lg:flex-1">
+    <Search class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-surface-500" />
     <input
       type="text"
       bind:value={serviceRegex}
       placeholder="Service Regex..."
-      class="input w-full pl-10 bg-surface-50-950/40 border-surface-500/30 backdrop-blur-sm"
+      class="input w-full border-surface-500/30 bg-surface-50-950/40 pl-10 backdrop-blur-sm"
     />
   </div>
 
   <!-- Bulk Action -->
   <!--  TODO -->
-  <button class="btn preset-filled-surface-500/20 hover:preset-filled-surface-500/40 flex items-center justify-center gap-2 backdrop-blur-sm border border-surface-500/20 md:col-span-2 lg:col-auto lg:ml-auto lg:shrink-0">
+  <button
+    class="preset-filled-surface-500/20 hover:preset-filled-surface-500/40 btn flex items-center justify-center gap-2 border border-surface-500/20 backdrop-blur-sm md:col-span-2 lg:col-auto lg:ml-auto lg:shrink-0"
+  >
     <ListFilter class="size-4" />
     Bulk Action
   </button>

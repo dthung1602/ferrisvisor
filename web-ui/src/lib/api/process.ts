@@ -77,7 +77,11 @@ export interface ProcessActionRequest {
   process_name: string;
 }
 
-export async function list(group_id: number | null, host_id: number | null, process_name: string | null) : Promise<ProcessResponse[]> {
+export async function list(
+  group_id: number | null,
+  host_id: number | null,
+  process_name: string | null
+): Promise<ProcessResponse[]> {
   const search = new URLSearchParams();
   if (group_id !== null) {
     search.append("group_id", group_id.toString());

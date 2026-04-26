@@ -6,8 +6,7 @@ export const PROCESS_STATES = [
   "STOPPING",
   "EXITED",
   "FATAL",
-  "UNKNOWN",
+  "UNKNOWN"
 ] as const;
 
-export type ProcessState = typeof PROCESS_STATES[number];
-
+export type ProcessState = (typeof PROCESS_STATES)[number];

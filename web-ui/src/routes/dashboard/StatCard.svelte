@@ -50,12 +50,14 @@
   let colors = $derived(colorVariantClasses[colorVariant]);
 </script>
 
-<div class="group relative overflow-hidden rounded-xl bg-surface-50-950/80 p-5 backdrop-blur-sm border border-surface-500/10 transition-all hover:bg-surface-500/10 flex flex-col justify-between min-h-35">
+<div
+  class="group relative flex min-h-35 flex-col justify-between overflow-hidden rounded-xl border border-surface-500/10 bg-surface-50-950/80 p-5 backdrop-blur-sm transition-all hover:bg-surface-500/10"
+>
   <div
     class="absolute inset-0 bg-linear-to-br {colors.from} to-transparent opacity-0 transition-opacity group-hover:opacity-100"
   ></div>
 
-  <div class="mb-2 flex justify-between items-start">
+  <div class="mb-2 flex items-start justify-between">
     <span class="text-xs font-bold tracking-widest text-inherit uppercase">{title}</span>
     <StatIcon class="{colors.text} size-6" />
   </div>

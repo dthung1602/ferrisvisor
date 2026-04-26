@@ -1,9 +1,11 @@
 <script lang="ts">
   import { Milestone } from "@lucide/svelte";
+  import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
-  import { goto } from "$app/navigation";
+
   import FERRIS_IMG from "$lib/assets/Confused_Ferris.svg";
+
   const code = page.url.searchParams.get("code") ?? "???";
 
   const statusMap = new Map([
@@ -37,11 +39,7 @@
       </div>
       <!-- Detail Blocks (Asymmetric Bento) -->
 
-      <button
-        type="button"
-        class="btn preset-filled-primary-500 px-4 py-2"
-        onclick={() => goto(resolve("/dashboard"))}
-      >
+      <button type="button" class="btn preset-filled-primary-500 px-4 py-2" onclick={() => goto(resolve("/dashboard"))}>
         Back to Dashboard
       </button>
     </div>
