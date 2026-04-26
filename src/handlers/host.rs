@@ -1,20 +1,28 @@
 use crate::common::AppState;
-use crate::models::{Host, NewHost};
+use crate::models::{Host, HostRequest, NewHost};
 use crate::schema;
 use diesel::QueryDsl;
 use diesel::prelude::*;
 
 use axum::Json;
-use axum::extract::{Path, State};
+use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use chrono::Utc;
 use diesel_async::RunQueryDsl;
 
 #[axum::debug_handler]
-pub async fn list(State(state): State<AppState>) -> (StatusCode, Json<Vec<Host>>) {
+pub async fn list(
+    State(state): State<AppState>,
+    Query(req): Query<HostRequest>,
+) -> (StatusCode, Json<Vec<Host>>) {
     let mut db_conn = state.db_pool.get().await.unwrap();
 
-    let hosts: Vec<Host> = schema::host::table.load(&mut db_conn).await.unwrap();
+    let mut query = schema::host::table.into_boxed();
+    if let Some(group_id) = req.group_id {
+        query = query.filter(schema::host::group_id.eq(group_id));
+    }
+
+    let hosts: Vec<Host> = query.load(&mut db_conn).await.unwrap();
 
     println!("Hosts {:?}", hosts);
 

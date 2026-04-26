@@ -29,3 +29,8 @@ pub struct NewHost {
     pub username: Option<String>,
     pub password: Option<String>,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct HostRequest {
+    pub group_id: Option<i32>,
+}
