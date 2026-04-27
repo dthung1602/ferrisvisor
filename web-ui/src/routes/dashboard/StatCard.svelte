@@ -3,7 +3,7 @@
 
   type ColorVariant = "primary" | "secondary" | "tertiary" | "success" | "info" | "warning" | "error" | "surface";
 
-  const colorVariantClasses: Record<ColorVariant, { text: string; from: string }> = {
+  const COLOR_VARIANT_CLASSES: Record<ColorVariant, { text: string; from: string }> = {
     primary: {
       text: "text-primary-300",
       from: "from-primary-500/20"
@@ -47,7 +47,7 @@
 
   let { title, value, colorVariant, icon: StatIcon }: Props = $props();
 
-  let colors = $derived(colorVariantClasses[colorVariant]);
+  let colors = $derived(COLOR_VARIANT_CLASSES[colorVariant]);
 </script>
 
 <div
