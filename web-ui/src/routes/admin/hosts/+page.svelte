@@ -24,7 +24,7 @@
 
   async function fetchInitData() {
     try {
-      const [hostList, groupList] = await Promise.all([api.host.list(), api.group.list()]);
+      const [hostList, groupList] = await Promise.all([api.host.list(null), api.group.list()]);
       hosts = hostList;
       groups = groupList;
     } catch (e) {

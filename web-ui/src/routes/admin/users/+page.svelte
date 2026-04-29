@@ -41,7 +41,7 @@
         selectUser(selectedUser ? (users.find((u) => u.id === selectedUser?.id) ?? null) : null);
       }
     });
-    const hostRes = api.host.list().then((hostData) => {
+    const hostRes = api.host.list(null).then((hostData) => {
       hosts = hostData;
     });
     const groupRes = api.group.list().then((groupData) => {
@@ -179,7 +179,7 @@
             </span>
           {:else}
             <span
-              class="rounded bg-surface-500/20 px-2 py-0.5 text-[9px] font-bold tracking-widest text-surface-500 uppercase"
+              class="rounded bg-surface-400/20 px-2 py-0.5 text-[9px] font-bold tracking-widest text-surface-300 uppercase"
             >
               Operator
             </span>

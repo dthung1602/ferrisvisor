@@ -12,7 +12,7 @@ export type Host = {
 
 export type NewHost = Omit<Host, "id" | "created_at" | "updated_at">;
 
-async function list(group_id: number | null): Promise<Host[]> {
+async function list(group_id: number | null = null): Promise<Host[]> {
   const search = new URLSearchParams();
   if (group_id !== null) {
     search.append("group_id", group_id.toString());

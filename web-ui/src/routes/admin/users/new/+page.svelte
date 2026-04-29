@@ -32,7 +32,7 @@
   let groups: Group[] = $state([]);
 
   async function fetchInitData() {
-    const hostRes = api.host.list().then((hostData) => {
+    const hostRes = api.host.list(null).then((hostData) => {
       hosts = hostData;
     });
     const groupRes = api.group.list().then((groupData) => {

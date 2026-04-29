@@ -49,7 +49,8 @@
       type="text"
       bind:value={serviceRegex}
       placeholder="Process Regex ..."
-      class="input w-full border-surface-500/30 bg-surface-50-950/40 pl-10 backdrop-blur-sm"
+      class="input w-full border-surface-500/30 bg-surface-50-950/40 backdrop-blur-sm"
+      style="padding-left: 2.25rem;"
     />
   </div>
 

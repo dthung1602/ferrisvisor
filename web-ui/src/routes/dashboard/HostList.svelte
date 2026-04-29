@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { slide } from "svelte/transition";
   import { ChevronDown, Columns2, Logs, Play, RotateCcw, Server, Square } from "@lucide/svelte";
   import { formatDistanceToNowStrict } from "date-fns";
 
@@ -117,7 +118,7 @@
     {@const filteredProcesses = getFilterProcesses(hostProcesses)}
 
     {#if (!selectedHostId || selectedHostId === host.id) && (!selectedProcessState || hostStats[selectedProcessState] > 0) && filteredProcesses.length > 0}
-      <div class="overflow-hidden rounded-xl border border-surface-500/50 bg-surface-200-800 shadow-2xl">
+      <div transition:slide={{duration: 150}} class="overflow-hidden rounded-xl border border-surface-500/50 bg-surface-200-800 shadow-2xl">
         <!-- Host Header (Clickable Toggle) -->
         <!-- TODO handle offline hosts-->
         <button
@@ -158,7 +159,7 @@
 
         <!-- Processes Table (Collapsible) -->
         {#if !isCollapsed && filteredProcesses.length > 0}
-          <div class="overflow-x-auto border-t border-surface-500/50 bg-surface-100-900/60 p-4">
+          <div transition:slide={{duration: 150}} class="overflow-x-auto border-t border-surface-500/50 bg-surface-100-900/60 p-4">
             <table class="table w-full border-collapse text-left">
               <!--  Table Header  -->
               <thead>
