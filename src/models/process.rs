@@ -27,13 +27,13 @@ pub struct ProcessConfigResponse {
     pub config: ProcessConfig,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ProcessActionRequest {
     pub host_id: i32,
     pub process_name: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct ProcessActionResponse {
     pub host_id: i32,
     pub process_name: String,

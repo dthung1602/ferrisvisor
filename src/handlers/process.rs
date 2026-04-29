@@ -12,7 +12,7 @@ use diesel::QueryDsl;
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use regex::Regex;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use tokio::task::JoinSet;
 
 /**
@@ -205,6 +205,7 @@ where
         }
     };
 
+    // TODO req async
     for req in requests {
         let host = match host_map.get(&req.host_id) {
             Some(h) => h,
@@ -279,4 +280,41 @@ pub async fn stop(
     .await;
 
     (StatusCode::OK, Json(results))
+}
+
+#[axum::debug_handler]
+pub async fn restart(
+    State(state): State<AppState>,
+    Extension(user): Extension<UserWithPermissions>,
+    Json(requests): Json<Vec<ProcessActionRequest>>,
+) -> (StatusCode, Json<Vec<ProcessActionResponse>>) {
+    let stop_result = perform_action(&state, &user, requests.clone(), |server, name| async move {
+        server.stop_process(&name, true).await
+    })
+    .await;
+
+    let mut to_restart = vec![];
+    let mut success = HashSet::new();
+    for i in 0..stop_result.len() {
+        if stop_result[i].success {
+            to_restart.push(requests[i].clone());
+            success.insert(i);
+        }
+    }
+    
+    let start_results = perform_action(&state, &user, to_restart, |server, name| async move {
+        server.start_process(&name, true).await
+    })
+    .await;
+    
+    let mut result = Vec::with_capacity(requests.len());
+    for (i, res) in stop_result.into_iter().enumerate() {
+        if success.contains(&i) {
+            result.push(start_results[i].clone());
+        } else {
+            result.push(res);
+        }
+    }
+
+    (StatusCode::OK, Json(result))
 }

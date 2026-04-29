@@ -114,6 +114,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/process/config", get(handlers::process::get_config))
         .route("/process/start", post(handlers::process::start))
         .route("/process/stop", post(handlers::process::stop))
+        .route("/process/restart", post(handlers::process::restart))
         .route_layer(axum::middleware::from_fn_with_state(
             state.clone(),
             handlers::auth::auth_middleware,
