@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 import sys
 import time
+from handle_sigterm import register
+
+register()
 
 print("Start process... Will crash soon")
 for i in range(15):

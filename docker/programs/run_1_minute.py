@@ -2,6 +2,9 @@
 
 import sys
 import time
+from handle_sigterm import register
+
+register()
 
 print("Start process")
 
