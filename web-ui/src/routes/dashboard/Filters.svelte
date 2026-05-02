@@ -2,7 +2,7 @@
   import { ListFilter, Search } from "@lucide/svelte";
 
   import type { Host } from "$lib/api/host";
-  import { PROCESS_STATES, type ProcessState } from "$lib/common";
+  import { PROCESS_STATES, type ProcessState } from "$lib/constants";
 
   type Prop = {
     selectedHostId: number | null;

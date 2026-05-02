@@ -4,10 +4,13 @@
   import { formatDistanceToNowStrict } from "date-fns";
 
   import type { Host } from "$lib/api/host";
-  import type { ProcessInfo } from "$lib/api/process";
-  import { PROCESS_STATES, type ProcessState } from "$lib/common";
+  import type {ProcessAction, ProcessActionRequest, ProcessInfo} from "$lib/api/process";
+  import { PROCESS_STATES, type ProcessState } from "$lib/constants";
 
-  import type { ProcessColumn } from "./common.ts";
+  import { type ProcessColumn, STATE_ACTION_MAP, STATE_COLOR_MAP } from "./common.ts";
+  import {api} from "$lib";
+  import {SvelteMap} from "svelte/reactivity";
+  import {wait} from "$lib/common";
 
   type Props = {
     columnConfigOpen: boolean;
@@ -17,6 +20,7 @@
     selectedHostId: number | null;
     serviceRegex: string | null;
     selectedProcessState: ProcessState | null;
+    refreshAllProcessInfo: () => void;
   };
 
   let {
@@ -26,13 +30,20 @@
     processInfoByHost,
     selectedHostId,
     serviceRegex,
-    selectedProcessState
+    selectedProcessState,
+    refreshAllProcessInfo
   }: Props = $props();
 
   let collapsedHosts = $state<Record<number, boolean>>({});
 
+  let processInActionMap = new SvelteMap<string, boolean>();
+
   function toggleHost(id: number) {
     collapsedHosts[id] = !collapsedHosts[id];
+  }
+
+  function processHostKey(hostId: number, proFullName: string) {
+    return `${hostId}:${proFullName}`;
   }
 
   function getFilterProcesses(processes: ProcessInfo[]) {
@@ -56,58 +67,49 @@
   }
 
   function getProcessLastChange(process: ProcessInfo): string {
-    const timestampSec = process.stop || process.start;
+
+    const timestampSec = (process.stop && process.stop > process.start) ? process.stop : process.start;
     if (timestampSec === 0) {
       return "N/A";
     }
     return formatDistanceToNowStrict(new Date(timestampSec * 1000));
   }
 
-  const STATE_COLOR_MAP = {
-    STOPPED: {
-      bg: "bg-tertiary-500/10",
-      text: "text-tertiary-500"
-    },
-    STARTING: {
-      bg: "bg-success-500/10",
-      text: "text-success-500"
-    },
-    RUNNING: {
-      bg: "bg-success-500/10",
-      text: "text-success-500"
-    },
-    BACKOFF: {
-      bg: "bg-warning-500/10",
-      text: "text-warning-500"
-    },
-    STOPPING: {
-      bg: "bg-warning-500/10",
-      text: "text-warning-500"
-    },
-    EXITED: {
-      bg: "bg-tertiary-500/10",
-      text: "text-tertiary-500"
-    },
-    FATAL: {
-      bg: "bg-error-500/10",
-      text: "text-error-500"
-    },
-    UNKNOWN: {
-      bg: "bg-surface-500/10",
-      text: "text-surface-500"
-    }
-  };
+  function fullProcessName(process: ProcessInfo): string {
+    return process.group ? `${process.group}:${process.name}` : process.name;
+  }
 
-  const STATE_ACTION_MAP = {
-    STOPPED: "start",
-    STARTING: "stop",
-    RUNNING: "stop",
-    BACKOFF: "start",
-    STOPPING: "stop",
-    EXITED: "start",
-    FATAL: "stop",
-    UNKNOWN: "start"
-  };
+  async function handleProcessAction(action: ProcessAction, reqs: ProcessActionRequest[]) {
+    try {
+      for (let req of reqs) {
+        processInActionMap.set(processHostKey(req.host_id, req.process_name), true);
+      }
+
+      const respPromise = api.process.action(action, reqs);
+      let actionResponseReceived = false;
+
+      wait(200).then(() => {
+        if (!actionResponseReceived) {
+          refreshAllProcessInfo();
+        }
+      });
+
+      const resp = await respPromise;
+      actionResponseReceived = true;
+
+      const errors = resp.filter(r => !r.success).map(r => `${r.host_id}:${r.process_name} - ${r.error}`).join("\n");
+      if (errors) {
+        alert(`Failed to start processes:\n${errors}`);
+      }
+      refreshAllProcessInfo();
+    } catch (e) {
+      console.error("Failed to start processes", e);
+    } finally {
+      for (let req of reqs) {
+        processInActionMap.set(processHostKey(req.host_id, req.process_name), false);
+      }
+    }
+  }
 </script>
 
 <div class="space-y-6">
@@ -191,9 +193,12 @@
               <!--  Table Body  -->
               <tbody>
                 {#each filteredProcesses as process (process.name)}
+                  {@const btnCls = "flex items-center justify-center gap-1.5 rounded-md p-1.5 px-2 transition-colors disabled:text-surface-300 disabled:cursor-not-allowed"}
                   {@const isFatal = process.statename === "FATAL"}
                   {@const { text: stateTxt } = STATE_COLOR_MAP[process.statename]}
                   {@const action = STATE_ACTION_MAP[process.statename]}
+                  {@const proFullName = fullProcessName(process)}
+                  {@const isProcessInAction = processInActionMap.get(processHostKey(host.id, proFullName)) ?? false}
 
                   <tr class="group border-b border-surface-500/5 transition-colors hover:bg-surface-500/5">
                     {#each columns as column (column.id)}
@@ -226,31 +231,39 @@
 
                           <!-- Actions -->
                         {:else if column.id === "actions"}
+                          {@const req = [{host_id: host.id, process_name: proFullName}]}
+
                           <td class="px-4 py-3 text-right">
                             <div
                               class="flex items-center justify-end gap-1 opacity-70 transition-opacity group-hover:opacity-100"
                             >
                               {#if action === "stop"}
                                 <button
-                                  class="flex items-center justify-center gap-1.5 rounded-md p-1.5 px-2 text-error-500 transition-colors hover:bg-error-500/20"
+                                  disabled={isProcessInAction}
+                                  class="{btnCls} not-disabled:text-error-500 not-disabled:hover:bg-error-500/20"
+                                  onclick={() => handleProcessAction("stop", req)}
                                 >
                                   <Square size="16" /> Stop
                                 </button>
                               {:else if action === "start"}
                                 <button
-                                  class="flex items-center justify-center gap-1.5 rounded-md p-1.5 px-2 text-success-500 transition-colors hover:bg-success-500/20"
+                                  disabled={isProcessInAction}
+                                  class="{btnCls} not-disabled:text-success-500 not-disabled:hover:bg-success-500/20"
+                                  onclick={() => handleProcessAction("start", req)}
                                 >
                                   <Play size="16" /> Start
                                 </button>
                               {/if}
 
                               <button
-                                class="flex items-center justify-center gap-1.5 rounded-md p-1.5 px-2 text-primary-500 transition-colors hover:bg-primary-500/20"
+                                disabled={isProcessInAction}
+                                class="{btnCls} not-disabled:text-primary-500 not-disabled:hover:bg-primary-500/20"
+                                onclick={() => handleProcessAction("restart", req)}
                               >
                                 <RotateCcw size="16" /> Restart
                               </button>
                               <button
-                                class="flex items-center justify-center gap-1.5 rounded-md p-1.5 px-2 text-surface-900-100 transition-colors hover:bg-surface-500/50"
+                                class="{btnCls} not-disabled:text-surface-900-100 not-disabled:hover:bg-surface-500/50"
                               >
                                 <Logs size="16" /> Info
                               </button>

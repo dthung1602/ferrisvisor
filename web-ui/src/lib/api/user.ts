@@ -7,7 +7,9 @@ export type User = {
   updated_at: string;
 };
 
-export type NewUser = Omit<User, "id" | "created_at" | "updated_at" | "last_login">;
+export type NewUser = Omit<User, "id" | "created_at" | "updated_at" | "last_login"> & {
+  password: string
+};
 
 async function list(): Promise<User[]> {
   const resp = await fetch("/api/user");

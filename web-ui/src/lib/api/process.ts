@@ -1,4 +1,4 @@
-import type { ProcessState } from "$lib/common";
+import type { ProcessState } from "$lib/constants";
 
 export interface ProcessInfo {
   name: string;
@@ -77,6 +77,8 @@ export interface ProcessActionRequest {
   process_name: string;
 }
 
+export type ProcessAction = "start" | "stop" | "restart";
+
 export async function list(
   group_id: number | null,
   host_id: number | null,
@@ -104,4 +106,21 @@ export async function list(
   return (await resp.json()) as ProcessResponse[];
 }
 
-export default { list };
+export async function action(action: ProcessAction, reqs: ProcessActionRequest[]): Promise<ProcessActionResponse[]> {
+  const resp = await fetch(`/api/process/${action}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(reqs),
+  });
+
+  if (!resp.ok) {
+    const message = resp.status + " " + resp.statusText;
+    console.error("Got response " + message, await resp.text());
+    throw new Error(message);
+  }
+
+  return (await resp.json()) as ProcessActionResponse[];
+}
+
+
+export default { list, action };

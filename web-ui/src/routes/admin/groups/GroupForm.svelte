@@ -2,7 +2,7 @@
   import { LayersPlus, Pencil } from "@lucide/svelte";
 
   import type { Group, NewGroup } from "$lib/api/group";
-  import { formatDate } from "$lib/string";
+  import { formatDate } from "$lib/common";
 
   interface Props {
     group: Group | NewGroup;

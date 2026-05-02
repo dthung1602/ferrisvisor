@@ -7,7 +7,7 @@
   import type { Group } from "$lib/api/group";
   import type { Host } from "$lib/api/host";
   import type { ProcessInfo, ProcessResponse } from "$lib/api/process";
-  import { PROCESS_STATES, type ProcessState } from "$lib/common";
+  import { PROCESS_STATES, type ProcessState } from "$lib/constants";
 
   import type { ProcessColumn } from "./common.ts";
   import ColumnConfigModal from "./ColumnConfigModal.svelte";
@@ -114,8 +114,7 @@
     };
   });
 
-  // fetch data when filter changes
-  $effect(() => {
+  function refreshAllProcessInfo() {
     api.process.list(selectedGroupId, selectedHostId, null).then((processResps: ProcessResponse[]) => {
       const newProcessInfoByHost = new SvelteMap<number, ProcessInfo[]>();
       for (const resp of processResps) {
@@ -128,7 +127,10 @@
       }
       processInfoByHost = newProcessInfoByHost;
     });
-  });
+  }
+
+  // fetch data when filter changes
+  $effect(refreshAllProcessInfo);
 
   // fetch hosts when group changes
   $effect(() => {
@@ -164,6 +166,7 @@
     {selectedHostId}
     {serviceRegex}
     {selectedProcessState}
+    {refreshAllProcessInfo}
   />
 </div>
 

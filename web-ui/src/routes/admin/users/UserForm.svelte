@@ -5,7 +5,7 @@
   import type { Group } from "$lib/api/group";
   import type { Host } from "$lib/api/host";
   import type { NewUser, User } from "$lib/api/user";
-  import { formatDate } from "$lib/string";
+  import { formatDate } from "$lib/common";
 
   type PermissionFormData = {
     id: number;
@@ -123,7 +123,7 @@
               type="password"
               name="password"
               required
-              bind:value={user.password}
+              bind:value={(user as NewUser).password}
             />
           </div>
         {/if}

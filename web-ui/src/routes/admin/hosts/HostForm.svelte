@@ -3,7 +3,7 @@
 
   import type { Group } from "$lib/api/group";
   import type { Host, NewHost } from "$lib/api/host";
-  import { formatDate } from "$lib/string";
+  import { formatDate } from "$lib/common";
 
   interface Props {
     host: Host | NewHost;

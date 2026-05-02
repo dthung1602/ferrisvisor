@@ -1,12 +1,10 @@
-export const PROCESS_STATES = [
-  "STOPPED",
-  "STARTING",
-  "RUNNING",
-  "BACKOFF",
-  "STOPPING",
-  "EXITED",
-  "FATAL",
-  "UNKNOWN"
-] as const;
+export function formatDate(date: string) {
+  if (!date) return "N/A";
+  return new Date(date).toLocaleString();
+}
 
-export type ProcessState = (typeof PROCESS_STATES)[number];
+export function wait(ms: number): Promise<void> {
+  return new Promise(resolve =>
+    setTimeout(resolve, ms)
+  )
+}
