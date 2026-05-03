@@ -1,5 +1,6 @@
 <script lang="ts">
   import { ChevronDown, Group as GroupIcon } from "@lucide/svelte";
+  import { Menu, Portal } from "@skeletonlabs/skeleton-svelte";
 
   import type { Group } from "$lib/api/group";
 
@@ -9,13 +10,8 @@
   };
   let { selectedGroupId = $bindable(null), groups }: Props = $props();
 
-  let selectedGroup: Group | null = $state(null);
+  let selectedGroup: Group | null = $derived(groups.find((g) => g.id === selectedGroupId) ?? null);
   let groupDropdownOpen: boolean = $state(false);
-
-  $effect(() => {
-    selectedGroup = groups.find((g) => g.id === selectedGroupId) ?? null;
-    groupDropdownOpen = false;
-  });
 </script>
 
 <div
@@ -29,30 +25,44 @@
   </div>
 
   <div class="relative">
-    <button
-      onclick={() => (groupDropdownOpen = !groupDropdownOpen)}
-      class="flex w-full items-center justify-between rounded-lg bg-black/10 px-4 py-3 transition-all hover:bg-black/20 active:scale-[0.98]"
+    <Menu
+      open={groupDropdownOpen}
+      onOpenChange={(e) => (groupDropdownOpen = e.open)}
+      positioning={{ placement: "bottom-start", gutter: 8, sameWidth: true }}
     >
-      <span class="text-lg font-black tracking-tight text-surface-900-100">
-        {selectedGroup?.name || "Select Group"}
-      </span>
-      <ChevronDown class="size-4 text-surface-900-100 transition-transform {groupDropdownOpen ? 'rotate-180' : ''}" />
-    </button>
-
-    {#if groupDropdownOpen}
-      <div
-        class="absolute top-full left-0 z-100 mt-2 w-full overflow-hidden rounded-xl border border-surface-500 bg-surface-100-900 shadow-2xl backdrop-blur-xl"
+      <Menu.Trigger
+        class="flex w-full items-center justify-between rounded-lg bg-black/10 px-4 py-3 transition-all hover:bg-black/20 active:scale-[0.98]"
       >
-        {#each groups as group (group.id)}
-          <button
-            onclick={() => (selectedGroupId = group.id)}
-            class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-500/20"
+        <span class="text-lg font-black tracking-tight text-surface-900-100">
+          {selectedGroup?.name || "Select Group"}
+        </span>
+        <ChevronDown class="size-4 text-surface-900-100 transition-transform {groupDropdownOpen ? 'rotate-180' : ''}" />
+      </Menu.Trigger>
+
+      <Portal>
+        <Menu.Positioner>
+          <Menu.Content
+            class="z-100 overflow-hidden rounded-xl border border-surface-500 bg-surface-100-900 shadow-2xl backdrop-blur-xl"
           >
-            <span class="h-2 w-2 rounded-full" style="background-color: {group.color}"></span>
-            <span class="text-sm">{group.name}</span>
-          </button>
-        {/each}
-      </div>
-    {/if}
+            {#each groups as group (group.id)}
+              <Menu.OptionItem
+                type="radio"
+                value={group.id.toString()}
+                checked={selectedGroupId === group.id}
+                onCheckedChange={(checked) => {
+                  if (checked) selectedGroupId = group.id;
+                }}
+                class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-500/20 data-[state=checked]:bg-surface-300/20"
+              >
+                <div class="flex items-center gap-3">
+                  <span class="h-2 w-2 rounded-full" style="background-color: {group.color}"></span>
+                  <Menu.ItemText class="text-sm font-medium">{group.name}</Menu.ItemText>
+                </div>
+              </Menu.OptionItem>
+            {/each}
+          </Menu.Content>
+        </Menu.Positioner>
+      </Portal>
+    </Menu>
   </div>
 </div>

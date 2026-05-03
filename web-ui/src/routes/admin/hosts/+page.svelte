@@ -7,7 +7,9 @@
 
   import type { Group } from "$lib/api/group";
   import type { Host } from "$lib/api/host";
+  import ConfirmationModal from "$lib/components/ConfirmationModal.svelte";
   import EntityList from "$lib/components/EntityList.svelte";
+  import { toaster } from "$lib/toaster";
 
   import HostForm from "./HostForm.svelte";
 
@@ -16,6 +18,7 @@
   let selectedHost: Host | null = $state(null);
   let selectedHostCopy: Host | null = $state(null);
   let loading = $state(true);
+  let deleteModalOpen = $state(false);
 
   async function selectHost(host: Host | null) {
     selectedHost = clone(host);
@@ -48,23 +51,28 @@
     try {
       await api.host.update(selectedHost.id, selectedHost);
       await fetchInitData();
+      toaster.success({ title: "Host Saved", description: "The host has been updated successfully." });
     } catch (e) {
       console.error("Failed to save host", e);
-      alert("Failed to save host");
+      toaster.error({ title: "Save Failed", description: "Could not update the host. Please try again." });
     }
   }
 
   async function handleDeleteSelectedHost() {
     if (!selectedHost) return;
-    if (confirm("Are you sure you want to delete this host?")) {
-      try {
-        await api.host.remove(selectedHost.id);
-        await selectHost(null);
-        await fetchInitData();
-      } catch (e) {
-        console.error("Failed to delete host", e);
-        alert("Failed to delete host");
-      }
+    deleteModalOpen = true;
+  }
+
+  async function confirmDeleteHost() {
+    if (!selectedHost) return;
+    try {
+      await api.host.remove(selectedHost.id);
+      await selectHost(null);
+      await fetchInitData();
+      toaster.success({ title: "Host Deleted", description: "The host has been removed successfully." });
+    } catch (e) {
+      console.error("Failed to delete host", e);
+      toaster.error({ title: "Delete Failed", description: "Could not remove the host." });
     }
   }
 
@@ -138,3 +146,11 @@
     </div>
   </div>
 </div>
+
+<ConfirmationModal
+  bind:open={deleteModalOpen}
+  title="Delete Host"
+  message="Are you sure you want to delete this host? This action cannot be undone."
+  confirmText="Delete Host"
+  onConfirm={confirmDeleteHost}
+/>

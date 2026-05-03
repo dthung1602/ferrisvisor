@@ -5,6 +5,7 @@
   import { group, host } from "$lib/api";
   import type { Group } from "$lib/api/group";
   import type { NewHost } from "$lib/api/host";
+  import { toaster } from "$lib/toaster";
 
   import HostForm from "../HostForm.svelte";
 
@@ -36,10 +37,14 @@
   async function handleSave() {
     try {
       await host.create(formData);
+      toaster.success({ title: "Host Created", description: "The new host has been added to the registry." });
       await goto(resolve("/admin/hosts"));
     } catch (e) {
       console.error(e);
-      alert("Failed to create host");
+      toaster.error({
+        title: "Creation Failed",
+        description: "Could not create the new host. Please check the details."
+      });
     }
   }
 

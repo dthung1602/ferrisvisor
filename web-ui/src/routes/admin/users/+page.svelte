@@ -9,7 +9,9 @@
   import type { Host } from "$lib/api/host";
   import type { Permission } from "$lib/api/permission";
   import type { User as UserType } from "$lib/api/user";
+  import ConfirmationModal from "$lib/components/ConfirmationModal.svelte";
   import EntityList from "$lib/components/EntityList.svelte";
+  import { toaster } from "$lib/toaster";
 
   import UserForm from "./UserForm.svelte";
 
@@ -31,6 +33,7 @@
   let selectedUserPerms: PermissionFormData[] = $state([]);
   let toDeletePermissions: Set<number> = $state(new Set());
   let loading = $state(true);
+  let deleteModalOpen = $state(false);
 
   async function fetchInitData() {
     const userRes = api.user.list().then((userData) => {
@@ -96,14 +99,19 @@
 
   async function handleDeleteSelectedUser() {
     if (!selectedUser) return;
-    if (confirm(`Are you sure you want to delete user ${selectedUser.email}? This action is irreversible.`)) {
-      try {
-        await api.user.remove(selectedUser.id);
-        await selectUser(null);
-        await fetchInitData();
-      } catch (e) {
-        console.error(e);
-      }
+    deleteModalOpen = true;
+  }
+
+  async function confirmDeleteUser() {
+    if (!selectedUser) return;
+    try {
+      await api.user.remove(selectedUser.id);
+      await selectUser(null);
+      await fetchInitData();
+      toaster.success({ title: "User Deleted", description: "The user account has been removed." });
+    } catch (e) {
+      console.error(e);
+      toaster.error({ title: "Delete Failed", description: "Could not remove the user account." });
     }
   }
 
@@ -133,10 +141,10 @@
       await Promise.all(newPermissionResults);
       await Promise.all(deletePermissionResults);
       await fetchInitData();
-      alert("User updated successfully!");
+      toaster.success({ title: "User Updated", description: "The user profile and permissions have been saved." });
     } catch (e) {
       console.error(e);
-      alert("Failed to update user. Please try again.");
+      toaster.error({ title: "Update Failed", description: "Could not save user changes. Please try again." });
     }
   }
 </script>
@@ -213,3 +221,11 @@
     </div>
   </div>
 </div>
+
+<ConfirmationModal
+  bind:open={deleteModalOpen}
+  title="Delete User"
+  message="Are you sure you want to delete this user? This action is irreversible."
+  confirmText="Delete User"
+  onConfirm={confirmDeleteUser}
+/>

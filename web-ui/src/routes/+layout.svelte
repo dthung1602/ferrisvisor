@@ -3,12 +3,16 @@
 
   import type { Snippet } from "svelte";
 
+  import { X } from "@lucide/svelte";
+  import { Toast } from "@skeletonlabs/skeleton-svelte";
+
   import type { CurrentUser } from "$lib/api/auth";
   import favicon from "$lib/assets/favicon.svg";
   import Footer from "$lib/components/Footer.svelte";
   import SideBar from "$lib/components/SideBar.svelte";
   import TopNavigation from "$lib/components/TopNavigation.svelte";
   import { setGlobalContext, type GlobalState } from "$lib/global-state";
+  import { toaster } from "$lib/toaster";
 
   type Props = {
     children: Snippet<[]>;
@@ -42,6 +46,27 @@
 <svelte:head>
   <link rel="icon" href={favicon} />
 </svelte:head>
+
+<Toast.Group {toaster}>
+  {#snippet children(toast)}
+    <Toast
+      {toast}
+      class="flex min-w-80 items-center justify-between gap-4 rounded-xl border border-surface-500/20 bg-surface-100-900 p-4 shadow-2xl backdrop-blur-xl"
+    >
+      <Toast.Message class="flex-1 space-y-1">
+        {#if toast.title}
+          <Toast.Title class="text-sm font-bold tracking-tight">{toast.title}</Toast.Title>
+        {/if}
+        {#if toast.description}
+          <Toast.Description class="text-xs opacity-70">{toast.description}</Toast.Description>
+        {/if}
+      </Toast.Message>
+      <Toast.CloseTrigger class="rounded-full p-1 transition-colors hover:bg-surface-500/10">
+        <X class="size-4" />
+      </Toast.CloseTrigger>
+    </Toast>
+  {/snippet}
+</Toast.Group>
 
 <main>
   <div class="flex h-screen overflow-hidden bg-surface-100-900">

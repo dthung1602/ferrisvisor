@@ -8,7 +8,7 @@ export type User = {
 };
 
 export type NewUser = Omit<User, "id" | "created_at" | "updated_at" | "last_login"> & {
-  password: string
+  password: string;
 };
 
 async function list(): Promise<User[]> {
@@ -51,7 +51,7 @@ async function create(user: NewUser): Promise<User> {
   return (await resp.json()) as User;
 }
 
-async function update(userId: number, user: NewUser): Promise<User> {
+async function update(userId: number, user: User): Promise<User> {
   const resp = await fetch(`/api/user/${userId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },

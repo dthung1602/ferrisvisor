@@ -8,6 +8,7 @@
 
   import type { Group } from "$lib/api/group";
   import type { Host } from "$lib/api/host";
+  import { toaster } from "$lib/toaster";
 
   import UserForm from "../UserForm.svelte";
 
@@ -52,10 +53,14 @@
       const newPermissionResults = permissions.map((perm) => api.permission.create(uid, omit(perm, "id")));
 
       await Promise.all(newPermissionResults);
+      toaster.success({ title: "User Created", description: "The new user account has been established." });
       await goto(resolve("/admin/users"));
     } catch (e) {
       console.error(e);
-      alert("Failed to create user. Please try again.");
+      toaster.error({
+        title: "Creation Failed",
+        description: "Could not create the new user. Please check the details."
+      });
     }
   }
 

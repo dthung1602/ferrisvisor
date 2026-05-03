@@ -47,16 +47,19 @@
 <div
   class="relative overflow-hidden card rounded-xl border border-surface-500/10 bg-surface-50-950/40 p-6 backdrop-blur-xl"
 >
-  <div class="mb-6 flex items-center justify-between">
-    <h3 class="flex flex-1 items-center gap-2 text-lg font-bold uppercase">
+  <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <h3 class="flex items-center gap-2 text-lg font-bold uppercase">
       <span class="size-2 animate-pulse rounded-full bg-secondary-500"></span>
       ACTIVE {entityName}
     </h3>
-    <input
-      class="input max-w-sm flex-1 rounded-xl border-none bg-surface-500/10 px-4 py-2 text-sm focus:ring-2 focus:ring-primary-500/20"
-      placeholder="Search..."
-      bind:value={searchTerm}
-    />
+    <div class="relative max-w-sm flex-1">
+      <Search class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 opacity-40" />
+      <input
+        class="w-full rounded-xl border-none bg-surface-500/10 py-2 pr-4 pl-10 text-sm focus:ring-2 focus:ring-primary-500/50 focus:outline-none"
+        placeholder="Search..."
+        bind:value={searchTerm}
+      />
+    </div>
   </div>
 
   {#if loading}
@@ -70,7 +73,7 @@
         {@const avatarColor = avatarColorFunc?.(entity)}
 
         <div
-          class="group flex cursor-pointer items-center justify-between card border-l-4 p-4 transition-all
+          class="group flex cursor-pointer items-center justify-between card border-r-2 p-4 transition-all
                 {selectedEntity?.id === entity.id
             ? 'border-primary-500 bg-primary-500/10 hover:bg-primary-500/15'
             : 'border-surface-500/20 bg-surface-500/5 hover:bg-surface-500/10'}"
@@ -98,10 +101,10 @@
         </div>
       {/each}
 
-      {#if entities.length === 0}
-        <div class="flex flex-col items-center justify-center py-12 text-center opacity-30">
-          <Search class="mb-4 size-12" />
-          <p class="font-bold tracking-widest uppercase">No operators found in registry</p>
+      {#if filteredEntities.length === 0}
+        <div class="flex flex-col items-center justify-center py-16 text-center opacity-30">
+          <Search class="mb-4 size-16" />
+          <p class="text-sm font-bold tracking-[0.2em] uppercase">No {entityName} found in registry</p>
         </div>
       {/if}
     </div>

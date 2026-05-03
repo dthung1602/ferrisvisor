@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { browser } from "$app/environment";
   import { CircleAlert, CirclePlay, CircleStop } from "@lucide/svelte";
+  import { browser } from "$app/environment";
   import { api, cookies } from "$lib";
   import { SvelteMap } from "svelte/reactivity";
 
@@ -9,8 +9,8 @@
   import type { ProcessInfo, ProcessResponse } from "$lib/api/process";
   import { PROCESS_STATES, type ProcessState } from "$lib/constants";
 
-  import type { ProcessColumn } from "./common.ts";
   import ColumnConfigModal from "./ColumnConfigModal.svelte";
+  import type { ProcessColumn } from "./common.ts";
   import Filters from "./Filters.svelte";
   import GroupSelector from "./GroupSelector.svelte";
   import HostList from "./HostList.svelte";

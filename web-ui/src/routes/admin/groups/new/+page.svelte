@@ -4,16 +4,19 @@
 
   import { group } from "$lib/api";
   import type { NewGroup } from "$lib/api/group";
+  import { standardizeColor } from "$lib/common";
 
   import GroupForm from "../GroupForm.svelte";
 
   let formData = $state({
     name: "",
-    description: ""
+    description: "",
+    color: "#fff"
   } as NewGroup);
 
   async function handleSave() {
     try {
+      formData.color = standardizeColor(formData.color);
       await group.create(formData);
       await goto(resolve("/admin/groups"));
     } catch (e) {

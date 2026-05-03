@@ -6,7 +6,10 @@
   import { clone } from "lodash";
 
   import type { Group } from "$lib/api/group";
+  import { standardizeColor } from "$lib/common";
+  import ConfirmationModal from "$lib/components/ConfirmationModal.svelte";
   import EntityList from "$lib/components/EntityList.svelte";
+  import { toaster } from "$lib/toaster";
 
   import GroupForm from "./GroupForm.svelte";
 
@@ -14,6 +17,7 @@
   let selectedGroup: Group | null = $state(null);
   let selectedGroupCopy: Group | null = $state(null);
   let loading = $state(true);
+  let deleteModalOpen = $state(false);
 
   async function selectGroup(group: Group | null) {
     selectedGroup = clone(group);
@@ -42,25 +46,32 @@
     e.preventDefault();
     if (!selectedGroup) return;
     try {
+      selectedGroup.color = standardizeColor(selectedGroup.color);
       await api.group.update(selectedGroup.id, selectedGroup);
       await fetchInitData();
+      selectedGroupCopy = clone(selectedGroup);
+      toaster.success({ title: "Group Saved", description: "The group has been updated successfully." });
     } catch (e) {
       console.error("Failed to save group", e);
-      alert("Failed to save group");
+      toaster.error({ title: "Save Failed", description: "Could not update the group. Please try again." });
     }
   }
 
   async function handleDeleteSelectedGroup() {
     if (!selectedGroup) return;
-    if (confirm("Are you sure you want to delete this group?")) {
-      try {
-        await api.group.remove(selectedGroup.id);
-        await selectGroup(null);
-        await fetchInitData();
-      } catch (e) {
-        console.error("Failed to delete group", e);
-        alert("Failed to delete group");
-      }
+    deleteModalOpen = true;
+  }
+
+  async function confirmDeleteGroup() {
+    if (!selectedGroup) return;
+    try {
+      await api.group.remove(selectedGroup.id);
+      await selectGroup(null);
+      await fetchInitData();
+      toaster.success({ title: "Group Deleted", description: "The group has been removed successfully." });
+    } catch (e) {
+      console.error("Failed to delete group", e);
+      toaster.error({ title: "Delete Failed", description: "Could not remove the group." });
     }
   }
 
@@ -123,3 +134,11 @@
     </div>
   </div>
 </div>
+
+<ConfirmationModal
+  bind:open={deleteModalOpen}
+  title="Delete Group"
+  message="Are you sure you want to delete this group? This action cannot be undone."
+  confirmText="Delete Group"
+  onConfirm={confirmDeleteGroup}
+/>

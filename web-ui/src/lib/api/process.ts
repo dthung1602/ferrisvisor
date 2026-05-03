@@ -110,7 +110,7 @@ export async function action(action: ProcessAction, reqs: ProcessActionRequest[]
   const resp = await fetch(`/api/process/${action}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(reqs),
+    body: JSON.stringify(reqs)
   });
 
   if (!resp.ok) {
@@ -121,6 +121,5 @@ export async function action(action: ProcessAction, reqs: ProcessActionRequest[]
 
   return (await resp.json()) as ProcessActionResponse[];
 }
-
 
 export default { list, action };

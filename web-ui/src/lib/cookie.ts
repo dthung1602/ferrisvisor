@@ -1,9 +1,4 @@
-export function setCookie(
-  name: string,
-  value: string,
-  expire_at: string | Date | null = null,
-  path: string = "/"
-) {
+export function setCookie(name: string, value: string, expire_at: string | Date | null = null, path: string = "/") {
   let expires = "";
   if (expire_at) {
     const date = new Date(expire_at);
