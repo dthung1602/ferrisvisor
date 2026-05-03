@@ -12,7 +12,7 @@
   import ColumnConfigModal from "./ColumnConfigModal.svelte";
   import type { ProcessColumn } from "./common.ts";
   import Filters from "./Filters.svelte";
-  import GroupSelector from "./GroupSelector.svelte";
+  import GroupCard from "./GroupCard.svelte";
   import HostList from "./HostList.svelte";
   import StatCard from "./StatCard.svelte";
 
@@ -145,7 +145,7 @@
 <div class="space-y-8 pb-24">
   <!-- Global Status Dashboard (Bento style) -->
   <div class="relative z-30 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <GroupSelector bind:selectedGroupId groups={data.groups} />
+    <GroupCard bind:selectedGroupId groups={data.groups} />
 
     <StatCard title="Running" value={globalStats.running} icon={CirclePlay} colorVariant="success" />
 

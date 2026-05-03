@@ -6,6 +6,8 @@
   import type { Host } from "$lib/api/host";
   import type { NewUser, User } from "$lib/api/user";
   import { formatDate } from "$lib/common";
+  import GroupSelector from "$lib/components/GroupSelector.svelte";
+  import HostSelector from "$lib/components/HostSelector.svelte";
 
   type PermissionFormData = {
     id: number;
@@ -199,6 +201,7 @@
 
         <div id="perm-list" class="max-h-120 space-y-3 overflow-y-auto pr-2">
           {#each permissions as perm, i (perm.id)}
+            {@const hostsInGroup = filterHostOfGroup(perm.group_id)}
             <div
               class="space-y-3 rounded-xl border border-surface-500/5 bg-surface-500/5 p-4 transition-colors hover:bg-surface-500/10"
             >
@@ -214,26 +217,23 @@
               </div>
               <div class="space-y-1.5">
                 <label for="group" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Group</label>
-                <select
-                  class="select rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
-                  bind:value={perm.group_id}
-                >
-                  {#each groups as group (group.id)}
-                    <option value={group.id}>{group.name}</option>
-                  {/each}
-                </select>
+                <GroupSelector
+                  {groups}
+                  selectedGroupId={perm.group_id}
+                  setSelectedGroupId={(id) => {
+                    perm.group_id = id;
+                    perm.host_id = null;
+                  }}
+                  showSearchBox={false}
+                />
               </div>
               <div class="space-y-1.5">
                 <label for="host" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Host</label>
-                <select
-                  class="select rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
-                  bind:value={perm.host_id}
-                >
-                  <option value={null}>-- All hosts --</option>
-                  {#each filterHostOfGroup(perm.group_id) as host (host.id)}
-                    <option value={host.id}>{host.name}</option>
-                  {/each}
-                </select>
+                <HostSelector
+                  hosts={hostsInGroup}
+                  selectedHostId={perm.host_id}
+                  setSelectedHostId={(id) => (perm.host_id = id)}
+                />
               </div>
               <div class="space-y-1.5">
                 <label for="service_name" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50"

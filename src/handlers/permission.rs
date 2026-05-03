@@ -100,6 +100,7 @@ pub async fn update(
     let updated_permission: Permission =
         diesel::update(schema::permission::table.filter(match_user_perm))
             .set((
+                schema::permission::group_id.eq(permission_data.group_id),
                 schema::permission::host_id.eq(permission_data.host_id),
                 schema::permission::service_name.eq(permission_data.service_name),
                 // can_act implies can_view
