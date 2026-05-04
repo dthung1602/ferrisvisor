@@ -3,8 +3,8 @@
   import { Menu, Portal } from "@skeletonlabs/skeleton-svelte";
 
   import type { Host } from "$lib/api/host";
-  import { PROCESS_STATES, type ProcessState } from "$lib/constants";
   import HostSelector from "$lib/components/HostSelector.svelte";
+  import { PROCESS_STATES, type ProcessState } from "$lib/constants";
 
   type Prop = {
     selectedHostId: number | null;
@@ -30,11 +30,7 @@
 <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:flex lg:flex-row lg:flex-wrap">
   <!-- Host Selector -->
   <div class="relative flex-1 lg:w-48 lg:flex-none lg:shrink-0">
-    <HostSelector
-      {hosts}
-      {selectedHostId}
-      setSelectedHostId={(id) => selectedHostId = id}
-    />
+    <HostSelector {hosts} {selectedHostId} setSelectedHostId={(id) => (selectedHostId = id)} />
   </div>
 
   <!-- State Selector -->

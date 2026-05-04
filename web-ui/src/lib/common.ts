@@ -1,3 +1,5 @@
+import type { ProcessInfo } from "$lib/api/process";
+
 export function formatDate(date: string) {
   if (!date) return "N/A";
   return new Date(date).toLocaleString();
@@ -13,4 +15,8 @@ export function standardizeColor(color: string): string {
   if (ctx === null) return "#FFF";
   ctx.fillStyle = color;
   return ctx.fillStyle;
+}
+
+export function fullProcessName(process: ProcessInfo): string {
+  return process.group ? `${process.group}:${process.name}` : process.name;
 }

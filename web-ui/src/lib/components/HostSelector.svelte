@@ -17,7 +17,7 @@
   let hostMenuOpen = $state(false);
   let hostSearch = $state("");
 
-  let filteredHosts = $derived(hosts.filter((h) => h.name.toLowerCase().includes(hostSearch.toLowerCase())))
+  let filteredHosts = $derived(hosts.filter((h) => h.name.toLowerCase().includes(hostSearch.toLowerCase())));
 </script>
 
 <Menu

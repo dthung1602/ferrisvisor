@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ChevronDown, Columns2, Logs, Play, RotateCcw, Server, Square } from "@lucide/svelte";
+  import { ChevronDown, Columns2, Play, RotateCcw, Server, Square } from "@lucide/svelte";
   import { Accordion } from "@skeletonlabs/skeleton-svelte";
   import { api } from "$lib";
   import { formatDistanceToNowStrict } from "date-fns";
@@ -8,11 +8,12 @@
 
   import type { Host } from "$lib/api/host";
   import type { ProcessAction, ProcessActionRequest, ProcessInfo } from "$lib/api/process";
-  import { wait } from "$lib/common";
+  import { fullProcessName, wait } from "$lib/common";
   import { PROCESS_STATES, type ProcessState } from "$lib/constants";
   import { toaster } from "$lib/toaster";
 
   import { STATE_ACTION_MAP, STATE_COLOR_MAP, type ProcessColumn } from "./common.ts";
+  import ProcessPopup from "./ProcessPopup.svelte";
 
   type Props = {
     columnConfigOpen: boolean;
@@ -68,10 +69,6 @@
       return "N/A";
     }
     return formatDistanceToNowStrict(new Date(timestampSec * 1000));
-  }
-
-  function fullProcessName(process: ProcessInfo): string {
-    return process.group ? `${process.group}:${process.name}` : process.name;
   }
 
   async function handleProcessAction(action: ProcessAction, reqs: ProcessActionRequest[]) {
@@ -294,11 +291,7 @@
                                   >
                                     <RotateCcw size="16" /> Restart
                                   </button>
-                                  <button
-                                    class="{btnCls} not-disabled:text-surface-900-100 not-disabled:hover:bg-surface-500/50"
-                                  >
-                                    <Logs size="16" /> Info
-                                  </button>
+                                  <ProcessPopup {process} {host} />
                                 </div>
                               </td>
                             {/if}

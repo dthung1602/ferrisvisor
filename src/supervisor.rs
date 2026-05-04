@@ -64,6 +64,16 @@ pub struct ProcessConfig {
     pub inuse: bool,
 }
 
+impl ProcessConfig {
+    pub fn full_name(&self) -> String {
+        if self.group.is_empty() {
+            self.name.clone()
+        } else {
+            format!("{}:{}", self.group, self.name)
+        }
+    }
+}
+
 #[derive(TryFromValue, Debug)]
 pub struct ProcessStatus {
     pub name: String,
@@ -72,6 +82,7 @@ pub struct ProcessStatus {
     pub description: String,
 }
 
+#[derive(Debug)]
 pub struct Server {
     url: Url,
     rpc_client: DxrClient,

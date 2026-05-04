@@ -51,7 +51,7 @@
   {#snippet children(toast)}
     <Toast
       {toast}
-      class="flex min-w-80 items-center justify-between gap-4 rounded-xl border border-surface-500/20 bg-surface-100-900 p-4 shadow-2xl backdrop-blur-xl"
+      class="flex min-w-80 items-center justify-between gap-4 rounded-xl border p-4 shadow-2xl backdrop-blur-xl"
     >
       <Toast.Message class="flex-1 space-y-1">
         {#if toast.title}
@@ -61,7 +61,7 @@
           <Toast.Description class="text-xs opacity-70">{toast.description}</Toast.Description>
         {/if}
       </Toast.Message>
-      <Toast.CloseTrigger class="rounded-full p-1 transition-colors hover:bg-surface-500/10">
+      <Toast.CloseTrigger class="rounded-full p-1 transition-colors">
         <X class="size-4" />
       </Toast.CloseTrigger>
     </Toast>

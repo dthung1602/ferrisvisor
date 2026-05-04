@@ -49,7 +49,7 @@
         <div class="col-span-4 space-y-1.5">
           <label for="group_id" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Group</label>
           <GroupSelector
-            groups={groups}
+            {groups}
             selectedGroupId={host.group_id}
             setSelectedGroupId={(id) => (host.group_id = id)}
             showSearchBox={false}

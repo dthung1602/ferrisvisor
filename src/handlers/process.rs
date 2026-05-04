@@ -135,6 +135,7 @@ pub async fn get_config(
     Query(query): Query<ProcessConfigRequest>,
     Extension(user): Extension<UserWithPermissions>,
 ) -> (StatusCode, Json<Vec<ProcessConfigResponse>>) {
+    println!("REQ {:?}", query);
     let mut db_conn = state.db_pool.get().await.unwrap();
 
     let host: Host = schema::host::table
@@ -145,6 +146,8 @@ pub async fn get_config(
 
     let server = Server::from_host(&host);
 
+    println!("Server {:?} Host {:?}", server, host);
+
     let configs: Vec<ProcessConfigResponse> = server
         .get_all_config_info()
         .await
@@ -152,7 +155,7 @@ pub async fn get_config(
         .into_iter()
         .filter_map(|config| {
             if let Some(process_name) = &query.process_name
-                && config.name != *process_name
+                && config.full_name() != *process_name
             {
                 return None;
             }
@@ -250,6 +253,9 @@ where
             }
         }
     }
+
+    use tokio::time::sleep;
+    sleep(std::time::Duration::from_secs(15)).await;
 
     results
 }

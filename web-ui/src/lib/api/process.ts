@@ -122,4 +122,22 @@ export async function action(action: ProcessAction, reqs: ProcessActionRequest[]
   return (await resp.json()) as ProcessActionResponse[];
 }
 
-export default { list, action };
+export async function getConfigs(req: ProcessConfigRequest): Promise<ProcessConfigResponse[]> {
+  const search = new URLSearchParams();
+  search.append("host_id", req.host_id.toString());
+  if (req.process_name) {
+    search.append("process_name", req.process_name.toString());
+  }
+
+  const resp = await fetch(`/api/process/config?` + search.toString());
+
+  if (!resp.ok) {
+    const message = resp.status + " " + resp.statusText;
+    console.error("Got response " + message, await resp.text());
+    throw new Error(message);
+  }
+
+  return (await resp.json()) as ProcessConfigResponse[];
+}
+
+export default { list, action, getConfigs };
