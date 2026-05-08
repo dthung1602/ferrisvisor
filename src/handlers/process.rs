@@ -1,7 +1,7 @@
 use crate::common::AppState;
 use crate::models::{
     Host, ProcessActionRequest, ProcessActionResponse, ProcessConfigRequest, ProcessConfigResponse,
-    ProcessRequest, ProcessResponse, UserWithPermissions,
+    ProcessLogRequest, ProcessLogResponse, ProcessRequest, ProcessResponse, UserWithPermissions,
 };
 use crate::schema;
 use crate::supervisor::{ProcessInfo, Server};
@@ -15,20 +15,14 @@ use regex::Regex;
 use std::collections::{HashMap, HashSet};
 use tokio::task::JoinSet;
 
-/**
-
-/process        -> GET ? group_id=1 & host_id=1 & process_name=foo
-/process/config -> GET ? host_id=1 & process_name=foo
-/process/stdout -> GET ? host_id=1 & process_name=foo offset=1 length=213
-/process/stderr -> GET ? host_id=1 & process_name=foo offset=1 length=213
-/process/start  -> POST  [ {host_id=1 process_name=foo } ]
-/process/stop   -> POST  [ {host_id=1 process_name=foo } ]
-
-*/
-
 enum Action {
     View,
     Act,
+}
+
+enum LogType {
+    STDOUT,
+    STDERR,
 }
 
 fn user_can_do(
@@ -307,12 +301,12 @@ pub async fn restart(
             success.insert(i);
         }
     }
-    
+
     let start_results = perform_action(&state, &user, to_restart, |server, name| async move {
         server.start_process(&name, true).await
     })
     .await;
-    
+
     let mut result = Vec::with_capacity(requests.len());
     for (i, res) in stop_result.into_iter().enumerate() {
         if success.contains(&i) {
@@ -323,4 +317,68 @@ pub async fn restart(
     }
 
     (StatusCode::OK, Json(result))
+}
+
+#[axum::debug_handler]
+pub async fn tail_stdout(
+    State(state): State<AppState>,
+    Extension(user): Extension<UserWithPermissions>,
+    Query(req): Query<ProcessLogRequest>,
+) -> (StatusCode, Json<Option<ProcessLogResponse>>) {
+    tail_log(state, &user, req, LogType::STDOUT).await
+}
+
+#[axum::debug_handler]
+pub async fn tail_stderr(
+    State(state): State<AppState>,
+    Extension(user): Extension<UserWithPermissions>,
+    Query(req): Query<ProcessLogRequest>,
+) -> (StatusCode, Json<Option<ProcessLogResponse>>) {
+    tail_log(state, &user, req, LogType::STDERR).await
+}
+
+async fn tail_log(
+    state: AppState,
+    user: &UserWithPermissions,
+    req: ProcessLogRequest,
+    log_type: LogType,
+) -> (StatusCode, Json<Option<ProcessLogResponse>>) {
+    let mut db_conn = state.db_pool.get().await.unwrap();
+
+    let host: Host = schema::host::table
+        .filter(schema::host::id.eq(req.host_id))
+        .first(&mut db_conn)
+        .await
+        .unwrap();
+
+    if !user_can_do(
+        user,
+        Action::View,
+        host.group_id,
+        host.id,
+        &req.process_name,
+    ) {
+        return (StatusCode::FORBIDDEN, Json(None));
+    }
+
+    let server = Server::from_host(&host);
+    let (log, offset, overflow) = match log_type {
+        LogType::STDOUT => server
+            .tail_process_stdout_log(&req.process_name, req.offset, req.length)
+            .await
+            .unwrap(),
+        LogType::STDERR => server
+            .tail_process_stderr_log(&req.process_name, req.offset, req.length)
+            .await
+            .unwrap(),
+    };
+
+    (
+        StatusCode::OK,
+        Json(Some(ProcessLogResponse {
+            log,
+            offset,
+            overflow,
+        })),
+    )
 }
