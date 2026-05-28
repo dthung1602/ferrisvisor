@@ -7,6 +7,7 @@
 
   import ProcessConfig from "./ProcessConfig.svelte";
   import ProcessInfoComponent from "./ProcessInfo.svelte";
+  import ProcessLog from "./ProcessLog.svelte";
 
   type Prop = {
     host: Host;
@@ -20,7 +21,7 @@
   let selectedTab: TabType = $state("info");
 </script>
 
-<FloatingPanel defaultSize={{ width: 800, height: 900 }}>
+<FloatingPanel defaultSize={{ width: 600, height: 500 }}>
   <FloatingPanel.Trigger
     class="flex items-center justify-center gap-1.5 rounded-md p-1.5 px-2 transition-colors not-disabled:text-surface-900-100 not-disabled:hover:bg-surface-500/50 disabled:cursor-not-allowed disabled:text-surface-300"
   >
@@ -29,7 +30,7 @@
 
   <Portal>
     <FloatingPanel.Positioner class="z-50">
-      <FloatingPanel.Content>
+      <FloatingPanel.Content class="flex h-full flex-col overflow-hidden">
         <FloatingPanel.DragTrigger>
           <FloatingPanel.Header>
             <FloatingPanel.Title>
@@ -53,9 +54,9 @@
           </FloatingPanel.Header>
         </FloatingPanel.DragTrigger>
 
-        <FloatingPanel.Body>
+        <FloatingPanel.Body class="flex-1 overflow-y-auto pt-0">
           <Tabs value={selectedTab} onValueChange={(details) => (selectedTab = details.value as TabType)}>
-            <Tabs.List>
+            <Tabs.List class="sticky top-0 z-20 border-b border-surface-500/10 bg-surface-100-900 pt-2 mb-0">
               <Tabs.Trigger value="info">Info</Tabs.Trigger>
               <Tabs.Trigger value="config">Config</Tabs.Trigger>
               <Tabs.Trigger value="stdout">Stdout</Tabs.Trigger>
@@ -67,19 +68,21 @@
             </Tabs.Content>
             <Tabs.Content value="config">
               {#if selectedTab === "config"}
-                <!-- Only render the info tab if it's selected'-->
+                <!-- Only render if it's selected-->
                 <ProcessConfig {host} {process} />
               {/if}
             </Tabs.Content>
             <Tabs.Content value="stdout">
               {#if selectedTab === "stdout"}
-                <!-- Only render the info tab if it's selected'-->
-                <ProcessConfig {host} {process} />
+                <!-- Only render if it's selected-->
+                <ProcessLog logType="stdout" {host} {process} />
               {/if}
             </Tabs.Content>
             <Tabs.Content value="stderr">
-              STDERR Show recent activity or sample data: new releases, PRs merged, or notable user events. This helps
-              examples feel realistic and actionable.
+              {#if selectedTab === "stderr"}
+                <!-- Only render if it's selected-->
+                <ProcessLog logType="stderr" {host} {process} />
+              {/if}
             </Tabs.Content>
           </Tabs>
         </FloatingPanel.Body>

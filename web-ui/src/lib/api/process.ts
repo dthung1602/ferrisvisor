@@ -67,17 +67,20 @@ export interface ProcessActionResponse {
   error: string | null;
 }
 
-export interface ProcessConfigRequest {
-  host_id: number;
-  process_name?: string | null;
-}
-
 export interface ProcessActionRequest {
   host_id: number;
   process_name: string;
 }
 
 export type ProcessAction = "start" | "stop" | "restart";
+
+export interface ProcessLogResponse {
+  log: string;
+  offset: number;
+  overflow: boolean;
+}
+
+export type ProcessLogType = "stdout" | "stderr";
 
 export async function list(
   group_id: number | null,
@@ -122,11 +125,11 @@ export async function action(action: ProcessAction, reqs: ProcessActionRequest[]
   return (await resp.json()) as ProcessActionResponse[];
 }
 
-export async function getConfigs(req: ProcessConfigRequest): Promise<ProcessConfigResponse[]> {
+export async function getConfigs(hostId: number, processName: string | null = null): Promise<ProcessConfigResponse[]> {
   const search = new URLSearchParams();
-  search.append("host_id", req.host_id.toString());
-  if (req.process_name) {
-    search.append("process_name", req.process_name.toString());
+  search.append("host_id", hostId.toString());
+  if (processName) {
+    search.append("process_name", processName.toString());
   }
 
   const resp = await fetch(`/api/process/config?` + search.toString());
@@ -140,4 +143,29 @@ export async function getConfigs(req: ProcessConfigRequest): Promise<ProcessConf
   return (await resp.json()) as ProcessConfigResponse[];
 }
 
-export default { list, action, getConfigs };
+async function tailLog(
+  processLogType: ProcessLogType,
+  hostId: number,
+  processName: string,
+  offset: number,
+  length: number
+): Promise<ProcessLogResponse> {
+  const search = new URLSearchParams({
+    host_id: hostId.toString(),
+    process_name: processName,
+    offset: offset.toString(),
+    length: length.toString()
+  });
+
+  const resp = await fetch(`/api/process/${processLogType}?` + search.toString());
+
+  if (!resp.ok) {
+    const message = resp.status + " " + resp.statusText;
+    console.error("Got response " + message, await resp.text());
+    throw new Error(message);
+  }
+
+  return (await resp.json()) as ProcessLogResponse;
+}
+
+export default { list, action, getConfigs, tailLog };

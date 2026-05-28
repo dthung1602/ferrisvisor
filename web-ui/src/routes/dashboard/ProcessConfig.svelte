@@ -17,10 +17,7 @@
 
   $effect(() => {
     api.process
-      .getConfigs({
-        host_id: host.id,
-        process_name: fullProcessName(process)
-      })
+      .getConfigs(host.id, fullProcessName(process))
       .then((configs) => {
         if (configs.length === 0) {
           toaster.error({
