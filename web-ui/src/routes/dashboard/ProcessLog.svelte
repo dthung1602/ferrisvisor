@@ -9,8 +9,8 @@
   import { toaster } from "$lib/toaster";
 
   const LOG_CHUNK_SIZE = 2048;
-  const LOG_TAIL_INTERVAL = 15_000;
-  const MAX_LOG_SIZE = 65536; // must > LOG_CHUNK_SIZE
+  const LOG_TAIL_INTERVAL = 5_000;
+  const MAX_LOG_SIZE = 65_536; // must > LOG_CHUNK_SIZE
 
   type Props = {
     logType: ProcessLogType;
@@ -32,6 +32,13 @@
   });
 
   async function fetchLogChunk() {
+    if (isDestroyed) {
+      if (timeoutHandler !== null) {
+        window.clearTimeout(timeoutHandler);
+      }
+      return
+    }
+
     let logResp;
     try {
       logResp = await api.process.tailLog(logType, host.id, fullProcessName(process), offset, LOG_CHUNK_SIZE);
