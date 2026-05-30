@@ -34,12 +34,12 @@
   - [x] footer
   - [x] login
   - [ ] reset password
-  - [ ] supervisor page
-    - [ ] host/svc list
-    - [ ] service list
-    - [ ] start/stop/restart
-    - [ ] view/stream log
-    - [ ] view config
+  - [x] supervisor page
+    - [x] host/svc list
+    - [x] service list
+    - [x] start/stop/restart
+    - [x] view/stream log
+    - [x] view config
   - [x] admin page
     - [x] host management
       - [x] list

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { CircleAlert, CirclePlay, CircleStop } from "@lucide/svelte";
   import { browser } from "$app/environment";
-  import { api, cookies } from "$lib";
+  import { api, localstorage } from "$lib";
   import { SvelteMap } from "svelte/reactivity";
 
   import type { Group } from "$lib/api/group";
@@ -45,21 +45,18 @@
     { id: "actions", label: "Actions", visible: true, locked: true }
   ];
 
-  const COLUMN_COOKIE_NAME = "dashboard_columns";
-
   function loadColumns(): ProcessColumn[] {
     if (!browser) return [...DEFAULT_COLUMNS];
 
-    const saved = cookies.getCookie(COLUMN_COOKIE_NAME);
-    if (!saved) return [...DEFAULT_COLUMNS];
-
     try {
-      const parsed = JSON.parse(saved) as { id: string; visible: boolean }[];
+      const saved = localstorage.get(localstorage.DASHBOARD_COLUMNS) as { id: string; visible: boolean }[];
+      if (!saved) return [...DEFAULT_COLUMNS];
+
       // Reconstruct columns while maintaining order from saved data
       const newColumns: ProcessColumn[] = [];
 
       // Add saved columns in their saved order
-      for (const savedCol of parsed) {
+      for (const savedCol of saved) {
         const template = DEFAULT_COLUMNS.find((c) => c.id === savedCol.id);
         if (template) {
           newColumns.push({ ...template, visible: savedCol.visible });
@@ -84,7 +81,7 @@
 
   $effect(() => {
     const toSave = columns.map((c) => ({ id: c.id, visible: c.visible }));
-    cookies.setPersistentCookie(COLUMN_COOKIE_NAME, JSON.stringify(toSave));
+    localstorage.set(localstorage.DASHBOARD_COLUMNS, toSave);
   });
 
   function summarizeHostStats(processInfos: ProcessInfo[]): HostStats {

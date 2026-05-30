@@ -5,6 +5,7 @@
 
   import { X } from "@lucide/svelte";
   import { Toast } from "@skeletonlabs/skeleton-svelte";
+  import { localstorage } from "$lib";
 
   import type { CurrentUser } from "$lib/api/auth";
   import favicon from "$lib/assets/favicon.svg";
@@ -28,17 +29,17 @@
 
   $effect(() => {
     globalContext.isDarkMode =
-      localStorage.getItem("theme") === "dark" ||
-      (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      localstorage.get(localstorage.THEME) === "dark" ||
+      (!localstorage.contain(localstorage.THEME) && window.matchMedia("(prefers-color-scheme: dark)").matches);
   });
 
   $effect(() => {
     if (globalContext.isDarkMode) {
       document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
+      localstorage.set(localstorage.THEME, "dark");
     } else {
       document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
+      localstorage.set(localstorage.THEME, "light");
     }
   });
 </script>

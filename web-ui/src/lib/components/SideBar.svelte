@@ -3,6 +3,7 @@
   import { Navigation } from "@skeletonlabs/skeleton-svelte";
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
+  import { localstorage } from "$lib";
 
   const navItems = [
     { label: "Dashboard", href: resolve("/dashboard"), icon: LayoutDashboard },
@@ -11,10 +12,14 @@
     { label: "Users", href: resolve("/admin/users"), icon: Users }
   ];
 
-  let isSidebarOpen = $state(true);
+  let defaultIsSidebarOpen = localstorage.get(localstorage.SIDEBAR_OPEN, true) as boolean;
+  localstorage.set(localstorage.SIDEBAR_OPEN, defaultIsSidebarOpen);
+
+  let isSidebarOpen = $state(defaultIsSidebarOpen);
 
   function toggleSidebar() {
     isSidebarOpen = !isSidebarOpen;
+    localstorage.set(localstorage.SIDEBAR_OPEN, isSidebarOpen);
   }
 </script>
 
