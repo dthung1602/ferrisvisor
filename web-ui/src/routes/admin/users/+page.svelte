@@ -212,7 +212,7 @@
         />
       {:else}
         <div
-          class="flex h-full flex-col items-center justify-center card rounded-xl border-2 border-dashed border-surface-200 dark:border-surface-800 bg-surface-50 dark:bg-surface-950/40 p-12 text-center opacity-70 shadow-sm"
+          class="flex h-full flex-col items-center justify-center card rounded-xl border-2 border-dashed border-surface-200 bg-surface-50 p-12 text-center opacity-70 shadow-sm dark:border-surface-800 dark:bg-surface-950/40"
         >
           <UserCheck class="mb-4 size-16" />
           <p class="text-sm font-bold tracking-[0.2em] uppercase">Select user to edit</p>

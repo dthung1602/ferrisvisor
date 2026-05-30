@@ -24,7 +24,7 @@
 </script>
 
 <div
-  class="relative overflow-hidden card rounded-xl border border-surface-200/30 dark:border-surface-800 bg-white dark:bg-surface-900 p-8 shadow-xl dark:shadow-none backdrop-blur-xl"
+  class="relative overflow-hidden card rounded-xl border border-surface-200/30 bg-white p-8 shadow-xl backdrop-blur-xl dark:border-surface-800 dark:bg-surface-900 dark:shadow-none"
 >
   <div class="mb-8">
     <div class="mb-2 flex items-center gap-3">
@@ -48,17 +48,13 @@
         <!-- Group Selection -->
         <div class="col-span-4 space-y-1.5">
           <label for="group_id" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Group</label>
-          <GroupSelector
-            {groups}
-            selectedGroupId={host.group_id}
-            setSelectedGroupId={(id) => (host.group_id = id)}
-          />
+          <GroupSelector {groups} selectedGroupId={host.group_id} setSelectedGroupId={(id) => (host.group_id = id)} />
         </div>
 
         <div class="col-span-4 space-y-1.5">
           <label for="name" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Display name</label>
           <input
-            class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
+            class="input rounded-xl border border-surface-200 bg-white px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80 dark:border-surface-700 dark:bg-surface-900"
             type="text"
             name="name"
             required
@@ -71,7 +67,7 @@
             >Hostname / IP</label
           >
           <input
-            class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
+            class="input rounded-xl border border-surface-200 bg-white px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80 dark:border-surface-700 dark:bg-surface-900"
             type="text"
             name="hostname"
             required
@@ -82,7 +78,7 @@
         <div class="col-span-1 space-y-1.5">
           <label for="port" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Port</label>
           <input
-            class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
+            class="input rounded-xl border border-surface-200 bg-white px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80 dark:border-surface-700 dark:bg-surface-900"
             type="number"
             name="port"
             required
@@ -93,7 +89,7 @@
         <div class="col-span-2 space-y-1.5">
           <label for="username" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Username</label>
           <input
-            class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
+            class="input rounded-xl border border-surface-200 bg-white px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80 dark:border-surface-700 dark:bg-surface-900"
             type="text"
             name="username"
             required
@@ -105,7 +101,7 @@
           <label for="password" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Password</label>
           <div class="relative">
             <input
-              class="input w-full rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 pr-12 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
+              class="input w-full rounded-xl border border-surface-200 bg-white px-4 py-3 pr-12 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80 dark:border-surface-700 dark:bg-surface-900"
               type={showPassword ? "text" : "password"}
               name="password"
               required
@@ -131,7 +127,7 @@
               >Created at</label
             >
             <input
-              class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
+              class="input rounded-xl border border-surface-200 bg-white px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80 dark:border-surface-700 dark:bg-surface-900"
               type="text"
               name="created_at"
               disabled

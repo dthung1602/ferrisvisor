@@ -28,9 +28,9 @@
   positioning={{ placement: "bottom-start", gutter: 8, sameWidth: true }}
 >
   <Menu.Trigger
-    class="flex w-full items-center justify-between rounded-xl border-2 border-surface-200 dark:border-surface-700
-     bg-white dark:bg-surface-900 px-4 py-3 text-left text-sm transition-all
-     hover:bg-surface-100/20 dark:hover:bg-surface-500/40 active:scale-[0.99]"
+    class="flex w-full items-center justify-between rounded-xl border-2 border-surface-200 bg-white
+     px-4 py-3 text-left text-sm transition-all hover:bg-surface-100/20 active:scale-[0.99]
+     dark:border-surface-700 dark:bg-surface-900 dark:hover:bg-surface-500/40"
   >
     <span class="truncate {selectedGroupId === 0 ? 'text-surface-500/50' : ''}">
       {selectedGroupName}
@@ -40,7 +40,7 @@
   <Portal>
     <Menu.Positioner>
       <Menu.Content
-        class="z-100 overflow-hidden rounded-xl border-2 border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 shadow-xl backdrop-blur-xl"
+        class="z-100 overflow-hidden rounded-xl border-2 border-surface-200 bg-white shadow-xl backdrop-blur-xl dark:border-surface-700 dark:bg-surface-900"
       >
         <div class="max-h-64 overflow-y-auto">
           {#each filteredGroups as g (g.id)}
@@ -51,7 +51,7 @@
               onCheckedChange={(checked) => {
                 if (checked) setSelectedGroupId(g.id);
               }}
-              class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-100/20 dark:hover:bg-surface-500/40 data-[state=checked]:bg-surface-500/10"
+              class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-100/20 data-[state=checked]:bg-surface-500/10 dark:hover:bg-surface-500/40"
             >
               <div class="flex items-center gap-3">
                 <span class="h-2 w-2 rounded-full" style="background-color: {g.color}"></span>

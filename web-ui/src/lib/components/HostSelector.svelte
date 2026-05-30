@@ -29,9 +29,9 @@
   positioning={{ placement: "bottom-start", gutter: 8, sameWidth: true }}
 >
   <Menu.Trigger
-    class="flex w-full items-center justify-between rounded-xl border-2 border-surface-200 dark:border-surface-700
-     bg-white dark:bg-surface-900 px-4 py-3 text-left text-sm transition-all
-     hover:bg-surface-100/20 dark:hover:bg-surface-500/40 active:scale-[0.99]"
+    class="flex w-full items-center justify-between rounded-xl border-2 border-surface-200 bg-white
+     px-4 py-3 text-left text-sm transition-all hover:bg-surface-100/20 active:scale-[0.99]
+     dark:border-surface-700 dark:bg-surface-900 dark:hover:bg-surface-500/40"
   >
     <span class="truncate {selectedHostId === null ? 'text-surface-500/50' : ''}">
       {selectedHostName}
@@ -41,7 +41,7 @@
   <Portal>
     <Menu.Positioner>
       <Menu.Content
-        class="z-100 overflow-hidden rounded-xl border-2 border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 shadow-xl backdrop-blur-xl"
+        class="z-100 overflow-hidden rounded-xl border-2 border-surface-200 bg-white shadow-xl backdrop-blur-xl dark:border-surface-700 dark:bg-surface-900"
       >
         <div class="p-2">
           <div class="relative">
@@ -50,7 +50,7 @@
               type="text"
               bind:value={hostSearch}
               placeholder="Filter hosts..."
-              class="w-full rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 py-1.5 pr-3 pl-8 text-xs shadow-inner focus:ring-2 focus:ring-primary-500/50 focus:outline-none"
+              class="w-full rounded-xl border border-surface-200 bg-white py-1.5 pr-3 pl-8 text-xs shadow-inner focus:ring-2 focus:ring-primary-500/50 focus:outline-none dark:border-surface-700 dark:bg-surface-900"
               onclick={(e) => e.stopPropagation()}
             />
           </div>
@@ -66,7 +66,7 @@
                 setSelectedHostId(null);
                 hostSearch = "";
               }}
-              class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-100/20 dark:hover:bg-surface-500/40 data-[state=checked]:bg-surface-500/10"
+              class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-100/20 data-[state=checked]:bg-surface-500/10 dark:hover:bg-surface-500/40"
             >
               <Menu.ItemText class="text-sm font-medium">All Hosts</Menu.ItemText>
               <Menu.ItemIndicator>
@@ -85,7 +85,7 @@
                   hostSearch = "";
                 }
               }}
-              class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-100/20 dark:hover:bg-surface-500/40 data-[state=checked]:bg-surface-500/10"
+              class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-100/20 data-[state=checked]:bg-surface-500/10 dark:hover:bg-surface-500/40"
             >
               <Menu.ItemText class="text-sm font-medium">{host.name}</Menu.ItemText>
               <Menu.ItemIndicator>

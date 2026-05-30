@@ -45,7 +45,7 @@
 </script>
 
 <div
-  class="relative overflow-hidden card rounded-xl border border-surface-200/30 dark:border-surface-800 bg-white dark:bg-surface-900 p-6 shadow-xl dark:shadow-none backdrop-blur-xl"
+  class="relative overflow-hidden card rounded-xl border border-surface-200/30 bg-white p-6 shadow-xl backdrop-blur-xl dark:border-surface-800 dark:bg-surface-900 dark:shadow-none"
 >
   <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <h3 class="flex items-center gap-2 text-lg font-bold uppercase">
@@ -55,7 +55,7 @@
     <div class="relative max-w-sm flex-1">
       <Search class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 opacity-40" />
       <input
-        class="w-full rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 py-2 pr-4 pl-10 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80 focus:outline-none"
+        class="w-full rounded-xl border border-surface-200 bg-white py-2 pr-4 pl-10 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80 focus:outline-none dark:border-surface-700 dark:bg-surface-900"
         placeholder="Search..."
         bind:value={searchTerm}
       />
@@ -64,7 +64,9 @@
 
   {#if loading}
     <div class="flex h-64 items-center justify-center">
-      <div class="size-12 animate-spin rounded-full border-4 border-surface-200 dark:border-surface-800 border-t-primary-500"></div>
+      <div
+        class="size-12 animate-spin rounded-full border-4 border-surface-200 border-t-primary-500 dark:border-surface-800"
+      ></div>
     </div>
   {:else}
     <div class="space-y-3">
@@ -73,10 +75,10 @@
         {@const avatarColor = avatarColorFunc?.(entity)}
 
         <div
-          class="group flex cursor-pointer items-center justify-between card border rounded-xl border-r-4 p-4 transition-all shadow-xs
+          class="group flex cursor-pointer items-center justify-between card rounded-xl border border-r-4 p-4 shadow-xs transition-all
                 {selectedEntity?.id === entity.id
-            ? 'border-primary-500 bg-primary-500/15 shadow-md scale-[1.01]'
-            : 'border-surface-200/20 dark:border-surface-800/60 bg-white dark:bg-surface-900 hover:bg-surface-100/20 dark:hover:bg-surface-500/40 hover:shadow-sm'}"
+            ? 'scale-[1.01] border-primary-500 bg-primary-500/15 shadow-md'
+            : 'border-surface-200/20 bg-white hover:bg-surface-100/20 hover:shadow-sm dark:border-surface-800/60 dark:bg-surface-900 dark:hover:bg-surface-500/40'}"
           onclick={() => selectEntity(entity)}
           onkeydown={(e) => e.key === "Enter" && selectEntity(entity)}
           role="button"
@@ -84,7 +86,10 @@
         >
           <div class="flex items-center gap-4">
             <div class="flex size-12 items-center justify-center rounded-lg bg-surface-500/10">
-              <AvatarIcon class="size-6 {avatarColor ? '' : 'text-secondary-700-300'}" color={avatarColor ?? undefined} />
+              <AvatarIcon
+                class="size-6 {avatarColor ? '' : 'text-secondary-700-300'}"
+                color={avatarColor ?? undefined}
+              />
             </div>
             <div class="overflow-hidden">
               <div class="flex items-center gap-2">

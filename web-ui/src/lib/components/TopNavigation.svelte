@@ -12,7 +12,7 @@
 </script>
 
 <header
-  class="flex h-16 items-center justify-end border-b border-surface-200/40 dark:border-surface-800 bg-white/85 dark:bg-surface-950/20 px-8 shadow-md dark:shadow-none backdrop-blur-md"
+  class="flex h-16 items-center justify-end border-b border-surface-200/40 bg-white/85 px-8 shadow-md backdrop-blur-md dark:border-surface-800 dark:bg-surface-950/20 dark:shadow-none"
 >
   <div class="flex items-center gap-3">
     <button class="btn-icon btn-icon-lg transition-colors hover:text-primary-500" onclick={toggleDarkMode}>

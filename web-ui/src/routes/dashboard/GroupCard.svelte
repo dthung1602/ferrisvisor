@@ -30,10 +30,6 @@
   </div>
 
   <div class="relative">
-    <GroupSelector
-      {groups}
-      {selectedGroupId}
-      setSelectedGroupId={(id) => (selectedGroupId = id)}
-    />
+    <GroupSelector {groups} {selectedGroupId} setSelectedGroupId={(id) => (selectedGroupId = id)} />
   </div>
 </div>

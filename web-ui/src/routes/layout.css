@@ -8,7 +8,6 @@
 
 @plugin "@tailwindcss/forms";
 
-[data-theme='vintage'] {
+[data-theme="vintage"] {
   --color-surface-50: oklch(98.5% 0.006 75deg);
 }
-

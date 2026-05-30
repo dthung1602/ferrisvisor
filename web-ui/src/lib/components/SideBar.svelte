@@ -24,7 +24,7 @@
 </script>
 
 <aside
-  class="relative z-40 border-r border-surface-200/40 dark:border-surface-800 bg-white/85 dark:bg-surface-950/40 shadow-md dark:shadow-none backdrop-blur-xl transition-all duration-300
+  class="relative z-40 border-r border-surface-200/40 bg-white/85 shadow-md backdrop-blur-xl transition-all duration-300 dark:border-surface-800 dark:bg-surface-950/40 dark:shadow-none
         {isSidebarOpen ? 'w-70' : 'w-21'}"
 >
   <Navigation layout="sidebar" class="h-full border-none bg-transparent">
@@ -114,7 +114,7 @@
   <!-- Toggle Sidebar Button -->
   <button
     onclick={toggleSidebar}
-    class="absolute top-1/2 -right-4 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-surface-400/20 bg-white dark:bg-surface-800 text-surface-300 shadow-xl hover:text-primary-500"
+    class="absolute top-1/2 -right-4 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-surface-400/20 bg-white text-surface-300 shadow-xl hover:text-primary-500 dark:bg-surface-800"
   >
     <ChevronRight class="size-4 transition-transform duration-300 {isSidebarOpen ? 'rotate-180' : ''}" />
   </button>

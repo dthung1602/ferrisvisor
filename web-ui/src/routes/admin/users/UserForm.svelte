@@ -82,7 +82,7 @@
 </script>
 
 <div
-  class="relative overflow-hidden card rounded-xl border border-surface-200/30 dark:border-surface-800 bg-white dark:bg-surface-900 p-8 shadow-xl dark:shadow-none backdrop-blur-xl"
+  class="relative overflow-hidden card rounded-xl border border-surface-200/30 bg-white p-8 shadow-xl backdrop-blur-xl dark:border-surface-800 dark:bg-surface-900 dark:shadow-none"
 >
   <div class="mb-8">
     <div class="mb-2 flex items-center gap-3">
@@ -107,7 +107,7 @@
         <div class="space-y-1.5 {isEdit ? '' : 'col-span-2'}">
           <label for="email" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Email</label>
           <input
-            class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
+            class="input rounded-xl border border-surface-200 bg-white px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80 dark:border-surface-700 dark:bg-surface-900"
             type="email"
             name="email"
             required
@@ -121,7 +121,7 @@
               >Password</label
             >
             <input
-              class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
+              class="input rounded-xl border border-surface-200 bg-white px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80 dark:border-surface-700 dark:bg-surface-900"
               type="password"
               name="password"
               required
@@ -135,7 +135,7 @@
             >Access Level</label
           >
           <select
-            class="select rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
+            class="select rounded-xl border border-surface-200 bg-white px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80 dark:border-surface-700 dark:bg-surface-900"
             name="is_admin"
             bind:value={user.is_admin}
           >
@@ -150,7 +150,7 @@
               >Created at</label
             >
             <input
-              class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
+              class="input rounded-xl border border-surface-200 bg-white px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80 dark:border-surface-700 dark:bg-surface-900"
               type="text"
               name="created_at"
               disabled
@@ -162,7 +162,7 @@
               >Updated at</label
             >
             <input
-              class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
+              class="input rounded-xl border border-surface-200 bg-white px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80 dark:border-surface-700 dark:bg-surface-900"
               type="text"
               name="updated_at"
               disabled
@@ -174,7 +174,7 @@
               >Last login</label
             >
             <input
-              class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
+              class="input rounded-xl border border-surface-200 bg-white px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80 dark:border-surface-700 dark:bg-surface-900"
               type="text"
               name="last_login"
               disabled
@@ -203,7 +203,7 @@
           {#each permissions as perm, i (perm.id)}
             {@const hostsInGroup = filterHostOfGroup(perm.group_id)}
             <div
-              class="space-y-3 rounded-xl border border-surface-500/10 bg-white dark:bg-surface-900 shadow-xl p-4 transition-colors"
+              class="space-y-3 rounded-xl border border-surface-500/10 bg-white p-4 shadow-xl transition-colors dark:bg-surface-900"
             >
               <div class="space-y-1 text-xs font-bold text-secondary-700-300">
                 <span>RULE #{perm.id < 0 ? i : perm.id}</span>
@@ -239,7 +239,7 @@
                   >Service Name Pattern</label
                 >
                 <input
-                  class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
+                  class="input rounded-xl border border-surface-200 bg-white px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80 dark:border-surface-700 dark:bg-surface-900"
                   type="text"
                   name="service_name"
                   bind:value={perm.service_name}
