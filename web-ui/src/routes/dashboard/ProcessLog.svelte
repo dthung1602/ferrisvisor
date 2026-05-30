@@ -36,7 +36,7 @@
       if (timeoutHandler !== null) {
         window.clearTimeout(timeoutHandler);
       }
-      return
+      return;
     }
 
     let logResp;
@@ -100,9 +100,9 @@
 </script>
 
 <div
-  class="sticky top-[51px] z-10 flex items-center justify-between border-b border-surface-500/10 bg-surface-100-900 py-2 px-4"
+  class="sticky top-[51px] z-10 flex items-center justify-between border-b border-surface-500/10 bg-surface-100-900 px-4 py-2"
 >
-  <label class="flex cursor-pointer items-center justify-end gap-2 text-sm select-none w-full">
+  <label class="flex w-full cursor-pointer items-center justify-end gap-2 text-sm select-none">
     <input type="checkbox" bind:checked={autoscroll} class="checkbox" />
     <span class="text-xs font-medium">Autoscroll</span>
   </label>

@@ -62,7 +62,7 @@
 
           <FloatingPanel.Body class="flex-1 overflow-y-auto pt-0">
             <Tabs value={selectedTab} onValueChange={(details) => (selectedTab = details.value as TabType)}>
-              <Tabs.List class="sticky top-0 z-20 border-b border-surface-500/10 bg-surface-100-900 pt-2 mb-0">
+              <Tabs.List class="sticky top-0 z-20 mb-0 border-b border-surface-500/10 bg-surface-100-900 pt-2">
                 <Tabs.Trigger value="info">Info</Tabs.Trigger>
                 <Tabs.Trigger value="config">Config</Tabs.Trigger>
                 <Tabs.Trigger value="stdout">Stdout</Tabs.Trigger>
