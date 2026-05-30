@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Bell, Moon, Sun } from "@lucide/svelte";
+  import { Moon, Sun } from "@lucide/svelte";
   import { Avatar } from "@skeletonlabs/skeleton-svelte";
 
   import { getGlobalContext } from "$lib/global-state";
@@ -15,9 +15,6 @@
   class="flex h-16 items-center justify-end border-b border-surface-500/10 bg-surface-50-950/20 px-8 backdrop-blur-md"
 >
   <div class="flex items-center gap-3">
-    <button class="btn-icon btn-icon-lg transition-colors hover:text-primary-500">
-      <Bell class="size-6" />
-    </button>
     <button class="btn-icon btn-icon-lg transition-colors hover:text-primary-500" onclick={toggleDarkMode}>
       {#if globalContext.isDarkMode}
         <Sun class="size-6" />

@@ -78,6 +78,7 @@
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-surface-600-400 transition-all
                  hover:bg-surface-400/10 hover:text-surface-800-200 active:scale-95
                    {isSidebarOpen ? '' : 'w-13'}"
+            title="Settings"
           >
             <Settings class="size-5 shrink-0" />
             {#if isSidebarOpen}
@@ -97,6 +98,7 @@
           class="flex items-center gap-3 rounded-xl px-4 py-3 text-surface-600-400 transition-all
                  hover:bg-error-500/10 hover:text-error-500 active:scale-95
                  {isSidebarOpen ? '' : 'w-13'}"
+          title="Logout"
         >
           <LogOut class="size-5 shrink-0" />
           {#if isSidebarOpen}
