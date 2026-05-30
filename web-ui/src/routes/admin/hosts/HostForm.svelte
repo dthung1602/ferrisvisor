@@ -24,7 +24,7 @@
 </script>
 
 <div
-  class="relative overflow-hidden card rounded-xl border border-surface-500/10 bg-surface-50-950/40 p-8 shadow-2xl backdrop-blur-xl"
+  class="relative overflow-hidden card rounded-xl border border-surface-200/30 dark:border-surface-800 bg-white dark:bg-surface-900 p-8 shadow-xl dark:shadow-none backdrop-blur-xl"
 >
   <div class="mb-8">
     <div class="mb-2 flex items-center gap-3">
@@ -52,14 +52,13 @@
             {groups}
             selectedGroupId={host.group_id}
             setSelectedGroupId={(id) => (host.group_id = id)}
-            showSearchBox={false}
           />
         </div>
 
         <div class="col-span-4 space-y-1.5">
           <label for="name" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Display name</label>
           <input
-            class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+            class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
             type="text"
             name="name"
             required
@@ -72,7 +71,7 @@
             >Hostname / IP</label
           >
           <input
-            class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+            class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
             type="text"
             name="hostname"
             required
@@ -83,7 +82,7 @@
         <div class="col-span-1 space-y-1.5">
           <label for="port" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Port</label>
           <input
-            class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+            class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
             type="number"
             name="port"
             required
@@ -94,7 +93,7 @@
         <div class="col-span-2 space-y-1.5">
           <label for="username" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Username</label>
           <input
-            class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+            class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
             type="text"
             name="username"
             required
@@ -106,7 +105,7 @@
           <label for="password" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Password</label>
           <div class="relative">
             <input
-              class="input w-full rounded-xl border-none bg-surface-500/10 px-4 py-3 pr-12 text-sm focus:ring-2 focus:ring-primary-500/20"
+              class="input w-full rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 pr-12 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
               type={showPassword ? "text" : "password"}
               name="password"
               required
@@ -132,7 +131,7 @@
               >Created at</label
             >
             <input
-              class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+              class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
               type="text"
               name="created_at"
               disabled
@@ -144,7 +143,7 @@
               >Updated at</label
             >
             <input
-              class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+              class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/80"
               type="text"
               name="updated_at"
               disabled

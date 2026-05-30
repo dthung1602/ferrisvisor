@@ -34,7 +34,6 @@
       {groups}
       {selectedGroupId}
       setSelectedGroupId={(id) => (selectedGroupId = id)}
-      showSearchBox={false}
     />
   </div>
 </div>

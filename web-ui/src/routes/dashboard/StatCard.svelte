@@ -51,7 +51,7 @@
 </script>
 
 <div
-  class="group relative flex min-h-35 flex-col justify-between overflow-hidden rounded-xl border border-surface-500/10 bg-surface-50-950/80 p-5 backdrop-blur-sm transition-all hover:bg-surface-500/10"
+  class="group relative flex min-h-35 flex-col justify-between overflow-hidden rounded-xl border border-surface-500/10 bg-surface-50 dark:bg-surface-950/80 p-5 backdrop-blur-sm transition-all hover:bg-surface-500/10"
 >
   <div
     class="absolute inset-0 bg-linear-to-br {colors.from} to-transparent opacity-0 transition-opacity group-hover:opacity-100"

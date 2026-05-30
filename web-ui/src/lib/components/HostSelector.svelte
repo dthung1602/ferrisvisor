@@ -29,9 +29,11 @@
   positioning={{ placement: "bottom-start", gutter: 8, sameWidth: true }}
 >
   <Menu.Trigger
-    class="flex w-full items-center justify-between rounded-lg border border-surface-500/30 bg-surface-50-950/40 px-3 py-2 backdrop-blur-sm transition-all hover:bg-surface-500/10 active:scale-[0.98]"
+    class="flex w-full items-center justify-between rounded-xl border-2 border-surface-200 dark:border-surface-700
+     bg-white dark:bg-surface-900 px-4 py-3 text-left text-sm transition-all
+     hover:bg-surface-100/20 dark:hover:bg-surface-500/40 active:scale-[0.99]"
   >
-    <span class="truncate text-sm font-medium {selectedHostId === null ? 'text-surface-300' : ''}">
+    <span class="truncate {selectedHostId === null ? 'text-surface-500/50' : ''}">
       {selectedHostName}
     </span>
     <ChevronDown class="size-4 shrink-0 transition-transform {hostMenuOpen ? 'rotate-180' : ''}" />
@@ -39,7 +41,7 @@
   <Portal>
     <Menu.Positioner>
       <Menu.Content
-        class="z-100 overflow-hidden rounded-xl border border-surface-500 bg-surface-100-900 shadow-2xl backdrop-blur-xl"
+        class="z-100 overflow-hidden rounded-xl border-2 border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 shadow-xl backdrop-blur-xl"
       >
         <div class="p-2">
           <div class="relative">
@@ -48,7 +50,7 @@
               type="text"
               bind:value={hostSearch}
               placeholder="Filter hosts..."
-              class="w-full rounded-lg border border-transparent bg-surface-500/10 py-1.5 pr-3 pl-8 text-xs ring-0 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none"
+              class="w-full rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 py-1.5 pr-3 pl-8 text-xs shadow-inner focus:ring-2 focus:ring-primary-500/50 focus:outline-none"
               onclick={(e) => e.stopPropagation()}
             />
           </div>
@@ -64,7 +66,7 @@
                 setSelectedHostId(null);
                 hostSearch = "";
               }}
-              class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-500/20 data-[state=checked]:bg-surface-500/10"
+              class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-100/20 dark:hover:bg-surface-500/40 data-[state=checked]:bg-surface-500/10"
             >
               <Menu.ItemText class="text-sm font-medium">All Hosts</Menu.ItemText>
               <Menu.ItemIndicator>
@@ -83,7 +85,7 @@
                   hostSearch = "";
                 }
               }}
-              class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-500/20 data-[state=checked]:bg-surface-500/10"
+              class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-100/20 dark:hover:bg-surface-500/40 data-[state=checked]:bg-surface-500/10"
             >
               <Menu.ItemText class="text-sm font-medium">{host.name}</Menu.ItemText>
               <Menu.ItemIndicator>

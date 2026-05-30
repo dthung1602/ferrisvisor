@@ -55,13 +55,13 @@
         <img src={logo} alt="Ferrisvisor Logo" class="relative h-full w-full object-contain" />
       </div>
       <h1 class="mb-2 text-3xl font-black tracking-tighter uppercase">System &nbsp; Login</h1>
-      <p class="text-[10px] font-medium tracking-widest text-secondary-500 uppercase">
+      <p class="text-[10px] font-medium tracking-widest text-secondary-700-300 uppercase">
         Ferrisvisor v{VERSION}
       </p>
     </div>
 
     <!-- Login Container -->
-    <div class="card rounded-xl border border-surface-500/10 bg-surface-50-950/40 p-8 shadow-2xl backdrop-blur-xl">
+    <div class="card rounded-xl border border-surface-500/10 bg-surface-50 dark:bg-surface-950/40 p-8 shadow-2xl backdrop-blur-xl">
       <form class="space-y-6" onsubmit={login}>
         <!-- Credentials Group -->
         <div class="space-y-4">

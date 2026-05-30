@@ -82,7 +82,7 @@
 </script>
 
 <div
-  class="relative overflow-hidden card rounded-xl border border-surface-500/10 bg-surface-50-950/40 p-8 shadow-2xl backdrop-blur-xl"
+  class="relative overflow-hidden card rounded-xl border border-surface-200/30 dark:border-surface-800 bg-white dark:bg-surface-900 p-8 shadow-xl dark:shadow-none backdrop-blur-xl"
 >
   <div class="mb-8">
     <div class="mb-2 flex items-center gap-3">
@@ -107,7 +107,7 @@
         <div class="space-y-1.5 {isEdit ? '' : 'col-span-2'}">
           <label for="email" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Email</label>
           <input
-            class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+            class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
             type="email"
             name="email"
             required
@@ -121,7 +121,7 @@
               >Password</label
             >
             <input
-              class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+              class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
               type="password"
               name="password"
               required
@@ -135,7 +135,7 @@
             >Access Level</label
           >
           <select
-            class="select rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+            class="select rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
             name="is_admin"
             bind:value={user.is_admin}
           >
@@ -150,7 +150,7 @@
               >Created at</label
             >
             <input
-              class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+              class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
               type="text"
               name="created_at"
               disabled
@@ -162,7 +162,7 @@
               >Updated at</label
             >
             <input
-              class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+              class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
               type="text"
               name="updated_at"
               disabled
@@ -174,7 +174,7 @@
               >Last login</label
             >
             <input
-              class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+              class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
               type="text"
               name="last_login"
               disabled
@@ -193,24 +193,24 @@
           <button
             type="button"
             onclick={handleAddPerm}
-            class="text-[12px] font-bold tracking-widest text-secondary-500 uppercase hover:underline"
+            class="text-[12px] font-bold tracking-widest text-secondary-700-300 uppercase hover:underline"
           >
             + Add Rule
           </button>
         </div>
 
-        <div id="perm-list" class="max-h-120 space-y-3 overflow-y-auto pr-2">
+        <div id="perm-list" class="space-y-3 pr-2">
           {#each permissions as perm, i (perm.id)}
             {@const hostsInGroup = filterHostOfGroup(perm.group_id)}
             <div
-              class="space-y-3 rounded-xl border border-surface-500/5 bg-surface-500/5 p-4 transition-colors hover:bg-surface-500/10"
+              class="space-y-3 rounded-xl border border-surface-500/10 bg-white dark:bg-surface-900 shadow-xl p-4 transition-colors"
             >
-              <div class="space-y-1 text-xs font-bold text-secondary-500">
+              <div class="space-y-1 text-xs font-bold text-secondary-700-300">
                 <span>RULE #{perm.id < 0 ? i : perm.id}</span>
                 <button
                   type="button"
                   onclick={() => handleDeletePermission(perm.id)}
-                  class="float-right ml-auto text-secondary-500 opacity-70 transition-all hover:text-error-500 hover:opacity-100"
+                  class="float-right ml-auto text-secondary-700-300 opacity-70 transition-all hover:text-error-500 hover:opacity-100"
                 >
                   <X class="size-4" />
                 </button>
@@ -224,7 +224,6 @@
                     perm.group_id = id;
                     perm.host_id = null;
                   }}
-                  showSearchBox={false}
                 />
               </div>
               <div class="space-y-1.5">
@@ -240,7 +239,7 @@
                   >Service Name Pattern</label
                 >
                 <input
-                  class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+                  class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
                   type="text"
                   name="service_name"
                   bind:value={perm.service_name}

@@ -155,7 +155,7 @@
           <div class="flex flex-wrap items-center gap-6">
             <div class="flex items-center gap-4">
               <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface-500/30">
-                <Server class="text-secondary-500" size="24" />
+                <Server class="text-secondary-700-300" size="24" />
               </div>
               <div>
                 <h3 class="text-lg font-bold text-surface-900-100">{host.name}</h3>

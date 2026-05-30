@@ -44,7 +44,7 @@
       positioning={{ placement: "bottom-start", gutter: 8, sameWidth: true }}
     >
       <Menu.Trigger
-        class="flex w-full items-center justify-between rounded-lg border border-surface-500/30 bg-surface-50-950/40 px-3 py-2 backdrop-blur-sm transition-all hover:bg-surface-500/10 active:scale-[0.98]"
+        class="flex w-full items-center justify-between rounded-lg border border-surface-500/30 bg-surface-50 dark:bg-surface-950/40 px-3 py-2 backdrop-blur-sm transition-all hover:bg-surface-500/10 active:scale-[0.98]"
       >
         <span class="truncate text-sm font-medium {selectedProcessState === null ? 'text-surface-300' : ''}">
           {selectedProcessState || "All States"}
@@ -117,7 +117,7 @@
       type="text"
       bind:value={serviceRegex}
       placeholder="Process Regex ..."
-      class="input h-10 w-full border-surface-500/30 bg-surface-50-950/40 pl-9 backdrop-blur-sm"
+      class="input h-10 w-full border-surface-500/30 bg-surface-50 dark:bg-surface-950/40 pl-9 backdrop-blur-sm"
     />
   </div>
 

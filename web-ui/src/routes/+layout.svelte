@@ -70,7 +70,7 @@
 </Toast.Group>
 
 <main>
-  <div class="flex h-screen overflow-hidden bg-surface-100-900">
+  <div class="flex h-screen overflow-hidden bg-surface-50 dark:bg-surface-950">
     <!-- Side Navigation -->
     <SideBar />
 

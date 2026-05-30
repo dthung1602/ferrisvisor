@@ -86,7 +86,7 @@
   <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
     <div>
       <h2 class="text-4xl font-black tracking-tighter uppercase">Group Management</h2>
-      <p class="mt-1 font-medium tracking-wide text-secondary-500">Identity Registry</p>
+      <p class="mt-1 font-medium tracking-wide text-secondary-700-300">Group / environment registry</p>
     </div>
     <button
       onclick={handleCreateGroup}
@@ -125,7 +125,7 @@
         />
       {:else}
         <div
-          class="flex h-full flex-col items-center justify-center card rounded-xl border-2 border-dashed border-surface-500/10 p-12 text-center opacity-30"
+          class="flex h-full flex-col items-center justify-center card rounded-xl border-2 border-dashed border-surface-200 dark:border-surface-800 bg-surface-50 dark:bg-surface-950/40 p-12 text-center opacity-70 shadow-sm"
         >
           <Layers class="mb-4 size-16" />
           <p class="text-sm font-bold tracking-[0.2em] uppercase">Select a group edit</p>

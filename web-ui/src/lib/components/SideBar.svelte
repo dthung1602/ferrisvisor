@@ -24,7 +24,7 @@
 </script>
 
 <aside
-  class="relative z-40 border-r border-surface-500/10 bg-surface-50-950/40 backdrop-blur-xl transition-all duration-300
+  class="relative z-40 border-r border-surface-200/40 dark:border-surface-800 bg-white/85 dark:bg-surface-950/40 shadow-md dark:shadow-none backdrop-blur-xl transition-all duration-300
         {isSidebarOpen ? 'w-70' : 'w-21'}"
 >
   <Navigation layout="sidebar" class="h-full border-none bg-transparent">
@@ -68,8 +68,8 @@
           {/each}
         </Navigation.Menu>
 
-        <div class="pt-4 opacity-50">
-          <div class="mx-4 border-t border-surface-500/20"></div>
+        <div class="pt-4 opacity-50 {isSidebarOpen ? '' : 'w-13'}">
+          <div class="mx-4 border-t-2 border-surface-500/20"></div>
         </div>
 
         <Navigation.Menu>
@@ -114,8 +114,8 @@
   <!-- Toggle Sidebar Button -->
   <button
     onclick={toggleSidebar}
-    class="absolute top-1/2 -right-3 flex size-6 -translate-y-1/2 items-center justify-center rounded-full border border-surface-400/20 bg-surface-200-800 text-surface-300 shadow-md hover:text-primary-500"
+    class="absolute top-1/2 -right-4 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-surface-400/20 bg-white dark:bg-surface-800 text-surface-300 shadow-xl hover:text-primary-500"
   >
-    <ChevronRight class="size-3 transition-transform duration-300 {isSidebarOpen ? 'rotate-180' : ''}" />
+    <ChevronRight class="size-4 transition-transform duration-300 {isSidebarOpen ? 'rotate-180' : ''}" />
   </button>
 </aside>

@@ -20,7 +20,7 @@
 </script>
 
 <div
-  class="relative overflow-hidden card rounded-xl border border-surface-500/10 bg-surface-50-950/40 p-8 shadow-2xl backdrop-blur-xl"
+  class="relative overflow-hidden card rounded-xl border border-surface-200/30 dark:border-surface-800 bg-white dark:bg-surface-900 p-8 shadow-xl dark:shadow-none backdrop-blur-xl"
 >
   <div class="mb-8">
     <div class="mb-2 flex items-center gap-3">
@@ -45,7 +45,7 @@
         <div class="col-span-2 space-y-1.5">
           <label for="name" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Name</label>
           <input
-            class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+            class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
             type="text"
             name="name"
             required
@@ -58,7 +58,7 @@
             Description
           </label>
           <input
-            class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+            class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
             type="text"
             name="description"
             required
@@ -70,7 +70,7 @@
           <label for="color" class="ml-1 text-[10px] font-bold tracking-widest uppercase opacity-50">Color</label>
           <div class="flex gap-4">
             <input
-              class="input flex-1 rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+              class="input flex-1 rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
               type="text"
               name="color"
               placeholder="Any valid CSS color"
@@ -90,7 +90,7 @@
               >Created at</label
             >
             <input
-              class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+              class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
               type="text"
               name="created_at"
               disabled
@@ -102,7 +102,7 @@
               >Updated at</label
             >
             <input
-              class="input rounded-xl border-none bg-surface-500/10 px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20"
+              class="input rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 px-4 py-3 text-sm shadow-inner focus:ring-2 focus:ring-primary-500/80"
               type="text"
               name="updated_at"
               disabled
