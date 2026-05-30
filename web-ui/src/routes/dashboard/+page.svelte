@@ -1,7 +1,12 @@
 <script lang="ts">
+  import { untrack } from "svelte";
+
   import { CircleAlert, CirclePlay, CircleStop } from "@lucide/svelte";
   import { browser } from "$app/environment";
+  import { goto } from "$app/navigation";
+  import { page } from "$app/state";
   import { api, localstorage } from "$lib";
+  import { debounce } from "lodash";
   import { SvelteMap } from "svelte/reactivity";
 
   import type { Group } from "$lib/api/group";
@@ -27,10 +32,69 @@
   };
   let { data }: Props = $props();
 
-  let selectedGroupId: number | null = $state(data.groups[0].id ?? null);
-  let selectedHostId: number | null = $state(null);
-  let serviceRegex = $state("");
-  let selectedProcessState: ProcessState | null = $state(null);
+  const getInitialGroupId = () => {
+    if (!browser) return data.groups[0]?.id ?? null;
+    const val = page.url.searchParams.get("group");
+    if (val !== null) {
+      const groupObj = data.groups.find((g) => g.name === val);
+      if (groupObj) {
+        return groupObj.id;
+      }
+    }
+    return data.groups[0]?.id ?? null;
+  };
+
+  const getInitialHostId = () => {
+    if (!browser) return null;
+    const val = page.url.searchParams.get("host");
+    if (val !== null) {
+      const parsed = Number(val);
+      if (!isNaN(parsed)) {
+        return parsed;
+      }
+    }
+    return null;
+  };
+
+  const getInitialProcessState = () => {
+    if (!browser) return null;
+    const val = page.url.searchParams.get("state");
+    if (val !== null && (PROCESS_STATES as readonly string[]).includes(val)) {
+      return val as ProcessState;
+    }
+    return null;
+  };
+
+  const getInitialRegex = () => {
+    if (!browser) return "";
+    return page.url.searchParams.get("regex") ?? "";
+  };
+
+  let selectedGroupId: number | null = $state(getInitialGroupId());
+  let selectedHostId: number | null = $state(getInitialHostId());
+  let serviceRegex = $state(getInitialRegex());
+  let selectedProcessState: ProcessState | null = $state(getInitialProcessState());
+
+  // Debounced regex for URL synchronization to prevent performance lag while typing
+  let debouncedServiceRegex = $state(getInitialRegex());
+
+  const updateDebouncedRegex = debounce((val: string) => {
+    debouncedServiceRegex = val;
+  }, 200);
+
+  $effect(() => {
+    updateDebouncedRegex(serviceRegex);
+    return () => {
+      updateDebouncedRegex.cancel();
+    };
+  });
+
+  // eslint-disable-next-line svelte/prefer-writable-derived
+  let isInitialized = $state(false);
+
+  $effect(() => {
+    isInitialized = true;
+  });
 
   let hosts: Host[] = $state([]);
   let processInfoByHost = $state(new Map<number, ProcessInfo[]>());
@@ -127,14 +191,133 @@
   }
 
   // fetch data when filter changes
-  $effect(refreshAllProcessInfo);
+  $effect(() => {
+    if (!isInitialized) return;
+    refreshAllProcessInfo();
+  });
+
+  let isFirstHostLoad = true;
 
   // fetch hosts when group changes
   $effect(() => {
-    api.host.list(selectedGroupId).then((data) => {
-      hosts = data;
-      selectedHostId = null;
-      selectedProcessState = null;
+    if (!isInitialized) return;
+
+    const gId = selectedGroupId;
+
+    untrack(() => {
+      api.host.list(gId).then((data) => {
+        hosts = data;
+        if (isFirstHostLoad) {
+          isFirstHostLoad = false;
+          // Verify if the initial host ID from the URL is actually in the fetched hosts
+          if (selectedHostId !== null && !hosts.some((h) => h.id === selectedHostId)) {
+            selectedHostId = null;
+            selectedProcessState = null;
+          }
+        } else {
+          selectedHostId = null;
+          selectedProcessState = null;
+        }
+      });
+    });
+  });
+
+  // State -> URL synchronization
+  $effect(() => {
+    if (!isInitialized || !browser) return;
+
+    const gId = selectedGroupId;
+    const hId = selectedHostId;
+    const pState = selectedProcessState;
+    const regex = debouncedServiceRegex;
+
+    const url = new URL(page.url);
+
+    const groupObj = data.groups.find((g) => g.id === gId);
+    const gName = groupObj?.name ?? null;
+
+    if (gName !== null) {
+      url.searchParams.set("group", gName);
+    } else {
+      url.searchParams.delete("group");
+    }
+
+    if (hId !== null) {
+      url.searchParams.set("host", String(hId));
+    } else {
+      url.searchParams.delete("host");
+    }
+
+    if (pState !== null) {
+      url.searchParams.set("state", pState);
+    } else {
+      url.searchParams.delete("state");
+    }
+
+    if (regex) {
+      url.searchParams.set("regex", regex);
+    } else {
+      url.searchParams.delete("regex");
+    }
+
+    if (url.search !== page.url.search) {
+      // eslint-disable-next-line svelte/no-navigation-without-resolve
+      goto(url.pathname + url.search, {
+        keepFocus: true,
+        replaceState: true,
+        noScroll: true
+      });
+    }
+  });
+
+  // URL -> State synchronization (handles back/forward navigation)
+  $effect(() => {
+    if (!isInitialized || !browser) return;
+
+    const currentUrl = page.url;
+
+    untrack(() => {
+      // 1. Sync Group Name to Group ID
+      const urlGroupName = currentUrl.searchParams.get("group");
+      let targetGroupId = data.groups[0]?.id ?? null;
+      if (urlGroupName !== null) {
+        const groupObj = data.groups.find((g) => g.name === urlGroupName);
+        if (groupObj) {
+          targetGroupId = groupObj.id;
+        }
+      }
+      if (selectedGroupId !== targetGroupId) {
+        selectedGroupId = targetGroupId;
+      }
+
+      // 2. Sync Host ID
+      const urlHost = currentUrl.searchParams.get("host");
+      let targetHostId: number | null = null;
+      if (urlHost !== null) {
+        const parsed = Number(urlHost);
+        if (!isNaN(parsed)) {
+          targetHostId = parsed;
+        }
+      }
+      if (selectedHostId !== targetHostId) {
+        selectedHostId = targetHostId;
+      }
+
+      // 3. Sync Process State
+      const urlState = currentUrl.searchParams.get("state");
+      let targetState: ProcessState | null = null;
+      if (urlState !== null && (PROCESS_STATES as readonly string[]).includes(urlState)) {
+        targetState = urlState as ProcessState;
+      }
+      if (selectedProcessState !== targetState) {
+        selectedProcessState = targetState;
+      }
+
+      // 4. Sync Regex
+      const urlRegex = currentUrl.searchParams.get("regex") ?? "";
+      if (serviceRegex !== urlRegex) {
+        serviceRegex = urlRegex;
+      }
     });
   });
 </script>
