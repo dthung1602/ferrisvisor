@@ -11,7 +11,7 @@
   let formData = $state({
     name: "",
     description: "",
-    color: "#fff"
+    color: "#FFFFFF"
   } as NewGroup);
 
   async function handleSave() {

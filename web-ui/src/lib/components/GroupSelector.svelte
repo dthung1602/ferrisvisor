@@ -8,9 +8,10 @@
     groups: Group[];
     selectedGroupId: number | null;
     setSelectedGroupId: (groupId: number) => void;
+    transparent?: boolean;
   };
 
-  let { groups, selectedGroupId = null, setSelectedGroupId }: Props = $props();
+  let { groups, selectedGroupId = null, setSelectedGroupId, transparent = false }: Props = $props();
 
   let groupMenuOpen = $state(false);
   let groupSearch = $state("");
@@ -28,9 +29,10 @@
   positioning={{ placement: "bottom-start", gutter: 8, sameWidth: true }}
 >
   <Menu.Trigger
-    class="flex w-full items-center justify-between rounded-xl border-2 border-surface-200 bg-white
+    class="flex w-full items-center justify-between rounded-xl border-surface-200
      px-4 py-3 text-left text-sm transition-all hover:bg-surface-100/20 active:scale-[0.99]
-     dark:border-surface-700 dark:bg-surface-900 dark:hover:bg-surface-500/40"
+     dark:border-surface-700 dark:hover:bg-surface-500/40
+     {transparent ? 'border-none bg-surface-200/10 dark:bg-surface-600/40' : 'border-2 bg-white dark:bg-surface-900'}"
   >
     <span class="truncate {selectedGroupId === 0 ? 'text-surface-500/50' : ''}">
       {selectedGroupName}

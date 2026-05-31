@@ -5,35 +5,35 @@
 
   const COLOR_VARIANT_CLASSES: Record<ColorVariant, { text: string; from: string }> = {
     primary: {
-      text: "text-primary-300",
+      text: "text-primary-700-300",
       from: "from-primary-500/20"
     },
     secondary: {
-      text: "text-secondary-300",
+      text: "text-secondary-700-300",
       from: "from-secondary-500/20"
     },
     tertiary: {
-      text: "text-tertiary-300",
+      text: "text-tertiary-700-300",
       from: "from-tertiary-500/20"
     },
     success: {
-      text: "text-success-300",
+      text: "text-success-700-300",
       from: "from-success-500/20"
     },
     info: {
-      text: "text-info-300",
+      text: "text-info-700-300",
       from: "from-info-500/20"
     },
     warning: {
-      text: "text-warning-300",
+      text: "text-warning-700-300",
       from: "from-warning-500/20"
     },
     error: {
-      text: "text-error-300",
+      text: "text-error-700-300",
       from: "from-error-500/20"
     },
     surface: {
-      text: "text-surface-300",
+      text: "text-surface-700-300",
       from: "from-surface-500/20"
     }
   };
@@ -51,10 +51,10 @@
 </script>
 
 <div
-  class="group relative flex min-h-35 flex-col justify-between overflow-hidden rounded-xl border border-surface-500/10 bg-surface-50 p-5 backdrop-blur-sm transition-all hover:bg-surface-500/10 dark:bg-surface-950/80"
+  class="group relative flex min-h-35 flex-col justify-between overflow-hidden rounded-xl border border-surface-500/20 bg-white p-5 backdrop-blur-sm transition-all hover:bg-surface-500/10 dark:bg-surface-800/50"
 >
   <div
-    class="absolute inset-0 bg-linear-to-br {colors.from} to-transparent opacity-0 transition-opacity group-hover:opacity-100"
+    class="absolute inset-0 bg-linear-to-bl {colors.from} to-[rgba(255,255,255,0.50)] opacity-0 transition-opacity group-hover:opacity-100 dark:to-transparent"
   ></div>
 
   <div class="mb-2 flex items-start justify-between">

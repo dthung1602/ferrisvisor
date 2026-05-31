@@ -28,7 +28,8 @@
 
 <FloatingPanel defaultSize={{ width: 600, height: 500 }} onOpenChange={setOpen}>
   <FloatingPanel.Trigger
-    class="flex items-center justify-center gap-1.5 rounded-md p-1.5 px-2 transition-colors not-disabled:text-surface-900-100 not-disabled:hover:bg-surface-500/50 disabled:cursor-not-allowed disabled:text-surface-300"
+    class="flex items-center justify-center gap-1.5 rounded-md p-1.5 px-2 transition-colors not-disabled:bg-surface-500/10 not-disabled:text-surface-700-300
+          not-disabled:hover:bg-surface-500/20 disabled:cursor-not-allowed disabled:text-surface-300 dark:not-disabled:bg-surface-500/35 dark:not-disabled:hover:bg-surface-500/75"
   >
     <Logs size="16" /> Info
   </FloatingPanel.Trigger>

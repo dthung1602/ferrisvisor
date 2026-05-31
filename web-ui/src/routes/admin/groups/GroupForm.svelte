@@ -78,7 +78,7 @@
               bind:value={group.color}
             />
             <div
-              class="size-11 shrink-0 rounded-xl border border-surface-500/20"
+              class="size-11 shrink-0 rounded-xl border border-surface-200 dark:border-surface-700"
               style="background-color: {group.color || '#000000'}"
             ></div>
           </div>

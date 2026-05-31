@@ -2,29 +2,26 @@
   import { ChevronDown, Search } from "@lucide/svelte";
   import { Menu, Portal } from "@skeletonlabs/skeleton-svelte";
 
+  import { PROCESS_STATES, type ProcessState } from "$lib/constants";
+
   type Prop = {
-    hosts: { id: number; name: string }[];
-    selectedHostId: number | null;
-    setSelectedHostId: (hostId: number | null) => void;
+    selectedProcessState: ProcessState | null;
+    setSelectedProcessState: (state: ProcessState | null) => void;
   };
 
-  let { hosts, selectedHostId, setSelectedHostId }: Prop = $props();
+  let { selectedProcessState, setSelectedProcessState }: Prop = $props();
 
-  let selectedHostName = $derived(
-    selectedHostId === null ? "All Hosts" : hosts.find((h) => h.id === selectedHostId)?.name || "Unknown"
-  );
+  let stateMenuOpen = $state(false);
+  let stateSearch = $state("");
 
-  let hostMenuOpen = $state(false);
-  let hostSearch = $state("");
-
-  let filteredHosts = $derived(hosts.filter((h) => h.name.toLowerCase().includes(hostSearch.toLowerCase())));
+  let filteredStates = $derived(PROCESS_STATES.filter((s) => s.toLowerCase().includes(stateSearch.toLowerCase())));
 </script>
 
 <Menu
-  open={hostMenuOpen}
+  open={stateMenuOpen}
   onOpenChange={(e) => {
-    hostMenuOpen = e.open;
-    if (!e.open) hostSearch = "";
+    stateMenuOpen = e.open;
+    if (!e.open) stateSearch = "";
   }}
   positioning={{ placement: "bottom-start", gutter: 8, sameWidth: true }}
 >
@@ -33,10 +30,10 @@
      px-4 py-3 text-left text-sm transition-all hover:bg-surface-100/20 active:scale-[0.99]
      dark:border-surface-700 dark:bg-surface-900 dark:hover:bg-surface-500/40"
   >
-    <span class="truncate {selectedHostId === null ? 'text-surface-800-200' : ''}">
-      {selectedHostName}
+    <span class="truncate {selectedProcessState === null ? 'text-surface-800-200' : ''}">
+      {selectedProcessState || "All States"}
     </span>
-    <ChevronDown class="size-4 shrink-0 transition-transform {hostMenuOpen ? 'rotate-180' : ''}" />
+    <ChevronDown class="size-4 shrink-0 transition-transform {stateMenuOpen ? 'rotate-180' : ''}" />
   </Menu.Trigger>
   <Portal>
     <Menu.Positioner>
@@ -48,53 +45,53 @@
             <Search class="pointer-events-none absolute top-1/2 left-3 size-3 -translate-y-1/2 opacity-40" />
             <input
               type="text"
-              bind:value={hostSearch}
-              placeholder="Filter hosts..."
+              bind:value={stateSearch}
+              placeholder="Filter states..."
               class="w-full rounded-xl border border-surface-200 bg-white py-1.5 pr-3 pl-8 text-xs shadow-inner focus:ring-2 focus:ring-primary-500/50 focus:outline-none dark:border-surface-700 dark:bg-surface-900"
               onclick={(e) => e.stopPropagation()}
             />
           </div>
         </div>
 
-        <div class="max-h-96 overflow-y-auto">
-          {#if "all hosts".includes(hostSearch.toLowerCase())}
+        <div class="max-h-118 overflow-y-auto">
+          {#if "all states".includes(stateSearch.toLowerCase())}
             <Menu.OptionItem
               type="radio"
               value="null"
-              checked={selectedHostId === null}
+              checked={selectedProcessState === null}
               onCheckedChange={() => {
-                setSelectedHostId(null);
-                hostSearch = "";
+                setSelectedProcessState(null);
+                stateSearch = "";
               }}
               class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-100/20 data-[state=checked]:bg-surface-500/10 dark:hover:bg-surface-500/40"
             >
-              <Menu.ItemText class="text-sm font-medium">All Hosts</Menu.ItemText>
+              <Menu.ItemText class="text-sm font-medium">All States</Menu.ItemText>
               <Menu.ItemIndicator>
                 <div class="h-1.5 w-1.5 rounded-full bg-current"></div>
               </Menu.ItemIndicator>
             </Menu.OptionItem>
           {/if}
-          {#each filteredHosts as host (host.id)}
+          {#each filteredStates as state (state)}
             <Menu.OptionItem
               type="radio"
-              value={host.id.toString()}
-              checked={selectedHostId === host.id}
+              value={state}
+              checked={selectedProcessState === state}
               onCheckedChange={(checked) => {
                 if (checked) {
-                  setSelectedHostId(host.id);
-                  hostSearch = "";
+                  setSelectedProcessState(state);
+                  stateSearch = "";
                 }
               }}
               class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-100/20 data-[state=checked]:bg-surface-500/10 dark:hover:bg-surface-500/40"
             >
-              <Menu.ItemText class="text-sm font-medium">{host.name}</Menu.ItemText>
+              <Menu.ItemText class="text-sm font-medium">{state}</Menu.ItemText>
               <Menu.ItemIndicator>
                 <div class="h-1.5 w-1.5 rounded-full bg-current"></div>
               </Menu.ItemIndicator>
             </Menu.OptionItem>
           {/each}
-          {#if filteredHosts.length === 0 && !hostSearch.toLowerCase().includes("all hosts")}
-            <div class="px-4 py-8 text-center text-xs italic opacity-30">No hosts match search</div>
+          {#if filteredStates.length === 0 && !stateSearch.toLowerCase().includes("all states")}
+            <div class="px-4 py-8 text-center text-xs italic opacity-30">No states match search</div>
           {/if}
         </div>
       </Menu.Content>

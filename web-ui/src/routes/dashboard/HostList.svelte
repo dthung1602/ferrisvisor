@@ -146,15 +146,15 @@
 
       <Accordion.Item
         value={host.id.toString()}
-        class="gap-0 overflow-hidden rounded-xl border border-surface-500/50 bg-surface-200-800 shadow-2xl"
+        class="gap-0 overflow-hidden rounded-xl border border-surface-200/30 bg-white shadow-lg dark:bg-surface-800"
       >
         <Accordion.ItemTrigger
-          class="flex w-full items-center justify-between border-l-4 border-secondary-500 p-4 text-left transition-colors hover:bg-surface-500/20
+          class="flex w-full items-center justify-between border-l-4 border-secondary-500 p-4 text-left transition-colors hover:bg-surface-100/20 dark:hover:bg-surface-500/40
                  {isOpen ? 'rounded-bl-none' : ''}"
         >
           <div class="flex flex-wrap items-center gap-6">
             <div class="flex items-center gap-4">
-              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface-500/30">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
                 <Server class="text-secondary-700-300" size="24" />
               </div>
               <div>
@@ -188,30 +188,32 @@
               <div
                 {...attributes}
                 transition:slide={{ duration: 150 }}
-                class="overflow-x-auto border-t border-surface-500/50 bg-surface-100-900/60 p-4"
+                class="overflow-x-auto border-t border-surface-500/50 p-4"
               >
                 <table class="table w-full border-collapse text-left">
                   <!--  Table Header  -->
                   <thead>
                     <tr
-                      class="border-b border-surface-500/50 bg-surface-300-700/50 text-xs font-black tracking-widest text-surface-900-100 uppercase"
+                      class="border-b border-surface-500/30 text-xs tracking-widest text-surface-900-100 uppercase dark:border-surface-200/30"
                     >
                       {#each columns as column (column.label)}
                         {#if column.visible}
                           {#if column.id === "actions"}
                             <th class="px-4 py-3 text-right">
-                              <div class="flex items-center justify-end gap-2">
+                              <div class="flex items-center justify-end gap-2 font-bold">
                                 {column.label}
                                 <button
                                   onclick={() => (columnConfigOpen = true)}
-                                  class="rounded p-1 text-surface-500 transition-colors hover:bg-surface-500/10 hover:text-primary-500"
+                                  class="rounded p-1 transition-colors hover:bg-surface-500/10 hover:text-primary-500"
                                 >
                                   <Columns2 size="14" />
                                 </button>
                               </div>
                             </th>
                           {:else}
-                            <th class="px-4 py-3">{column.label}</th>
+                            <th class="px-4 py-3">
+                              <span class="font-bold">{column.label}</span>
+                            </th>
                           {/if}
                         {/if}
                       {/each}
@@ -229,7 +231,9 @@
                       {@const proFullName = fullProcessName(process)}
                       {@const isProcessInAction = processInActionMap.get(processHostKey(host.id, proFullName)) ?? false}
 
-                      <tr class="group border-b border-surface-500/5 transition-colors hover:bg-surface-500/5">
+                      <tr
+                        class="group border-b border-b-surface-100/40! transition-colors hover:bg-surface-500/5 dark:border-b-surface-500/40! dark:hover:bg-surface-500/20"
+                      >
                         {#each columns as column (column.id)}
                           {#if column.visible}
                             <!-- Process Name -->
@@ -264,12 +268,12 @@
 
                               <td class="px-4 py-3 text-right">
                                 <div
-                                  class="flex items-center justify-end gap-1 opacity-70 transition-opacity group-hover:opacity-100"
+                                  class="flex items-center justify-end gap-3 opacity-70 transition-opacity group-hover:opacity-100"
                                 >
                                   {#if action === "stop"}
                                     <button
                                       disabled={isProcessInAction}
-                                      class="{btnCls} not-disabled:text-error-500 not-disabled:hover:bg-error-500/20"
+                                      class="{btnCls} not-disabled:bg-error-500/40 not-disabled:text-error-700-300 not-disabled:hover:bg-error-500/60 dark:not-disabled:bg-error-500/10 dark:not-disabled:hover:bg-error-500/20"
                                       onclick={() => handleProcessAction("stop", req)}
                                     >
                                       <Square size="16" /> Stop
@@ -277,7 +281,7 @@
                                   {:else if action === "start"}
                                     <button
                                       disabled={isProcessInAction}
-                                      class="{btnCls} not-disabled:text-success-500 not-disabled:hover:bg-success-500/20"
+                                      class="{btnCls} not-disabled:bg-success-500/40 not-disabled:text-success-700-300 not-disabled:hover:bg-success-500/60 dark:not-disabled:bg-success-500/10 dark:not-disabled:hover:bg-success-500/20"
                                       onclick={() => handleProcessAction("start", req)}
                                     >
                                       <Play size="16" /> Start
@@ -286,7 +290,7 @@
 
                                   <button
                                     disabled={isProcessInAction}
-                                    class="{btnCls} not-disabled:text-primary-500 not-disabled:hover:bg-primary-500/20"
+                                    class="{btnCls} not-disabled:bg-primary-500/40 not-disabled:text-primary-700-300 not-disabled:hover:bg-primary-500/60 dark:not-disabled:bg-primary-500/10 dark:not-disabled:hover:bg-primary-500/20"
                                     onclick={() => handleProcessAction("restart", req)}
                                   >
                                     <RotateCcw size="16" /> Restart

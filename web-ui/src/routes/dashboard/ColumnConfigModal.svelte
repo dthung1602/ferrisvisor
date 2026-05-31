@@ -47,7 +47,7 @@
     <Dialog.Backdrop class="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm" />
     <Dialog.Positioner class="fixed inset-0 z-100 flex items-center justify-center p-4">
       <Dialog.Content
-        class="w-full max-w-md overflow-hidden rounded-xl border border-surface-500/20 bg-surface-100-900 shadow-2xl"
+        class="w-full max-w-md overflow-hidden rounded-xl border border-surface-500/20 bg-white shadow-2xl dark:bg-surface-800"
       >
         <div class="flex items-center justify-between border-b border-surface-500/10 px-6 py-4">
           <Dialog.Title class="text-lg font-bold tracking-tight">Configure Columns</Dialog.Title>
@@ -73,9 +73,9 @@
               >
                 <div class="flex items-center gap-3">
                   {#if col.locked}
-                    <Lock size="16" class="text-surface-500" />
+                    <Lock size="16" class="text-surface-500 dark:text-surface-100" />
                   {:else}
-                    <GripVertical size="16" class="text-surface-500" />
+                    <GripVertical size="16" class="text-surface-500 dark:text-surface-100" />
                   {/if}
                   <label class="flex items-center gap-3 {col.locked ? 'cursor-not-allowed' : 'cursor-pointer'}">
                     <input type="checkbox" bind:checked={col.visible} disabled={col.locked} class="checkbox" />
