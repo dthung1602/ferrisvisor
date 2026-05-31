@@ -24,6 +24,8 @@
     serviceRegex: string | null;
     selectedProcessState: ProcessState | null;
     refreshAllProcessInfo: () => void;
+    selectedProcesses: ProcessActionRequest[];
+    openHostIds: string[];
   };
 
   let {
@@ -34,8 +36,39 @@
     selectedHostId,
     serviceRegex,
     selectedProcessState,
-    refreshAllProcessInfo
+    refreshAllProcessInfo,
+    selectedProcesses = $bindable([]),
+    openHostIds = $bindable([])
   }: Props = $props();
+
+  function isProcessSelected(hostId: number, processName: string): boolean {
+    return selectedProcesses.some((p) => p.host_id === hostId && p.process_name === processName);
+  }
+
+  function toggleProcessSelection(hostId: number, processName: string) {
+    if (isProcessSelected(hostId, processName)) {
+      selectedProcesses = selectedProcesses.filter((p) => !(p.host_id === hostId && p.process_name === processName));
+    } else {
+      selectedProcesses = [...selectedProcesses, { host_id: hostId, process_name: processName }];
+    }
+  }
+
+  function toggleSelectAllForHost(hostId: number, filteredProcs: ProcessInfo[]) {
+    const procFullNames = filteredProcs.map((p) => fullProcessName(p));
+    const areAllSelected =
+      filteredProcs.length > 0 && filteredProcs.every((p) => isProcessSelected(hostId, fullProcessName(p)));
+
+    if (areAllSelected) {
+      selectedProcesses = selectedProcesses.filter(
+        (p) => !(p.host_id === hostId && procFullNames.includes(p.process_name))
+      );
+    } else {
+      const toAdd = filteredProcs
+        .filter((p) => !isProcessSelected(hostId, fullProcessName(p)))
+        .map((p) => ({ host_id: hostId, process_name: fullProcessName(p) }));
+      selectedProcesses = [...selectedProcesses, ...toAdd];
+    }
+  }
 
   let processInActionMap = new SvelteMap<string, boolean>();
 
@@ -131,9 +164,6 @@
       );
     });
   });
-
-  // Initialize all visible hosts as open
-  let openHostIds = $derived(filteredHosts.map((h) => h.id.toString()));
 </script>
 
 <div class="space-y-6">
@@ -210,6 +240,27 @@
                                 </button>
                               </div>
                             </th>
+                          {:else if column.id === "process"}
+                            {@const areAllFilteredSelected =
+                              filteredProcesses.length > 0 &&
+                              filteredProcesses.every((p) => isProcessSelected(host.id, fullProcessName(p)))}
+                            <th
+                              onclick={() => toggleSelectAllForHost(host.id, filteredProcesses)}
+                              class="cursor-pointer px-4 py-3 transition-colors select-none hover:bg-surface-500/5 dark:hover:bg-surface-500/10"
+                            >
+                              <div class="flex items-center gap-3">
+                                <input
+                                  type="checkbox"
+                                  checked={areAllFilteredSelected}
+                                  onclick={(e) => {
+                                    e.stopPropagation();
+                                    toggleSelectAllForHost(host.id, filteredProcesses);
+                                  }}
+                                  class="checkbox size-4 cursor-pointer rounded border-2 border-surface-300 bg-white transition-all checked:border-none focus:ring-2 focus:ring-primary-500 dark:border-surface-600 dark:bg-surface-900"
+                                />
+                                <span class="font-bold">{column.label}</span>
+                              </div>
+                            </th>
                           {:else}
                             <th class="px-4 py-3">
                               <span class="font-bold">{column.label}</span>
@@ -230,16 +281,32 @@
                       {@const action = STATE_ACTION_MAP[process.statename]}
                       {@const proFullName = fullProcessName(process)}
                       {@const isProcessInAction = processInActionMap.get(processHostKey(host.id, proFullName)) ?? false}
+                      {@const isSelected = isProcessSelected(host.id, proFullName)}
 
                       <tr
-                        class="group border-b border-b-surface-100/40! transition-colors hover:bg-surface-500/5 dark:border-b-surface-500/40! dark:hover:bg-surface-500/20"
+                        onclick={() => toggleProcessSelection(host.id, proFullName)}
+                        class="group cursor-pointer border-b border-b-surface-100/40! transition-colors dark:border-b-surface-500/40!
+                               {isSelected
+                          ? 'bg-primary-500/10 hover:bg-primary-500/15 dark:bg-primary-500/20 dark:hover:bg-primary-500/25'
+                          : 'hover:bg-surface-500/5 dark:hover:bg-surface-500/20'}"
                       >
                         {#each columns as column (column.id)}
                           {#if column.visible}
                             <!-- Process Name -->
                             {#if column.id === "process"}
                               <td class="px-4 py-3 font-medium {isFatal ? 'text-error-500' : 'text-surface-900-100'}">
-                                {process.name}
+                                <div class="flex items-center gap-3">
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onclick={(e) => {
+                                      e.stopPropagation();
+                                      toggleProcessSelection(host.id, proFullName);
+                                    }}
+                                    class="checkbox size-4 cursor-pointer rounded border-2 border-surface-300 bg-white transition-all checked:border-none focus:ring-2 focus:ring-primary-500 dark:border-surface-600 dark:bg-surface-900"
+                                  />
+                                  <span>{process.name}</span>
+                                </div>
                               </td>
 
                               <!-- Process State -->
@@ -274,7 +341,10 @@
                                     <button
                                       disabled={isProcessInAction}
                                       class="{btnCls} not-disabled:bg-error-500/40 not-disabled:text-error-700-300 not-disabled:hover:bg-error-500/60 dark:not-disabled:bg-error-500/10 dark:not-disabled:hover:bg-error-500/20"
-                                      onclick={() => handleProcessAction("stop", req)}
+                                      onclick={(e) => {
+                                        e.stopPropagation();
+                                        handleProcessAction("stop", req);
+                                      }}
                                     >
                                       <Square size="16" /> Stop
                                     </button>
@@ -282,7 +352,10 @@
                                     <button
                                       disabled={isProcessInAction}
                                       class="{btnCls} not-disabled:bg-success-500/40 not-disabled:text-success-700-300 not-disabled:hover:bg-success-500/60 dark:not-disabled:bg-success-500/10 dark:not-disabled:hover:bg-success-500/20"
-                                      onclick={() => handleProcessAction("start", req)}
+                                      onclick={(e) => {
+                                        e.stopPropagation();
+                                        handleProcessAction("start", req);
+                                      }}
                                     >
                                       <Play size="16" /> Start
                                     </button>
@@ -291,11 +364,18 @@
                                   <button
                                     disabled={isProcessInAction}
                                     class="{btnCls} not-disabled:bg-primary-500/40 not-disabled:text-primary-700-300 not-disabled:hover:bg-primary-500/60 dark:not-disabled:bg-primary-500/10 dark:not-disabled:hover:bg-primary-500/20"
-                                    onclick={() => handleProcessAction("restart", req)}
+                                    onclick={(e) => {
+                                      e.stopPropagation();
+                                      handleProcessAction("restart", req);
+                                    }}
                                   >
                                     <RotateCcw size="16" /> Restart
                                   </button>
-                                  <ProcessPopup {process} {host} />
+                                  <!-- svelte-ignore a11y_click_events_have_key_events -->
+                                  <!-- svelte-ignore a11y_no_static_element_interactions -->
+                                  <span onclick={(e) => e.stopPropagation()}>
+                                    <ProcessPopup {process} {host} />
+                                  </span>
                                 </div>
                               </td>
                             {/if}

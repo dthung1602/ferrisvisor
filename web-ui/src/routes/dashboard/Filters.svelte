@@ -1,23 +1,34 @@
 <script lang="ts">
-  import { ListFilter, Search } from "@lucide/svelte";
+  import { Search } from "@lucide/svelte";
 
   import type { Host } from "$lib/api/host";
+  import type { ProcessActionRequest, ProcessInfo } from "$lib/api/process";
   import HostSelector from "$lib/components/HostSelector.svelte";
   import StateSelector from "$lib/components/StateSelector.svelte";
   import type { ProcessState } from "$lib/constants";
+
+  import BulkAction from "./BulkAction.svelte";
 
   type Prop = {
     selectedHostId: number | null;
     selectedProcessState: ProcessState | null;
     serviceRegex: string;
     hosts: Host[];
+    selectedProcesses: ProcessActionRequest[];
+    processInfoByHost: Map<number, ProcessInfo[]>;
+    refreshAllProcessInfo: () => void;
+    setAllHostPanelCollapseState: (collapsed: boolean) => void;
   };
 
   let {
     selectedHostId = $bindable(null),
     selectedProcessState = $bindable(null),
     serviceRegex = $bindable(""),
-    hosts
+    hosts,
+    selectedProcesses = $bindable([]),
+    processInfoByHost,
+    refreshAllProcessInfo,
+    setAllHostPanelCollapseState
   }: Prop = $props();
 </script>
 
@@ -44,10 +55,5 @@
   </div>
 
   <!-- Bulk Action -->
-  <button
-    class="flex items-center justify-center gap-2 rounded-xl border-2 border-surface-200 bg-white px-4 py-3 text-sm font-medium transition-all hover:bg-surface-100/20 active:scale-[0.99] md:col-span-2 lg:col-auto lg:ml-auto lg:shrink-0 dark:border-surface-700 dark:bg-surface-900 dark:hover:bg-surface-500/40"
-  >
-    <ListFilter class="size-4" />
-    Bulk Action
-  </button>
+  <BulkAction bind:selectedProcesses {processInfoByHost} {refreshAllProcessInfo} {setAllHostPanelCollapseState} />
 </div>

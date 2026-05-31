@@ -11,7 +11,7 @@
 
   import type { Group } from "$lib/api/group";
   import type { Host } from "$lib/api/host";
-  import type { ProcessInfo, ProcessResponse } from "$lib/api/process";
+  import type { ProcessActionRequest, ProcessInfo, ProcessResponse } from "$lib/api/process";
   import { PROCESS_STATES, type ProcessState } from "$lib/constants";
 
   import ColumnConfigModal from "./ColumnConfigModal.svelte";
@@ -98,6 +98,7 @@
 
   let hosts: Host[] = $state([]);
   let processInfoByHost = $state(new Map<number, ProcessInfo[]>());
+  let selectedProcesses = $state<ProcessActionRequest[]>([]);
 
   let columnConfigOpen = $state(false);
 
@@ -190,6 +191,58 @@
     });
   }
 
+  let openHostIds = $state<string[]>([]);
+
+  let filteredHostIds = $derived.by(() => {
+    return hosts
+      .filter((host) => {
+        const hostProcesses = processInfoByHost.get(host.id) ?? [];
+
+        // Match process filters
+        const filteredProcesses = hostProcesses.filter((p) => {
+          if (serviceRegex && !p.name.match(serviceRegex)) {
+            return false;
+          }
+          if (selectedProcessState && p.statename !== selectedProcessState) {
+            return false;
+          }
+          return true;
+        });
+
+        // Compute host stats to see if any processes match the state filter
+        const stats = Object.fromEntries(PROCESS_STATES.map((state) => [state, 0])) as Record<ProcessState, number>;
+        for (let process of hostProcesses) {
+          stats[process.statename]++;
+        }
+
+        return (
+          (!selectedHostId || selectedHostId === host.id) &&
+          (!selectedProcessState || stats[selectedProcessState] > 0) &&
+          filteredProcesses.length > 0
+        );
+      })
+      .map((h) => h.id.toString());
+  });
+
+  let lastFilteredIds: string[] = [];
+  $effect(() => {
+    if (
+      filteredHostIds.length !== lastFilteredIds.length ||
+      !filteredHostIds.every((id, idx) => id === lastFilteredIds[idx])
+    ) {
+      openHostIds = [...filteredHostIds];
+      lastFilteredIds = [...filteredHostIds];
+    }
+  });
+
+  function setAllHostPanelCollapseState(collapsed: boolean) {
+    if (collapsed) {
+      openHostIds = [];
+    } else {
+      openHostIds = [...filteredHostIds];
+    }
+  }
+
   // fetch data when filter changes
   $effect(() => {
     if (!isInitialized) return;
@@ -205,6 +258,7 @@
     const gId = selectedGroupId;
 
     untrack(() => {
+      selectedProcesses = [];
       api.host.list(gId).then((data) => {
         hosts = data;
         if (isFirstHostLoad) {
@@ -335,7 +389,16 @@
   </div>
 
   <!-- Filters & Selectors -->
-  <Filters {hosts} bind:serviceRegex bind:selectedProcessState bind:selectedHostId />
+  <Filters
+    {hosts}
+    bind:serviceRegex
+    bind:selectedProcessState
+    bind:selectedHostId
+    bind:selectedProcesses
+    {processInfoByHost}
+    {refreshAllProcessInfo}
+    {setAllHostPanelCollapseState}
+  />
 
   <!-- Host List -->
   <HostList
@@ -347,6 +410,8 @@
     {serviceRegex}
     {selectedProcessState}
     {refreshAllProcessInfo}
+    bind:selectedProcesses
+    bind:openHostIds
   />
 </div>
 

@@ -202,6 +202,8 @@ where
         }
     };
 
+    // TODO CHECK if action is allowed for the current process status
+
     // TODO req async
     for req in requests {
         let host = match host_map.get(&req.host_id) {
@@ -249,7 +251,7 @@ where
     }
 
     use tokio::time::sleep;
-    sleep(std::time::Duration::from_secs(15)).await;
+    sleep(std::time::Duration::from_millis(250)).await;
 
     results
 }
@@ -302,15 +304,15 @@ pub async fn restart(
         }
     }
 
-    let start_results = perform_action(&state, &user, to_restart, |server, name| async move {
+    let mut start_results = perform_action(&state, &user, to_restart, |server, name| async move {
         server.start_process(&name, true).await
     })
-    .await;
+    .await.into_iter();
 
     let mut result = Vec::with_capacity(requests.len());
     for (i, res) in stop_result.into_iter().enumerate() {
         if success.contains(&i) {
-            result.push(start_results[i].clone());
+            result.push(start_results.next().unwrap());
         } else {
             result.push(res);
         }

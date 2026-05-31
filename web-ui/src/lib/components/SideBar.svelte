@@ -27,7 +27,7 @@
   class="relative z-40 border-r border-surface-200/40 bg-white/85 shadow-md backdrop-blur-xl transition-all duration-300 dark:border-surface-800 dark:bg-surface-950/40 dark:shadow-none
         {isSidebarOpen ? 'w-70' : 'w-21'}"
 >
-  <Navigation layout="sidebar" class="h-full border-none bg-transparent">
+  <Navigation layout="sidebar" class="h-full w-full border-none bg-transparent">
     <Navigation.Header class="pb-6">
       <div class="flex items-center gap-3 overflow-hidden">
         <div
