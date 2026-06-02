@@ -12,7 +12,7 @@
   import { PROCESS_STATES, type ProcessState } from "$lib/constants";
   import { toaster } from "$lib/toaster";
 
-  import { STATE_ACTION_MAP, STATE_COLOR_MAP, type ProcessColumn } from "./common.ts";
+  import { filterProcesses, isHostMatching, STATE_ACTION_MAP, STATE_COLOR_MAP, type ProcessColumn } from "./common.ts";
   import ProcessPopup from "./ProcessPopup.svelte";
 
   type Props = {
@@ -74,18 +74,6 @@
 
   function processHostKey(hostId: number, proFullName: string) {
     return `${hostId}:${proFullName}`;
-  }
-
-  function getFilterProcesses(processes: ProcessInfo[]) {
-    return processes.filter((p) => {
-      if (serviceRegex && !p.name.match(serviceRegex)) {
-        return false;
-      }
-      if (selectedProcessState && p.statename !== selectedProcessState) {
-        return false;
-      }
-      return true;
-    });
   }
 
   function summarizeHostStats(processes: ProcessInfo[]): Record<ProcessState, number> {
@@ -154,14 +142,7 @@
   let filteredHosts = $derived.by(() => {
     return hosts.filter((host) => {
       const hostProcesses = processInfoByHost.get(host.id) ?? [];
-      const hostStats = summarizeHostStats(hostProcesses);
-      const filteredProcesses = getFilterProcesses(hostProcesses);
-
-      return (
-        (!selectedHostId || selectedHostId === host.id) &&
-        (!selectedProcessState || hostStats[selectedProcessState] > 0) &&
-        filteredProcesses.length > 0
-      );
+      return isHostMatching(host, hostProcesses, selectedHostId, selectedProcessState, serviceRegex);
     });
   });
 </script>
@@ -171,7 +152,7 @@
     {#each filteredHosts as host (host.id)}
       {@const hostProcesses = processInfoByHost.get(host.id) ?? []}
       {@const hostStats = summarizeHostStats(hostProcesses)}
-      {@const filteredProcesses = getFilterProcesses(hostProcesses)}
+      {@const filteredProcesses = filterProcesses(hostProcesses, serviceRegex, selectedProcessState)}
       {@const isOpen = openHostIds.includes(host.id.toString())}
 
       <Accordion.Item

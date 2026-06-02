@@ -15,7 +15,7 @@
   import { PROCESS_STATES, type ProcessState } from "$lib/constants";
 
   import ColumnConfigModal from "./ColumnConfigModal.svelte";
-  import type { ProcessColumn } from "./common.ts";
+  import { isHostMatching, type ProcessColumn } from "./common.ts";
   import Filters from "./Filters.svelte";
   import GroupCard from "./GroupCard.svelte";
   import HostList from "./HostList.svelte";
@@ -197,29 +197,7 @@
     return hosts
       .filter((host) => {
         const hostProcesses = processInfoByHost.get(host.id) ?? [];
-
-        // Match process filters
-        const filteredProcesses = hostProcesses.filter((p) => {
-          if (serviceRegex && !p.name.match(serviceRegex)) {
-            return false;
-          }
-          if (selectedProcessState && p.statename !== selectedProcessState) {
-            return false;
-          }
-          return true;
-        });
-
-        // Compute host stats to see if any processes match the state filter
-        const stats = Object.fromEntries(PROCESS_STATES.map((state) => [state, 0])) as Record<ProcessState, number>;
-        for (let process of hostProcesses) {
-          stats[process.statename]++;
-        }
-
-        return (
-          (!selectedHostId || selectedHostId === host.id) &&
-          (!selectedProcessState || stats[selectedProcessState] > 0) &&
-          filteredProcesses.length > 0
-        );
+        return isHostMatching(host, hostProcesses, selectedHostId, selectedProcessState, serviceRegex);
       })
       .map((h) => h.id.toString());
   });

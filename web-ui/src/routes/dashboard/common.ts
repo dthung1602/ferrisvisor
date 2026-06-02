@@ -1,3 +1,7 @@
+import type { Host } from "$lib/api/host";
+import type { ProcessInfo } from "$lib/api/process";
+import type { ProcessState } from "$lib/constants";
+
 export type ColumnId = "process" | "state" | "pid" | "last_changed" | "actions";
 
 export type ProcessColumn = {
@@ -52,3 +56,30 @@ export const STATE_ACTION_MAP = {
   FATAL: "start",
   UNKNOWN: "start"
 };
+
+export function filterProcesses(
+  processes: ProcessInfo[],
+  serviceRegex: string | null,
+  selectedProcessState: ProcessState | null
+): ProcessInfo[] {
+  return processes.filter((p) => {
+    if (serviceRegex && !p.name.match(serviceRegex)) {
+      return false;
+    }
+    return !(selectedProcessState && p.statename !== selectedProcessState);
+  });
+}
+
+export function isHostMatching(
+  host: Host,
+  hostProcesses: ProcessInfo[],
+  selectedHostId: number | null,
+  selectedProcessState: ProcessState | null,
+  serviceRegex: string | null
+): boolean {
+  if (selectedHostId && host.id !== selectedHostId) {
+    return false;
+  }
+  const filtered = filterProcesses(hostProcesses, serviceRegex, selectedProcessState);
+  return filtered.length > 0;
+}

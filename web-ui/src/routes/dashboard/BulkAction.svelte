@@ -1,26 +1,45 @@
 <script lang="ts">
-  import { ChevronsDownUp, ChevronsUpDown, ListFilter, Play, RotateCcw, Square, X } from "@lucide/svelte";
+  import {
+    ChevronsDownUp,
+    ChevronsUpDown,
+    ListFilter,
+    Play,
+    RotateCcw,
+    Square,
+    SquareCheckBig,
+    X
+  } from "@lucide/svelte";
   import { Menu, Portal, Progress } from "@skeletonlabs/skeleton-svelte";
   import { api } from "$lib";
 
+  import type { Host } from "$lib/api/host";
   import type { ProcessAction, ProcessActionRequest, ProcessInfo } from "$lib/api/process";
+  import { fullProcessName } from "$lib/common";
   import type { ProcessState } from "$lib/constants";
   import { toaster } from "$lib/toaster";
 
-  import { STATE_ACTION_MAP } from "./common.ts";
+  import { filterProcesses, isHostMatching, STATE_ACTION_MAP } from "./common.ts";
 
   type Props = {
     selectedProcesses: ProcessActionRequest[];
     processInfoByHost: Map<number, ProcessInfo[]>;
     refreshAllProcessInfo: () => void;
     setAllHostPanelCollapseState: (collapsed: boolean) => void;
+    selectedHostId: number | null;
+    selectedProcessState: ProcessState | null;
+    serviceRegex: string;
+    hosts: Host[];
   };
 
   let {
     selectedProcesses = $bindable([]),
     processInfoByHost,
     refreshAllProcessInfo,
-    setAllHostPanelCollapseState
+    setAllHostPanelCollapseState,
+    selectedHostId,
+    selectedProcessState,
+    serviceRegex,
+    hosts
   }: Props = $props();
 
   let actionInProgress = $state(false);
@@ -129,13 +148,33 @@
     selectedProcesses = [];
   }
 
+  function handleSelectAll() {
+    const allFiltered: ProcessActionRequest[] = [];
+
+    for (const host of hosts) {
+      const hostProcesses = processInfoByHost.get(host.id) ?? [];
+      if (isHostMatching(host, hostProcesses, selectedHostId, selectedProcessState, serviceRegex)) {
+        const filteredProcesses = filterProcesses(hostProcesses, serviceRegex, selectedProcessState);
+        for (const p of filteredProcesses) {
+          allFiltered.push({
+            host_id: host.id,
+            process_name: fullProcessName(p)
+          });
+        }
+      }
+    }
+
+    selectedProcesses = allFiltered;
+  }
+
   const ACTIONS = {
     collapse: handleCollapseAll,
     expand: handleExpandAll,
     start: handleStart,
     restart: handleRestart,
     stop: handleStop,
-    unselect: handleUnselect
+    unselect: handleUnselect,
+    select_all: handleSelectAll
   };
   function handleSelectAction(detail: { value: string }) {
     ACTIONS[detail.value as keyof typeof ACTIONS]();
@@ -179,6 +218,14 @@
         >
           <Menu.ItemText class="flex items-center gap-2 text-sm font-medium">
             <ChevronsUpDown size="16" /> Expand all hosts
+          </Menu.ItemText>
+        </Menu.Item>
+        <Menu.Item
+          value="select_all"
+          class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-100/20 data-[state=checked]:bg-surface-500/10 dark:hover:bg-surface-500/40"
+        >
+          <Menu.ItemText class="flex items-center gap-2 text-sm font-medium">
+            <SquareCheckBig size="16" /> Select everything
           </Menu.ItemText>
         </Menu.Item>
         <Menu.Item

@@ -55,5 +55,14 @@
   </div>
 
   <!-- Bulk Action -->
-  <BulkAction bind:selectedProcesses {processInfoByHost} {refreshAllProcessInfo} {setAllHostPanelCollapseState} />
+  <BulkAction
+    bind:selectedProcesses
+    {processInfoByHost}
+    {refreshAllProcessInfo}
+    {setAllHostPanelCollapseState}
+    {selectedHostId}
+    {selectedProcessState}
+    {serviceRegex}
+    {hosts}
+  />
 </div>
