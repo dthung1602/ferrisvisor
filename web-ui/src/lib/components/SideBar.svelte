@@ -74,7 +74,7 @@
 
         <Navigation.Menu>
           <Navigation.TriggerAnchor
-            href="#"
+            href={resolve("/settings")}
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-surface-600-400 transition-all
                  hover:bg-surface-400/10 hover:text-surface-800-200 active:scale-95
                    {isSidebarOpen ? '' : 'w-13'}"

@@ -355,9 +355,10 @@
 
   // Refresh process info every 10 seconds
   $effect(() => {
-    const interval = window.setInterval(refreshAllProcessInfo, 10_000);
+    const refreshRate = localstorage.get(localstorage.REFRESH_RATE, 10);
+    const interval = window.setInterval(refreshAllProcessInfo, refreshRate * 1000);
     return () => window.clearInterval(interval);
-  })
+  });
 </script>
 
 <div class="space-y-8 pb-24">
