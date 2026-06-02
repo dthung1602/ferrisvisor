@@ -352,6 +352,12 @@
       }
     });
   });
+
+  // Refresh process info every 10 seconds
+  $effect(() => {
+    const interval = window.setInterval(refreshAllProcessInfo, 10_000);
+    return () => window.clearInterval(interval);
+  })
 </script>
 
 <div class="space-y-8 pb-24">
@@ -395,7 +401,3 @@
 
 <!-- Column Configuration Modal -->
 <ColumnConfigModal bind:open={columnConfigOpen} bind:columns />
-
-<style>
-  @reference '../layout.css';
-</style>
